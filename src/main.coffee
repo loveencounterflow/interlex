@@ -65,7 +65,7 @@ class Lexeme
     @stop         = @start + @hit.length
     @groups       = match.groups ? null
     @jump         = token.jump
-    @jump_spec = token.jump_spec
+    @jump_spec    = token.jump_spec
     return undefined
 
 
