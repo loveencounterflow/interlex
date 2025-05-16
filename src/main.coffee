@@ -15,7 +15,7 @@
 rx    = regex 'y'
 
 #===========================================================================================================
-jump_literal_re = regex"""
+_jump_literal_re = regex"""
   ^(
   \[ (?<exclusive_jump> [^ \^ . \s \[ \] ]+ )     |
      (?<inclusive_jump> [^ \^ . \s \[ \] ]+ ) \[  |
@@ -47,7 +47,7 @@ class Token
   parse_jump: ( jump_literal ) ->
     return null unless jump_literal?
     ### TAINT use cleartype ###
-    unless ( match = jump_literal.match jump_literal_re )?
+    unless ( match = jump_literal.match _jump_literal_re )?
       throw new Error "Ω___2 expected a well-formed jump literal, got #{rpr jump_literal}"
     for key, level_name of match.groups
       continue unless level_name?
@@ -124,12 +124,13 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   tokenize: ( source ) ->
+    { f } = require '../../effstring'
     start   = 0
     info 'Ω___8', rpr source
     level   = @start
     loop
       lexeme  = null
-      for token from gnd
+      for token from @levels.gnd
         break if ( lexeme = token.match_at start, source )?
       break unless lexeme?
       { name
@@ -155,63 +156,11 @@ class Grammar
 
   ###
 
-demo = ->
-  { f } = require '../../effstring'
-  #===========================================================================================================
-  show_jump = ( jump_literal ) ->
-    if ( match = jump_literal.match jump_literal_re  )?
-      for key, value of match.groups
-        continue unless value?
-        info 'Ω__10', ( rpr jump_literal ), ( GUY.trm.grey key ), ( rpr value )
-    else
-      info 'Ω__11', ( rpr jump_literal ), null
-    return null
-  show_jump 'abc'
-  show_jump '[abc['
-  show_jump '[abc'
-  show_jump 'abc['
-  show_jump '[string11'
-  show_jump 'string11['
-  show_jump 'abc]'
-  show_jump ']abc'
-  show_jump '.]'
-  show_jump '].'
-  #===========================================================================================================
-  g         = new Grammar { name: 'g', }
-  gnd       = g.new_level { name: 'gnd', }
-  string11  = g.new_level { name: 'string11', }
-  string12  = g.new_level { name: 'string12', }
-  #.........................................................................................................
-  gnd.new_token       { name: 'name',           matcher: rx"(?<initial>[A-Z])[a-z]*", }
-  gnd.new_token       { name: 'number',         matcher: rx"[0-9]+",                  }
-  gnd.new_token       { name: 'string11_start', matcher: rx"(?!<\\)'",                jump: 'string11[', }
-  gnd.new_token       { name: 'string12_start', matcher: rx'(?!<\\)"',                jump: 'string12[', }
-  gnd.new_token       { name: 'paren_start',    matcher: rx"\(",                      }
-  gnd.new_token       { name: 'paren_stop',     matcher: rx"\)",                      }
-  gnd.new_token       { name: 'other',          matcher: rx"[A-Za-z0-9]+",            }
-  gnd.new_token       { name: 'ws',             matcher: rx"\s+",                     }
-  #.........................................................................................................
-  string11.new_token  { name: 'string11_stop',  matcher: rx"'",                       jump: '].', }
-  string11.new_token  { name: 'text',           matcher: rx"[^']*",                   }
-  #.........................................................................................................
-  debug 'Ω__12', g
-  debug 'Ω__13', g.levels
-  debug 'Ω__14', g.levels.gnd
-  debug 'Ω__15', g.levels.gnd.tokens
-  debug 'Ω__16', gnd
-  debug 'Ω__17', token for token from gnd
-  #.........................................................................................................
-  texts = [
-    "Alice in Cairo 1912 (approximately)"
-    "Alice in Cairo 1912 'approximately'"
-    ]
-  #.........................................................................................................
-  for text in texts
-    g.tokenize text
-  #.........................................................................................................
-  return null
+module.exports = {
+  Token
+  Lexeme
+  Level
+  Grammar
+  rx
+  _jump_literal_re }
 
-
-#===========================================================================================================
-if module is require.main then await do =>
-  demo()
