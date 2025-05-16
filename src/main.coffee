@@ -4,8 +4,6 @@
 
 #===========================================================================================================
 { hide
-  get_instance_methods
-  bind_instance_methods
   debug
   info
   rpr                   } = require './helpers'
@@ -55,8 +53,8 @@ class Lexeme
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( token, match ) ->
-    # debug 'Ω___4', token
-    # debug 'Ω___5', token.jump, token.grammar.levels[ token.jump.level ] if token.jump?
+    # debug 'Ω___3', token
+    # debug 'Ω___4', token.jump, token.grammar.levels[ token.jump.level ] if token.jump?
     @name         = token.name
     @fqname       = "#{token.level.name}.#{token.name}"
     @level        = token.level
@@ -86,7 +84,7 @@ class Level
   #---------------------------------------------------------------------------------------------------------
   new_token: ( cfg ) ->
     if cfg.level? and cfg.level isnt @
-      throw new Error "Ω___6 inconsistent level"
+      throw new Error "Ω___5 inconsistent level"
     @tokens.push token = new Token { cfg..., level: @, }
     return token
 
@@ -105,7 +103,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   new_level: ( cfg ) ->
     if @levels[ cfg.name ]?
-      throw new Error "Ω___7 level #{rpr level.name} elready exists"
+      throw new Error "Ω___6 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
     @start                 ?= level
@@ -123,16 +121,6 @@ class Grammar
       for token from @levels.gnd
         break if ( lexeme = token.match_at start, source )?
       break unless lexeme?
-      { name
-        fqname
-        stop
-        hit
-        jump
-        jump_spec
-        groups  } = lexeme
-      groups_rpr  = if groups?  then ( rpr { groups..., } ) else ''
-      jump_rpr    = jump_spec ? ''
-      info 'Ω___9', f"#{start}:>3.0f;:#{stop}:<3.0f; #{fqname}:<20c; #{rpr hit}:<30c; #{jump_rpr}:<15c; #{groups_rpr}"
       start     = stop
     return null
 
