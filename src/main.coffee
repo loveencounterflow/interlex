@@ -31,7 +31,7 @@ class Token
     hide @, 'grammar',      cfg.level.grammar
     hide @, 'matcher',      cfg.matcher
     hide @, 'jump',         @constructor._parse_jump cfg.jump ? null
-    hide @, 'jump_literal', cfg.jump                          ? null
+    hide @, 'jump_spec',    cfg.jump                          ? null
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -41,11 +41,11 @@ class Token
     return new Lexeme @, match
 
   #---------------------------------------------------------------------------------------------------------
-  @_parse_jump: ( jump_literal ) ->
-    return null unless jump_literal?
+  @_parse_jump: ( jump_spec ) ->
+    return null unless jump_spec?
     ### TAINT use cleartype ###
-    unless ( match = jump_literal.match _jump_spec_re )?
-      throw new Error "Ω___2 expected a well-formed jump literal, got #{rpr jump_literal}"
+    unless ( match = jump_spec.match _jump_spec_re )?
+      throw new Error "Ω___2 expected a well-formed jump literal, got #{rpr jump_spec}"
     return { action: 'back', target: null,              } if match.groups.back
     return { action: 'fore', target: match.groups.fore, }
 
@@ -65,7 +65,7 @@ class Lexeme
     @stop         = @start + @hit.length
     @groups       = match.groups ? null
     @jump         = token.jump
-    @jump_literal = token.jump_literal
+    @jump_spec = token.jump_spec
     return undefined
 
 
@@ -128,10 +128,10 @@ class Grammar
         stop
         hit
         jump
-        jump_literal
+        jump_spec
         groups  } = lexeme
       groups_rpr  = if groups?  then ( rpr { groups..., } ) else ''
-      jump_rpr    = jump_literal ? ''
+      jump_rpr    = jump_spec ? ''
       info 'Ω___9', f"#{start}:>3.0f;:#{stop}:<3.0f; #{fqname}:<20c; #{rpr hit}:<30c; #{jump_rpr}:<15c; #{groups_rpr}"
       start     = stop
     return null
