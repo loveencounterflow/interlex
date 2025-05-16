@@ -17,7 +17,7 @@ rx                        = regex 'y'
 ### thx to https://github.com/sindresorhus/identifier-regex ###
 _jsid_re                  = regex""" ^ [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* $ """
 _jump_spec_back           = '..'
-_jump_spec_re             = regex" ( ^ #{_jump_spec_back} $ ) | #{_jsid_re}"
+_jump_spec_re             = regex" (?<back> ^ #{_jump_spec_back} $ ) | (?<fore> #{_jsid_re} )"
 
 
 #===========================================================================================================
@@ -30,8 +30,8 @@ class Token
     hide @, 'level',        cfg.level
     hide @, 'grammar',      cfg.level.grammar
     hide @, 'matcher',      cfg.matcher
-    hide @, 'jump',         @parse_jump cfg.jump  ? null
-    hide @, 'jump_literal', cfg.jump              ? null
+    hide @, 'jump',         @constructor._parse_jump cfg.jump ? null
+    hide @, 'jump_literal', cfg.jump                          ? null
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -41,20 +41,13 @@ class Token
     return new Lexeme @, match
 
   #---------------------------------------------------------------------------------------------------------
-  parse_jump: ( jump_literal ) ->
+  @_parse_jump: ( jump_literal ) ->
     return null unless jump_literal?
     ### TAINT use cleartype ###
     unless ( match = jump_literal.match _jump_spec_re )?
       throw new Error "Ω___2 expected a well-formed jump literal, got #{rpr jump_literal}"
-    for key, level_name of match.groups
-      continue unless level_name?
-      [ affinity, action, ] = key.split '_'
-      break
-    if level_name is '.'
-      level = level_name
-    else unless ( level = @grammar.levels[ level_name ] )?
-      throw new Error "Ω___3 expected name of a known level, got #{rpr level_name}"
-    return { affinity, action, level, }
+    return { action: 'back', target: null,              } if match.groups.back
+    return { action: 'fore', target: match.groups.fore, }
 
 
 #===========================================================================================================
