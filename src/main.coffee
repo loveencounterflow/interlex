@@ -2,26 +2,23 @@
 
 'use strict'
 
+#===========================================================================================================
 { hide
   get_instance_methods
   bind_instance_methods
   debug
   info
   rpr                   } = require './helpers'
-
-
-{ partial, regex, } = require 'regex'
+#-----------------------------------------------------------------------------------------------------------
+{ partial, regex, }       = require 'regex'
 # hide  = ( owner, name, value ) -> Object.defineProperty owner, name, { enumerable: false, value, writable: true, }
-rx    = regex 'y'
+rx                        = regex 'y'
+#-----------------------------------------------------------------------------------------------------------
+### NOTE: may add punctuation later, therefore better to be restrictive ###
+_jsid_re                  = regex""" ^ [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* $ """
+_jump_spec_back           = '..'
+_jump_spec_re             = regex" ( ^ #{_jump_spec_back} $ ) | #{_jsid_re}"
 
-#===========================================================================================================
-_jump_literal_re = regex"""
-  ^(
-  \[ (?<exclusive_jump> [^ \^ . \s \[ \] ]+ )     |
-     (?<inclusive_jump> [^ \^ . \s \[ \] ]+ ) \[  |
-  \] (?<exclusive_back> [     .          ]  )     |
-     (?<inclusive_back> [     .          ]  ) \]
-  )$ """
 
 #===========================================================================================================
 class Token
@@ -47,7 +44,7 @@ class Token
   parse_jump: ( jump_literal ) ->
     return null unless jump_literal?
     ### TAINT use cleartype ###
-    unless ( match = jump_literal.match _jump_literal_re )?
+    unless ( match = jump_literal.match _jump_spec_re )?
       throw new Error "Ω___2 expected a well-formed jump literal, got #{rpr jump_literal}"
     for key, level_name of match.groups
       continue unless level_name?
@@ -162,5 +159,6 @@ module.exports = {
   Level
   Grammar
   rx
-  _jump_literal_re }
+  _jsid_re
+  _jump_spec_re }
 
