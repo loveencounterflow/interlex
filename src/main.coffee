@@ -106,22 +106,46 @@ class Grammar
       throw new Error "Ω___6 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
-    @start                 ?= level
-    @start_name            ?= level.name
+    unless @start?
+      hide @, 'start', level
+      @start_name = level.name
     return level
 
   #---------------------------------------------------------------------------------------------------------
   tokenize: ( source ) ->
     { f } = require '../../effstring'
     start   = 0
-    info 'Ω___8', rpr source
-    level   = @start
+    # level   = @start
+    stack   = [ @start, ]
+    #.......................................................................................................
     loop
       lexeme  = null
-      for token from @levels.gnd
+      ### TAINT encapsulate in stack class ###
+      level   = stack.at -1
+      for token from level
         break if ( lexeme = token.match_at start, source )?
       break unless lexeme?
-      start     = stop
+      yield lexeme
+      start = lexeme.stop
+      #.....................................................................................................
+      continue unless ( jump = lexeme.jump )?
+      switch jump.action
+        #...................................................................................................
+        when 'fore'
+          ### TAINT encapsulate ###
+          unless ( new_level = @levels[ jump.target ] )?
+            throw new Error "unknown level #{rpr jump.target}"
+          stack.push new_level
+          continue
+        #...................................................................................................
+        when 'back'
+          ### TAINT encapsulate in stack class ###
+          unless stack.length > 0
+            throw new Error "stack is empty"
+          stack.pop()
+          continue
+      #.....................................................................................................
+      throw new Error "unknown jump action #{rpr lexeme.jump.action}"
     return null
 
 
@@ -133,6 +157,7 @@ class Grammar
   `Lexeme` produced by a `Token` instance when matcher matches source
 
   ###
+
 
 module.exports = {
   Token
