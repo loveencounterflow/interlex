@@ -19,7 +19,8 @@
 
 ## To Do
 
-* **`[—]`** everything
+* **`[—]`** can we replace `Level::new_token()` with a shorter API name?
+* **`[—]`** allow positional arguments to `Level::new_token()`: `( name, matcher, cfg )`
 <!-- * **`[—]`** it should be possible to use arbitrary field names in the declaration -->
 <!-- * **`[—]`** types are anonymous -->
 
