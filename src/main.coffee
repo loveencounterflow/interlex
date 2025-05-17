@@ -140,7 +140,7 @@ class Grammar
     return level
 
   #---------------------------------------------------------------------------------------------------------
-  tokenize: ( source ) ->
+  walk_tokens: ( source ) ->
     { f } = require '../../effstring'
     start   = 0
     stack   = new Stack [ @start, ]
