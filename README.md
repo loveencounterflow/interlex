@@ -21,7 +21,8 @@
 
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
 * **`[—]`** allow positional arguments to `Level::new_token()`: `( name, matcher, cfg )`
-<!-- * **`[—]`** it should be possible to use arbitrary field names in the declaration -->
+* **`[—]`** bundle `start`, `stop` and later `lnr` &c under `position`?
+* **`[—]`** 'wrap' tokenizing so that handling of line splitting, line numbering is isolated yet transparent
 <!-- * **`[—]`** types are anonymous -->
 
 ## Is Done
