@@ -88,6 +88,34 @@ class Level
     @tokens.push token = new Token { cfg..., level: @, }
     return token
 
+
+#===========================================================================================================
+class Stack
+
+  #---------------------------------------------------------------------------------------------------------
+  constructor: ( P... ) ->
+    @data = Array.from P...
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  is_empty: -> @data.length is 0
+
+  #---------------------------------------------------------------------------------------------------------
+  peek: ->
+    if @is_empty()
+      throw new Error "stack is empty"
+    return @data.at -1
+
+  #---------------------------------------------------------------------------------------------------------
+  pop: ->
+    if @is_empty()
+      throw new Error "stack is empty"
+    return @data.pop()
+
+  #---------------------------------------------------------------------------------------------------------
+  push: ( P... ) -> @data.push P...
+
+
 #===========================================================================================================
 class Grammar
 
@@ -115,13 +143,11 @@ class Grammar
   tokenize: ( source ) ->
     { f } = require '../../effstring'
     start   = 0
-    # level   = @start
-    stack   = [ @start, ]
+    stack   = new Stack [ @start, ]
     #.......................................................................................................
     loop
       lexeme  = null
-      ### TAINT encapsulate in stack class ###
-      level   = stack.at -1
+      level   = stack.peek()
       for token from level
         break if ( lexeme = token.match_at start, source )?
       break unless lexeme?
@@ -139,9 +165,6 @@ class Grammar
           continue
         #...................................................................................................
         when 'back'
-          ### TAINT encapsulate in stack class ###
-          unless stack.length > 0
-            throw new Error "stack is empty"
           stack.pop()
           continue
       #.....................................................................................................
