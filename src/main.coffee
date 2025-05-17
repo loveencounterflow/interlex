@@ -150,7 +150,10 @@ class Grammar
       level   = stack.peek()
       for token from level
         break if ( lexeme = token.match_at start, source )?
+      #.....................................................................................................
+      ### Terminate if none of the tokens of the current level has matched at the current position: ###
       break unless lexeme?
+      #.....................................................................................................
       yield lexeme
       start = lexeme.stop
       #.....................................................................................................
