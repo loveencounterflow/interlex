@@ -23,7 +23,6 @@ class Token
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    debug 'Ω___1', "new Token", cfg.name, cfg.level, cfg.level.grammar
     @name = cfg.name
     hide @, 'level',        cfg.level
     hide @, 'grammar',      cfg.level.grammar
@@ -43,7 +42,7 @@ class Token
     return null unless jump_spec?
     ### TAINT use cleartype ###
     unless ( match = jump_spec.match _jump_spec_re )?
-      throw new Error "Ω___2 expected a well-formed jump literal, got #{rpr jump_spec}"
+      throw new Error "Ω___1 expected a well-formed jump literal, got #{rpr jump_spec}"
     return { action: 'back', target: null,              } if match.groups.back
     return { action: 'fore', target: match.groups.fore, }
 
@@ -53,8 +52,6 @@ class Lexeme
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( token, match ) ->
-    # debug 'Ω___3', token
-    # debug 'Ω___4', token.jump, token.grammar.levels[ token.jump.level ] if token.jump?
     @name         = token.name
     @fqname       = "#{token.level.name}.#{token.name}"
     @level        = token.level
@@ -64,6 +61,8 @@ class Lexeme
     @groups       = match.groups ? null
     @jump         = token.jump
     @jump_spec    = token.jump_spec
+    # debug 'Ω___2', token
+    # debug 'Ω___3', token.jump, token.grammar.levels[ token.jump.level ] if token.jump?
     return undefined
 
 
@@ -84,7 +83,7 @@ class Level
   #---------------------------------------------------------------------------------------------------------
   new_token: ( cfg ) ->
     if cfg.level? and cfg.level isnt @
-      throw new Error "Ω___5 inconsistent level"
+      throw new Error "Ω___4 inconsistent level"
     @tokens.push token = new Token { cfg..., level: @, }
     return token
 
@@ -131,7 +130,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   new_level: ( cfg ) ->
     if @levels[ cfg.name ]?
-      throw new Error "Ω___6 level #{rpr level.name} elready exists"
+      throw new Error "Ω___5 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
     unless @start?
