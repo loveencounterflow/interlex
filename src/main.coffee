@@ -125,6 +125,7 @@ class Grammar
     hide @, 'levels',   { ( cfg.levels ? {} )..., }
     @start_level_name = null
     hide @, 'start_level', null
+    hide @, 'levels',   {}
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
