@@ -52,17 +52,20 @@ class Lexeme
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( token, match ) ->
-    @name         = token.name
-    @fqname       = "#{token.level.name}.#{token.name}"
-    @level        = token.level
-    @hit          = match[ 0 ]
-    @start        = match.index
-    @stop         = @start + @hit.length
-    @groups       = match.groups ? null
-    @jump         = token.jump
-    @jump_spec    = token.jump_spec
     # debug 'Ω___2', token
     # debug 'Ω___3', token.jump, token.grammar.levels[ token.jump.level ] if token.jump?
+    @name       = token.name
+    @fqname     = "#{token.level.name}.#{token.name}"
+    @level      = token.level
+    @hit        = match[ 0 ]
+    @start      = match.index
+    @stop       = @start + @hit.length
+    @groups     = match.groups ? null
+    @jump       = token.jump
+    @jump_spec  = token.jump_spec
+    name        = token.grammar.cfg.counter_name
+    count       = token.grammar.state.count
+    @[ name ]   = count
     return undefined
 
 
@@ -120,9 +123,15 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    cfg              ?= {}
-    @name             = cfg.name ? 'g'
-    hide @, 'levels',   { ( cfg.levels ? {} )..., }
+    cfg_template      =
+      name:               'g'
+      counter_name:       'line_nr'
+      counter_value:      1
+      counter_step:       1
+    @cfg             ?= { cfg_template..., cfg..., }
+    @state            =
+      count:              @cfg.counter_value
+    @name             = cfg.name
     @start_level_name = null
     hide @, 'start_level', null
     hide @, 'levels',   {}
@@ -158,7 +167,8 @@ class Grammar
       break unless lexeme?
       #.....................................................................................................
       yield lexeme
-      start = lexeme.stop
+      @state.count += @cfg.counter_step
+      start         = lexeme.stop
       #.....................................................................................................
       continue unless ( jump = lexeme.jump )?
       switch jump.action
