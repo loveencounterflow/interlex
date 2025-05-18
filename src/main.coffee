@@ -122,9 +122,9 @@ class Grammar
   constructor: ( cfg ) ->
     cfg              ?= {}
     @name             = cfg.name ? 'g'
-    @start_name       = null
-    hide @, 'start',    null
     hide @, 'levels',   { ( cfg.levels ? {} )..., }
+    @start_level_name = null
+    hide @, 'start_level', null
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -133,16 +133,16 @@ class Grammar
       throw new Error "Ω___5 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
-    unless @start?
-      hide @, 'start', level
-      @start_name = level.name
+    unless @start_level?
+      hide @, 'start_level', level
+      @start_level_name = level.name
     return level
 
   #---------------------------------------------------------------------------------------------------------
   walk_tokens: ( source ) ->
     { f } = require '../../effstring'
-    start   = 0
-    stack   = new Stack [ @start, ]
+    start = 0
+    stack = new Stack [ @start_level, ]
     #.......................................................................................................
     loop
       lexeme  = null
