@@ -23,12 +23,17 @@
 * **`[—]`** allow positional arguments to `Level::new_token()`: `( name, matcher, cfg )`
 * **`[—]`** bundle `start`, `stop` and later `lnr` &c under `position`?
 * **`[—]`** 'wrap' tokenizing so that handling of line splitting, line numbering is isolated yet transparent
-<!-- * **`[—]`** types are anonymous -->
+* **`[—]`** include indices for groups:
+
+  ```
+  match = 'a🈯z'.match /^(?<head>[a-z]+)(?<other>[^a-z]+)(?<tail>[a-z]+)/d
+  { match.groups..., }
+  { match.indices.groups..., }
+  ```
 
 ## Is Done
 
-<!-- * **`[+]`** rename `TMP_typespace1` to `std` -->
-<!-- * **`[+]`** rename `ctx.types` to `ctx.ct` to mirror name `CT` of the default `Cleartype` instance -->
+* **`[+]`** implement chunk numbering with CFG settings `{ counter_name: 'line_nr', counter_start: 1, }`
 
 <!-- ## Don't -->
 
