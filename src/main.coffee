@@ -220,7 +220,10 @@ module.exports = {
   Lexeme
   Level
   Grammar
+  regex
   rx
+  new_regex_tag
   _jsid_re
-  _jump_spec_re }
+  _jump_spec_re
+  _valid_regex_flags_re }
 
