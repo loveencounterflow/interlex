@@ -15,8 +15,20 @@ _jsid_re                  = regex""" ^ [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D 
 _jump_spec_back           = '..'
 _jump_spec_re             = regex" (?<back> ^ #{_jump_spec_back} $ ) | (?<fore> #{_jsid_re} )"
 # thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
-_valid_regex_flags_re     = /^(?!.*(.).*\1)[dgimsuvy]*$/
+_regex_flag_lower_re      = /^[dgimsuvy]$/
+_regex_flag_upper_re      = /^[DGIMSUVY]$/
+_regex_flags_re           = /^(?!.*(.).*\1)[dgimsuvy]*$/
 
+
+#===========================================================================================================
+_copy_regex = ( regex, new_flags ) ->
+  flags = new Set regex.flags
+  for new_flag from new_flags
+    switch true
+      when _regex_flag_lower_re.test new_flag then flags.add    new_flag
+      when _regex_flag_upper_re.test new_flag then flags.delete new_flag.toLowerCase()
+      else throw new Error "Ωilx___1 invalid regex flag #{rpr new_flag} in #{rpr new_flags}"
+  return new RegExp regex.source, [ flags..., ].join ''
 
 #===========================================================================================================
 new_regex_tag = ( flags = 'dy' ) ->
@@ -25,7 +37,7 @@ new_regex_tag = ( flags = 'dy' ) ->
     get: ( target, key ) ->
       return undefined if key is Symbol.toStringTag
       local_flags = [ ( ( new Set flags ).union new Set key )..., ].join ''
-      unless _valid_regex_flags_re.test local_flags
+      unless _regex_flags_re.test local_flags
         throw new Error "Ωilx___2 invalid flags present in #{rpr key}"
       return ( regex local_flags )
 #-----------------------------------------------------------------------------------------------------------
@@ -223,7 +235,10 @@ module.exports = {
   regex
   rx
   new_regex_tag
+  _copy_regex
   _jsid_re
   _jump_spec_re
-  _valid_regex_flags_re }
+  _regex_flag_lower_re
+  _regex_flag_upper_re
+  _regex_flags_re }
 
