@@ -8,14 +8,28 @@
   info
   rpr                   } = require './helpers'
 #-----------------------------------------------------------------------------------------------------------
-{ partial, regex, }       = require 'regex'
-rx                        = regex 'y'
-#-----------------------------------------------------------------------------------------------------------
 ### NOTE: may add punctuation later, therefore better to be restrictive ###
 ### thx to https://github.com/sindresorhus/identifier-regex ###
+{ partial, regex, }       = require 'regex'
 _jsid_re                  = regex""" ^ [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* $ """
 _jump_spec_back           = '..'
 _jump_spec_re             = regex" (?<back> ^ #{_jump_spec_back} $ ) | (?<fore> #{_jsid_re} )"
+# thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
+_valid_regex_flags_re     = /^(?!.*(.).*\1)[dgimsuvy]*$/
+
+
+#===========================================================================================================
+new_regex_tag = ( flags = 'dy' ) ->
+  R = ( P... ) -> ( regex flags ) P...
+  return new Proxy R,
+    get: ( target, key ) ->
+      return undefined if key is Symbol.toStringTag
+      local_flags = [ ( ( new Set flags ).union new Set key )..., ].join ''
+      unless _valid_regex_flags_re.test local_flags
+        throw new Error "Ωilx___1 invalid flags present in #{rpr key}"
+      return ( regex local_flags )
+#-----------------------------------------------------------------------------------------------------------
+rx = new_regex_tag()
 
 
 #===========================================================================================================
