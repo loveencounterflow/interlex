@@ -31,6 +31,9 @@
   { match.indices.groups..., }
   ```
 
+* **`[—]`** rename result of `new_regex_tag` to reflect use of flags
+* **`[—]`** ensure that no tokens with non-sticky matchers are instantiated
+
 ## Is Done
 
 * **`[+]`** implement chunk numbering with CFG settings `{ counter_name: 'line_nr', counter_start: 1, }`
