@@ -38,6 +38,11 @@ class Token
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
     @name = cfg.name
+    ### TAINT use proper typing ###
+    unless ( cfg.matcher instanceof RegExp )
+      throw new Error "Ωilx___2 expected a regex for matcher, got #{rpr cfg.matcher}"
+    unless ( cfg.matcher.sticky )
+      throw new Error "Ωilx___3 expected a sticky regex for matcher, got flags #{rpr cfg.matcher.flags}"
     hide @, 'level',        cfg.level
     hide @, 'grammar',      cfg.level.grammar
     hide @, 'matcher',      cfg.matcher
