@@ -57,6 +57,15 @@
 * **`[—]`** during matching, ensure that when lexeme was produced it did consume text
   * **`[—]`** is it possible and useful to allow regular lexemes that take up zero space akin to special
     lexemes (to be written) that indicate start, end, change of level?
+* **`[—]`** extend sanity checks for matcher regex:
+  * **`[—]`** must not have `g`?
+  * **`[—]`** must have `d`
+  * **`[—]`** must have `v` not `u`?
+* **`[—]`** allow function for `token.matcher`?
+* **`[—]`** allow string for `token.matcher`?
+* **`[—]`** when using regex for `token.matcher`, should we **(1)** update flags or **(2)** reject regexes
+  without required flags?—See what `slevithan/regex` does with `v` flag (throws `Error: Implicit flags
+  v/u/x/n cannot be explicitly added`)
 
 ## Is Done
 
