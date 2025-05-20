@@ -21,6 +21,19 @@
 
 ## Token Matchers
 
+
+Token matchers should preferrably constructed using the InterLex `rx''` regex tag function, but one can also
+use plain JS RegEx literals; these will be silently 'upgraded' by [removing illegal and adding necessary
+flags](#producing-a-regex-tag-function-with-new_regex_tag), so for example defining a matcher as `/A[a-z]+/`
+will result in the regular expression `/A[a-z]+/dvy`. Note that in order to use some features of 3rd gen
+Unicode support afforded by the `v` flag one will need to explicitly set that flag on regex literals to make
+the JS parser accept the JS source file, but for many use cases just using a 'naked' regex literal should be
+fine—although those who do so will miss out on the many finer points of using
+[`slevithan/regex`](https://github.com/slevithan/regex).
+
+
+
+
 ### Using the `interlex.rx''` Regex Tag Function
 
 The InterLex `rx''` regex tag function is based on the `regex''` tag function from
@@ -37,6 +50,7 @@ function offers the capability to set additional flags by using JS dotted access
 way to say that when e.g. you have a matcher `rx"[abc]"` to match any of the letters `'a'`, `'b'`, `'c'` in
 a given source, then in order to set the case-**i**nsensitivy flag `i` you can write `rx.i"[abc]"` to match
 any of `'a'`, `'b'`, `'c'`, `'A'`, `'B'`, or `'C'`.
+
 
 ### Producing a Regex Tag Function with `new_regex_tag()`
 
@@ -91,14 +105,25 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   * must accept `( start, text, { token, level, grammar, } )`
   * must return `null` or a lexeme
 * **`[—]`** allow string for `token.matcher`?
-* **`[—]`** when using regex for `token.matcher`, should we **(1)** update flags or **(2)** reject regexes
-  without required flags?—See what `slevithan/regex` does with `v` flag (throws `Error: Implicit flags
-  v/u/x/n cannot be explicitly added`)
+* **`[—]`** these internal settings / convenience values should be systematized and maybe collected in a
+  common place; some of the regex flag values can and should be derived from more basic settings:
+  * `_jsid_re`
+  * `_jump_spec_back`
+  * `_jump_spec_re`
+  * `_regex_flag_lower_re`
+  * `_regex_flag_upper_re`
+  * `_regex_flags_re`
+  * `_default_flags_set`
+  * `_disallowed_flags_set`
+  * `_normalize_new_flags`
 
 ## Is Done
 
 * **`[+]`** implement chunk numbering with CFG settings `{ counter_name: 'line_nr', counter_start: 1, }`
 * **`[+]`** ensure that no tokens with non-sticky matchers are instantiated
+* **`[+]`** when using regex for `token.matcher`, should we **(1)** update flags or **(2)** reject regexes
+  without required flags?—See what `slevithan/regex` does with `v` flag (throws `Error: Implicit flags
+  v/u/x/n cannot be explicitly added`)
 
 <!-- ## Don't -->
 
