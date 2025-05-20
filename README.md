@@ -33,7 +33,8 @@
   `slevithan/regex`](https://github.com/slevithan/regex), the `rx''` tag function offers the capability to
   set additional flags by using JS dotted accessor syntax, which is a fancy way to say that when e.g. you
   have a matcher `rx"[abc]"` to match any of the letters `'a'`, `'b'`, `'c'` in a given source, then in
-  order to set the case-**i**nsensitivy flag `i` you can write `rx.i"[abc]"` instead.
+  order to set the case-**i**nsensitivy flag `i` you can write `rx.i"[abc]"` to match any of `'a'`, `'b'`,
+  `'c'`, `'A'`, `'B'`, or `'C'`.
 
 ### Producing a Regex Tag Function with `new_regex_tag()`
 
