@@ -25,7 +25,7 @@
 
 * `rx` is based on [`slevithan/regex`](https://github.com/slevithan/regex)
 * allows to convert a string into a regular expression object with `rx"[abc]+"` (CoffeeScript) or
-  `rx\`[abc]+\`` (JavaScript)
+  ``rx`[abc]+``` (JavaScript)
 
 ### `new_regex_tag()`
 
