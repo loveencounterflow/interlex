@@ -178,10 +178,10 @@ class Grammar
     return level
 
   #---------------------------------------------------------------------------------------------------------
-  get_tokens: ( P... ) -> [ ( @walk_tokens P... )..., ]
+  get_lexemes: ( P... ) -> [ ( @walk_lexemes P... )..., ]
 
   #---------------------------------------------------------------------------------------------------------
-  walk_tokens: ( source ) ->
+  walk_lexemes: ( source ) ->
     { f } = require '../../effstring'
     start = 0
     stack = new Stack [ @start_level, ]
