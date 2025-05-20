@@ -38,20 +38,21 @@
 ### Producing a Regex Tag Function with `new_regex_tag()`
 
 
-* using `rx2 = new_regex_tag flags`, it's possible to produce a new regex tag function with a customized set
-  of [*JS Regular Expression
-  Flags*](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags)
-* the default regex tag function exported by `interlex`, `rx''`, inherits [extended support for flags and
-  features some additional implicitly-set
-  flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags)
-  * The **`x` flag is always implicitly set**; it enables (quote) "makes whitespace insignificant and adds
-    support for line comments (starting with `#`), allowing you to freely format your regexes for
-    readability"; this flag is emulated by `slevithan/regex`.
-  * The **`v` flag is always implicitly set**; it enables advanced and improved Unicode support and
-    overcomes some difficulties with the older `u` flag;
-  * **The `u` flag is excluded** by the implicit, always-on presence of `v`.
-  * **The `d` flag is always implicitly set**; it enables indices for matched groups.
-  * **The `y` flag is always implicitly set**; it enables 'sticky' behavior essential for a lexer.
+Using `rx2 = new_regex_tag flags`, it's possible to produce a new regex tag function with a customized set
+of [*JS Regular Expression
+Flags*](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags)
+The default regex tag function exported by `interlex`, `rx''`, inherits [extended support for flags and
+features some additional implicitly-set
+flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
+
+* The **`x` flag is always implicitly set**; it enables (quote) "makes whitespace insignificant and adds
+  support for line comments (starting with `#`), allowing you to freely format your regexes for
+  readability"; this flag is emulated by `slevithan/regex`.
+* The **`v` flag is always implicitly set**; it enables advanced and improved Unicode support and
+  overcomes some difficulties with the older `u` flag;
+* **The `u` flag is excluded** by the implicit, always-on presence of `v`.
+* **The `d` flag is always implicitly set**; it enables indices for matched groups.
+* **The `y` flag is always implicitly set**; it enables 'sticky' behavior essential for a lexer.
 
 * this leaves the user to set one or more of the following flags:
   * `g`
