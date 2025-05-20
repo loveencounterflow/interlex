@@ -23,17 +23,21 @@
 
 ### Using the `interlex.rx''` Regex Tag Function
 
-* `rx''` is based on [`slevithan/regex`](https://github.com/slevithan/regex)
-* `rx''` allows to convert a string into a regular expression object with
-  * `rx"[abc]+"` (CoffeeScript) or
-  * ```rx`[abc]+`‍``` (JavaScript)
-  * Either of the above results in the regular expression `/[abc]+/dvy` with the `d`, `v` and `y` flags
-    implicitly set, for which see below.
-* In contradistinction to the original `regex''` tag function provided by `slevithan/regex`, the `rx''` tag
-  function offers the capability to set additional flags by using JS dotted accessor syntax, which is a
-  fancy way to say that when e.g. you have a matcher `rx"[abc]"` to match any of the letters `'a'`, `'b'`,
-  `'c'` in a given source, then in order to set the case-**i**nsensitivy flag `i` you can write
-  `rx.i"[abc]"` to match any of `'a'`, `'b'`, `'c'`, `'A'`, `'B'`, or `'C'`.
+The InterLex `rx''` regex tag function is based on the `regex''` tag function from
+[`slevithan/regex`](https://github.com/slevithan/regex).
+
+The `rx''` tag function allows to convert a string into a regular expression object with
+* `rx"[abc]+"` (CoffeeScript) or
+* ```rx`[abc]+`‍``` (JavaScript)
+
+Either of the above results in the regular expression `/[abc]+/dvy` with the `d`, `v` and `y` flags
+implicitly set, for which see below.
+
+In contradistinction to the original `regex''` tag function provided by `slevithan/regex`, the `rx''` tag
+function offers the capability to set additional flags by using JS dotted accessor syntax, which is a fancy
+way to say that when e.g. you have a matcher `rx"[abc]"` to match any of the letters `'a'`, `'b'`, `'c'` in
+a given source, then in order to set the case-**i**nsensitivy flag `i` you can write `rx.i"[abc]"` to match
+any of `'a'`, `'b'`, `'c'`, `'A'`, `'B'`, or `'C'`.
 
 ### Producing a Regex Tag Function with `new_regex_tag()`
 
@@ -45,9 +49,9 @@ The default regex tag function exported by `interlex`, `rx''`, inherits [extende
 features some additional implicitly-set
 flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 
-* The **`x` flag is always implicitly set**; it enables (quote) "makes whitespace insignificant and adds
-  support for line comments (starting with `#`), allowing you to freely format your regexes for
-  readability"; this flag is emulated by `slevithan/regex`.
+* The **`x` flag is always implicitly set**; it (quote) "makes whitespace insignificant and adds support for
+  line comments (starting with `#`), allowing you to freely format your regexes for readability"; this flag
+  is emulated by `slevithan/regex`.
 * The **`v` flag is always implicitly set**; it enables advanced and improved Unicode support and
   overcomes some difficulties with the older `u` flag;
 * **The `u` flag is always implicitly excluded** by the implicit, always-on presence of `v`.
