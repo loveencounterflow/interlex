@@ -24,8 +24,14 @@
 ### Using the `interlex.rx''` Regex Tag Function
 
 * `rx` is based on [`slevithan/regex`](https://github.com/slevithan/regex)
-* allows to convert a string into a regular expression object with `rx"[abc]+"` (CoffeeScript) or
-  ```rx`[abc]+`‍``` (JavaScript)
+* allows to convert a string into a regular expression object with
+  * `rx"[abc]+"` (CoffeeScript) or
+  * ```rx`[abc]+`‍``` (JavaScript)
+* in contradistinction to the original [`regex''` tag function provided by
+  `slevithan/regex`](https://github.com/slevithan/regex), the `rx''` tag function offers the capability to
+  set additional flags by using JS dotted accessor syntax, which is a fancy way to say that when e.g. you
+  have a matcher `rx"[abc]"` to match any of the letters `'a'`, `'b'`, `'c'` in a given source, then in
+  order to set the case-**i**nsensitivy flag `i` you can write `rx.i"[abc]"` instead.
 
 ### `new_regex_tag()`
 
