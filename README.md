@@ -50,18 +50,17 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   readability"; this flag is emulated by `slevithan/regex`.
 * The **`v` flag is always implicitly set**; it enables advanced and improved Unicode support and
   overcomes some difficulties with the older `u` flag;
-* **The `u` flag is excluded** by the implicit, always-on presence of `v`.
+* **The `u` flag is always implicitly excluded** by the implicit, always-on presence of `v`.
 * **The `d` flag is always implicitly set**; it enables indices for matched groups.
 * **The `y` flag is always implicitly set**; it enables 'sticky' behavior essential for a lexer.
-
 * this leaves the user to set one or more of the following flags:
   * `g`
   * `i`
   * `m`
   * `s`
-* repeating a flag is ignored, so `rx2 = new_regex_tag 'dvy'` just gives a new tag function whose behavior
-  is identical to the default tag function, `rx''`
-* there's no way to unset a flag
+* Repeated flags are ignored, so `rx2 = new_regex_tag 'dvy'` just gives a new tag function whose behavior is
+  identical to the default tag function, `rx''`, and, say, `new_regex_tag 'iiiii'` is no different from
+  `new_regex_tag 'i'`. There's no way to unset a flag.
 
 ## To Do
 
