@@ -26,9 +26,10 @@
 The InterLex `rx''` regex tag function is based on the `regex''` tag function from
 [`slevithan/regex`](https://github.com/slevithan/regex).
 
-The `rx''` tag function allows to convert a string into a regular expression object with
+The `rx''` tag function, which is intended to be used mainly to define a `matcher` for InterLex `Token`s,
+allows to convert a string into a regular expression object with
 * `rx"[abc]+"` (CoffeeScript) or
-* ```rx`[abc]+`‍``` (JavaScript)
+* ```rx`[abc]+`‍``` (JavaScript).
 
 Either of the above results in the regular expression `/[abc]+/dvy` with the `d`, `v` and `y` flags
 implicitly set, for which see below.
