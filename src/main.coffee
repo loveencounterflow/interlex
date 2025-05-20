@@ -18,6 +18,8 @@ _jump_spec_re             = regex" (?<back> ^ #{_jump_spec_back} $ ) | (?<fore> 
 _regex_flag_lower_re      = /^[dgimsuvy]$/
 _regex_flag_upper_re      = /^[DGIMSUVY]$/
 _regex_flags_re           = /^(?!.*(.).*\1)[dgimsuvy]*$/
+_default_flags_set        = new Set 'dy'
+_disallowed_flags_set     = new Set 'vuxn'
 
 
 #===========================================================================================================
@@ -31,15 +33,21 @@ _copy_regex = ( regex, new_flags ) ->
   return new RegExp regex.source, [ flags..., ].join ''
 
 #===========================================================================================================
-new_regex_tag = ( flags = 'dy' ) ->
-  R = ( P... ) -> ( regex flags ) P...
+new_regex_tag = ( global_flags = 'dy' ) ->
+  unless _regex_flags_re.test global_flags
+    throw new Error "Ωilx___2 invalid flags present in #{rpr global_flags}"
+  R = ( P... ) -> ( regex global_flags ) P...
   return new Proxy R,
     get: ( target, key ) ->
       return undefined if key is Symbol.toStringTag
-      local_flags = [ ( ( new Set flags ).union new Set key )..., ].join ''
-      unless _regex_flags_re.test local_flags
-        throw new Error "Ωilx___2 invalid flags present in #{rpr key}"
-      return ( regex local_flags )
+      local_flags         = new Set key
+      local_flags         = local_flags.union       new Set global_flags
+      local_flags         = local_flags.union       _default_flags_set
+      local_flags         = local_flags.difference  _disallowed_flags_set
+      local_flags_literal = [ local_flags..., ].join ''
+      unless _regex_flags_re.test local_flags_literal
+        throw new Error "Ωilx___3 invalid flags present in #{rpr key}"
+      return ( regex local_flags_literal )
 #-----------------------------------------------------------------------------------------------------------
 rx = new_regex_tag()
 
