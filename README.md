@@ -25,11 +25,12 @@
 Token matchers should preferrably constructed using the InterLex `rx''` regex tag function, but one can also
 use plain JS RegEx literals; these will be silently 'upgraded' by [removing illegal and adding necessary
 flags](#producing-a-regex-tag-function-with-new_regex_tag), so for example defining a matcher as `/A[a-z]+/`
-will result in the regular expression `/A[a-z]+/dvy`. Note that in order to use some features of 3rd gen
-Unicode support afforded by the `v` flag one will need to explicitly set that flag on regex literals to make
-the JS parser accept the JS source file, but for many use cases just using a 'naked' regex literal should be
-fine—although those who do so will miss out on the many finer points of using
-[`slevithan/regex`](https://github.com/slevithan/regex).
+will actually result in the regular expression `/A[a-z]+/dvy`.
+
+Note that in order to use some features of 3rd gen Unicode support afforded by the `v` flag one will need to
+explicitly set that flag on regex literals to make the JS parser accept the JS source file, but for many use
+cases just using a 'naked' regex literal should be fine—although those who do so will miss out on the many
+finer points of using [`slevithan/regex`](https://github.com/slevithan/regex).
 
 
 
