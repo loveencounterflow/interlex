@@ -27,6 +27,8 @@
 * `rx''` allows to convert a string into a regular expression object with
   * `rx"[abc]+"` (CoffeeScript) or
   * ```rx`[abc]+`‍``` (JavaScript)
+  * Either of the above results in the regular expression `/[abc]+/dvy` with the `d`, `v` and `y` flags
+    implicitly set, for which see below.
 * In contradistinction to the original [`regex''` tag function provided by
   `slevithan/regex`](https://github.com/slevithan/regex), the `rx''` tag function offers the capability to
   set additional flags by using JS dotted accessor syntax, which is a fancy way to say that when e.g. you
