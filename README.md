@@ -8,6 +8,7 @@
 
 - [InterLex](#interlex)
   - [Token Matchers](#token-matchers)
+    - [Using the `interlex.rx''` Regex Tag Function](#using-the-interlexrx-regex-tag-function)
     - [`new_regex_tag()`](#new_regex_tag)
   - [To Do](#to-do)
   - [Is Done](#is-done)
@@ -20,14 +21,27 @@
 
 ## Token Matchers
 
+### Using the `interlex.rx''` Regex Tag Function
+
+* `rx` is based on [`slevithan/regex`](https://github.com/slevithan/regex)
+* allows to convert a string into a regular expression object with `rx"[abc]+"` (CoffeeScript) or
+  `rx\`[abc]+\`` (JavaScript)
+
 ### `new_regex_tag()`
 
-* using `rx2 = new_regex_tag flags`, it's possible to produce a new RegEx tag function with a customized set
+
+* using `rx2 = new_regex_tag flags`, it's possible to produce a new regex tag function with a customized set
   of [*JS Regular Expression
   Flags*](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags)
-* the default RegEx tag function exported by `interlex`, `rx''`, has flags `v`, `d` and `y` set
+* the default regex tag function exported by `interlex`, `rx''`, has [extended support for flags and
+  features some implicitly set flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags)
+
+
+  `v`, `d`
+  and `y` set
   * `v` enables advanced and improved Unicode support and overcomes some difficulties with the older `u`
     flag;
+  * `u` is excluded by the presence of `v`
   * `d` enables indices for matched groups;
   * `y` enables 'sticky' behavior essential for a lexer.
 * this leaves the user to set one or more of the following flags:
@@ -61,7 +75,9 @@
   * **`[—]`** must not have `g`?
   * **`[—]`** must have `d`
   * **`[—]`** must have `v` not `u`?
-* **`[—]`** allow function for `token.matcher`?
+* **`[—]`** allow functions for `token.matcher`?
+  * must accept `( start, text, { token, level, grammar, } )`
+  * must return `null` or a lexeme
 * **`[—]`** allow string for `token.matcher`?
 * **`[—]`** when using regex for `token.matcher`, should we **(1)** update flags or **(2)** reject regexes
   without required flags?—See what `slevithan/regex` does with `v` flag (throws `Error: Implicit flags
