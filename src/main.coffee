@@ -10,13 +10,14 @@
 #-----------------------------------------------------------------------------------------------------------
 ### NOTE: may add punctuation later, therefore better to be restrictive ###
 ### thx to https://github.com/sindresorhus/identifier-regex ###
-{ partial, regex, }       = require 'regex'
+slevithan_regex           = require 'regex'
+{ partial, regex, }       = slevithan_regex
 _jsid_re                  = regex""" ^ [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* $ """
 _jump_spec_back           = '..'
 _jump_spec_re             = regex" (?<back> ^ #{_jump_spec_back} $ ) | (?<fore> #{_jsid_re} )"
-# thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
 _regex_flag_lower_re      = /^[dgimsuvy]$/
 _regex_flag_upper_re      = /^[DGIMSUVY]$/
+# thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
 _regex_flags_re           = /^(?!.*(.).*\1)[dgimsuvy]*$/
 _default_flags_set        = new Set 'dy'
 _disallowed_flags_set     = new Set 'vuxn'
@@ -243,9 +244,12 @@ module.exports = {
   regex
   rx
   new_regex_tag
+  internals: {
+    slevithan_regex }
   _copy_regex
   _jsid_re
   _jump_spec_re
+  _normalize_regex_flags
   _regex_flag_lower_re
   _regex_flag_upper_re
   _regex_flags_re }
