@@ -66,8 +66,6 @@ class Token
     ### TAINT use proper typing ###
     unless ( cfg.matcher instanceof RegExp )
       throw new Error "Ωilx___4 expected a regex for matcher, got #{rpr cfg.matcher}"
-    unless ( cfg.matcher.sticky )
-      throw new Error "Ωilx___5 expected a sticky regex for matcher, got flags #{rpr cfg.matcher.flags}"
     cfg.matcher = _normalize_regex_flags cfg.matcher
     hide @, 'level',        cfg.level
     hide @, 'grammar',      cfg.level.grammar
