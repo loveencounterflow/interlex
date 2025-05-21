@@ -21,6 +21,7 @@ _regex_flag_upper_re      = /^[DGIMSUVY]$/
 _regex_flags_re           = /^(?!.*(.).*\1)[dgimsuvy]*$/
 _default_flags_set        = new Set 'dy'
 _disallowed_flags_set     = new Set 'vuxn'
+_normalize_new_flags      = 'dyVU'
 
 
 #===========================================================================================================
@@ -32,6 +33,9 @@ _copy_regex = ( regex, new_flags ) ->
       when _regex_flag_upper_re.test new_flag then flags.delete new_flag.toLowerCase()
       else throw new Error "Ωilx___1 invalid regex flag #{rpr new_flag} in #{rpr new_flags}"
   return new RegExp regex.source, [ flags..., ].join ''
+
+#-----------------------------------------------------------------------------------------------------------
+_normalize_regex_flags = ( regex ) -> _copy_regex regex, _normalize_new_flags
 
 #===========================================================================================================
 new_regex_tag = ( global_flags = 'dy' ) ->
@@ -64,6 +68,7 @@ class Token
       throw new Error "Ωilx___4 expected a regex for matcher, got #{rpr cfg.matcher}"
     unless ( cfg.matcher.sticky )
       throw new Error "Ωilx___5 expected a sticky regex for matcher, got flags #{rpr cfg.matcher.flags}"
+    cfg.matcher = _normalize_regex_flags cfg.matcher
     hide @, 'level',        cfg.level
     hide @, 'grammar',      cfg.level.grammar
     hide @, 'matcher',      cfg.matcher
