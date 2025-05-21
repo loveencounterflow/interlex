@@ -166,19 +166,24 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    cfg_template      =
-      name:               'g'
-      counter_name:       'line_nr'
-      counter_value:      1
-      counter_step:       1
-    @cfg             ?= { cfg_template..., cfg..., }
-    @state            =
-      count:              @cfg.counter_value
-    @name             = cfg.name
-    @start_level_name = null
-    hide @, 'start_level', null
-    hide @, 'levels',   {}
+    cfg_template          =
+      name:                 'g'
+      counter_name:         'line_nr'
+      counter_value:        1
+      counter_step:         1
+    @cfg                 ?= { cfg_template..., cfg..., }
+    @name                 = @cfg.name
+    @state                = { count: null, }
+    @reset_count()
+    @start_level_name     = null
+    hide @, 'start_level',  null
+    hide @, 'levels',       {}
     return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  reset_count: ->
+    @state.count = @cfg.counter_value
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   new_level: ( cfg ) ->
