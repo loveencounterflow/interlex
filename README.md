@@ -23,9 +23,9 @@
 
 
 Token matchers should preferrably constructed using the InterLex `rx''` regex tag function, but one can also
-use plain JS RegEx literals; these will be silently 'upgraded' by [removing illegal and adding necessary
-flags](#producing-a-regex-tag-function-with-new_regex_tag), so for example defining a matcher as `/A[a-z]+/`
-will actually result in the regular expression `/A[a-z]+/dvy`.
+use plain JS RegEx literals. All regular expressions will be silently 'upgraded' by [removing illegal and
+adding necessary flags](#producing-a-regex-tag-function-with-new_regex_tag), so for example declaring `{
+matcher: /A[a-z]+/, }` will actually result in the regular expression `/A[a-z]+/dvy` to be used.
 
 Note that in order to use some features of 3rd gen Unicode support afforded by the `v` flag one will need to
 explicitly set that flag on regex literals to make the JS parser accept the JS source file, but for many use
