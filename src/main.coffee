@@ -8,51 +8,89 @@
   info
   rpr                   } = require './helpers'
 #-----------------------------------------------------------------------------------------------------------
-### NOTE: may add punctuation later, therefore better to be restrictive ###
-### thx to https://github.com/sindresorhus/identifier-regex ###
-slevithan_regex           = require 'regex'
-{ partial, regex, }       = slevithan_regex
-_jsid_re                  = regex""" ^ [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* $ """
-_jump_spec_back           = '..'
-_jump_spec_re             = regex" (?<back> ^ #{_jump_spec_back} $ ) | (?<fore> #{_jsid_re} )"
-_regex_flag_lower_re      = /^[dgimsuvy]$/
-_regex_flag_upper_re      = /^[DGIMSUVY]$/
-# thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
-_regex_flags_re           = /^(?!.*(.).*\1)[dgimsuvy]*$/
-_default_flags_set        = new Set 'dy'
-_disallowed_flags_set     = new Set 'vuxn'
-_normalize_new_flags      = 'dyVU'
 
 
 #===========================================================================================================
-_copy_regex = ( regex, new_flags ) ->
-  flags = new Set regex.flags
-  for new_flag from new_flags
-    switch true
-      when _regex_flag_lower_re.test new_flag then flags.add    new_flag
-      when _regex_flag_upper_re.test new_flag then flags.delete new_flag.toLowerCase()
-      else throw new Error "Ωilx___1 invalid regex flag #{rpr new_flag} in #{rpr new_flags}"
-  return new RegExp regex.source, [ flags..., ].join ''
+internals = new class Internals
+  constructor: ->
+    SLR             = require 'regex'
+    #.........................................................................................................
+    ### thx to https://github.com/sindresorhus/identifier-regex ###
+    jsid_re         = SLR.regex""" ^ [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* $ """
+    jump_spec_back  = '..'
+    jump_spec_re    = SLR.regex" (?<back> ^ #{jump_spec_back} $ ) | (?<fore> #{jsid_re} )"
+    #.........................................................................................................
+    @slevithan_regex      = SLR
+    @jsid_re              = jsid_re
+    @jump_spec_back       = jump_spec_back
+    @jump_spec_re         = jump_spec_re
+    #.......................................................................................................
+    # thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
+    @regex_flags_re             = /^(?!.*(.).*\1)[dgimsuvy]*$/
+    @forbidden_slr_flags_re     = /[uv]/g
+    @forbidden_plain_flags_re   = /[u]/g
+    @mandatory_slr_flags_txt    = 'dy'
+    @mandatory_plain_flags_txt  = 'dvy'
+    @rx_symbol                  = Symbol 'rx'
+
+    #-------------------------------------------------------------------------------------------------------
+    @validate_regex_flags = ( flags ) =>
+      unless ( typeof flags ) is 'string'
+        throw new Error "Ωilx___1 expected a text, got #{rpr flags}"
+      unless @regex_flags_re.test flags
+        throw new Error "Ωilx___2 illegal or duplicate flags in #{rpr flags}"
+      return flags
+
+    #-------------------------------------------------------------------------------------------------------
+    @normalize_regex_flags = ({ flags, mode, }) =>
+      ### Given a RegExp `flags` text, sets `d`, `y`, removes `u`, `v`, and returns sorted text with unique
+      flags. ###
+      switch mode
+        when 'slr'
+          forbidden_flags_re  = @forbidden_slr_flags_re
+          mandatory_flags_txt = @mandatory_slr_flags_txt
+        when 'plain'
+          forbidden_flags_re  = @forbidden_plain_flags_re
+          mandatory_flags_txt = @mandatory_plain_flags_txt
+        else throw new Error "Ωilx___3 internal error: unknown mode: #{rpr mode}"
+      flags   = @validate_regex_flags flags ? ''
+      flags   = flags.replace forbidden_flags_re, ''
+      flags  += mandatory_flags_txt
+      return @get_unique_sorted_letters flags
+
+    #-------------------------------------------------------------------------------------------------------
+    @get_unique_sorted_letters = ( text ) => [ ( new Set text )..., ].sort().join ''
+
+    #-------------------------------------------------------------------------------------------------------
+    @normalize_regex = ( regex ) =>
+      ### Given a `regex`, return a new regex with the same pattern but normalized flags. ###
+      ### TAINT use proper typing ###
+      unless regex instanceof RegExp
+        throw new Error "Ωilx___4 expected a regex, got #{rpr regex}"
+      return regex if regex[ internals.rx_symbol ]?
+      return new RegExp regex.source, ( @normalize_regex_flags { flags: regex.flags, mode: 'plain', } )
+
+    #-------------------------------------------------------------------------------------------------------
+    return undefined
 
 #-----------------------------------------------------------------------------------------------------------
-_normalize_regex_flags = ( regex ) -> _copy_regex regex, _normalize_new_flags
-
-#===========================================================================================================
-new_regex_tag = ( global_flags = 'dy' ) ->
-  unless _regex_flags_re.test global_flags
-    throw new Error "Ωilx___2 invalid flags present in #{rpr global_flags}"
-  R = ( P... ) -> ( regex global_flags ) P...
-  return new Proxy R,
+new_regex_tag = ( global_flags = null ) ->
+  { regex }     = internals.slevithan_regex
+  global_flags  = internals.normalize_regex_flags { flags: global_flags, mode: 'slr', }
+  #.........................................................................................................
+  tag_function  = ( P... ) ->
+    R                         = ( regex global_flags ) P...
+    R[ internals.rx_symbol ]  = true
+    return R
+  #.........................................................................................................
+  return new Proxy tag_function,
     get: ( target, key ) ->
-      return undefined if key is Symbol.toStringTag
-      local_flags         = new Set key
-      local_flags         = local_flags.union       new Set global_flags
-      local_flags         = local_flags.union       _default_flags_set
-      local_flags         = local_flags.difference  _disallowed_flags_set
-      local_flags_literal = [ local_flags..., ].join ''
-      unless _regex_flags_re.test local_flags_literal
-        throw new Error "Ωilx___3 invalid flags present in #{rpr key}"
-      return ( regex local_flags_literal )
+      return undefined unless typeof key is 'string'
+      flags = global_flags + key
+      flags = internals.get_unique_sorted_letters   flags
+      flags = internals.normalize_regex_flags     { flags, mode: 'slr', }
+      return regex flags
+
 #-----------------------------------------------------------------------------------------------------------
 rx = new_regex_tag()
 
@@ -62,11 +100,8 @@ class Token
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    @name = cfg.name
-    ### TAINT use proper typing ###
-    unless ( cfg.matcher instanceof RegExp )
-      throw new Error "Ωilx___4 expected a regex for matcher, got #{rpr cfg.matcher}"
-    cfg.matcher = _normalize_regex_flags cfg.matcher
+    @name       = cfg.name
+    cfg.matcher = internals.normalize_regex cfg.matcher
     hide @, 'level',        cfg.level
     hide @, 'grammar',      cfg.level.grammar
     hide @, 'matcher',      cfg.matcher
@@ -84,7 +119,7 @@ class Token
   @_parse_jump: ( jump_spec ) ->
     return null unless jump_spec?
     ### TAINT use cleartype ###
-    unless ( match = jump_spec.match _jump_spec_re )?
+    unless ( match = jump_spec.match internals.jump_spec_re )?
       throw new Error "Ωilx___5 expected a well-formed jump literal, got #{rpr jump_spec}"
     return { action: 'back', target: null,              } if match.groups.back
     return { action: 'fore', target: match.groups.fore, }
@@ -249,16 +284,7 @@ module.exports = {
   Lexeme
   Level
   Grammar
-  regex
+  internals
   rx
-  new_regex_tag
-  internals: {
-    slevithan_regex }
-  _copy_regex
-  _jsid_re
-  _jump_spec_re
-  _normalize_regex_flags
-  _regex_flag_lower_re
-  _regex_flag_upper_re
-  _regex_flags_re }
+  new_regex_tag }
 
