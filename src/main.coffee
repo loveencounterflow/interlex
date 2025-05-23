@@ -69,6 +69,12 @@ internals = new class Internals
       return new RegExp regex.source, ( @normalize_regex_flags { flags: regex.flags, mode: 'plain', } )
 
     #-------------------------------------------------------------------------------------------------------
+    @sort_lexemes_by_length_dec = ( lexemes ) -> lexemes.sort ( a, b ) ->
+      return -1 if a.length > b.length
+      return +1 if a.length < b.length
+      return  0
+
+    #-------------------------------------------------------------------------------------------------------
     return undefined
 
 #-----------------------------------------------------------------------------------------------------------
@@ -131,6 +137,7 @@ class Lexeme
     @hit        = match[ 0 ]
     @start      = match.index
     @stop       = @start + @hit.length
+    @length     = @hit.length
     @groups     = match.groups ? null
     @jump       = token.jump
     @jump_spec  = token.jump_spec
@@ -160,6 +167,31 @@ class Level
       throw new Error "Ωilx___6 inconsistent level"
     @tokens.push token = new Token { cfg..., level: @, }
     return token
+
+  #---------------------------------------------------------------------------------------------------------
+  match_all_at: ( start, source ) ->
+    R = []
+    for token from @
+      continue unless ( lexeme = token.match_at start, source )?
+      R.push lexeme
+    return R
+
+  #---------------------------------------------------------------------------------------------------------
+  match_first_at: ( start, source ) ->
+    for token from @
+      return lexeme if ( lexeme = token.match_at start, source )?
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  match_longest_at: ( start, source ) ->
+    return null         if ( lexemes = @match_all_at start, source ).length is 0
+    return lexemes[ 0 ] if lexemes.length is 1
+    ### NOTE: Because JS guarantees stable sorts, we know that in case there were several lexemes with the
+    same maximum length, the ones that come earlier in the unsorted list (which corresponds to the order in
+    that the tokens got declared) will also come earlier after sorting; hence, the first lexeme in the list
+    after sorting will be one that has both maximum length (because of the sort) *and* come earlier in the
+    list of declarations (because of sort stability): ###
+    return ( internals.sort_lexemes_by_length_dec lexemes )[ 0 ]
 
 
 #===========================================================================================================
@@ -236,8 +268,7 @@ class Grammar
     loop
       lexeme  = null
       level   = stack.peek()
-      for token from level
-        break if ( lexeme = token.match_at start, source )?
+      lexeme  = level.match_first_at start, source
       #.....................................................................................................
       ### Terminate if none of the tokens of the current level has matched at the current position: ###
       break unless lexeme?
