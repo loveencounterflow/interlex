@@ -118,6 +118,9 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   * `_disallowed_flags_set`
   * `_normalize_new_flags`
 
+* **`[—]`** allow different metrics (code units, code points, graphemes) to determine `lexeme.length`, which
+  lexeme gets returned for `Level::match_longest_at()`
+
 ## Is Done
 
 * **`[+]`** implement chunk numbering with CFG settings `{ counter_name: 'line_nr', counter_start: 1, }`
