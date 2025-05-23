@@ -31,7 +31,6 @@ internals = new class Internals
     @forbidden_plain_flags_re   = /[u]/g
     @mandatory_slr_flags_txt    = 'dy'
     @mandatory_plain_flags_txt  = 'dvy'
-    @rx_symbol                  = Symbol 'rx'
 
     #-------------------------------------------------------------------------------------------------------
     @validate_regex_flags = ( flags ) =>
@@ -67,7 +66,6 @@ internals = new class Internals
       ### TAINT use proper typing ###
       unless regex instanceof RegExp
         throw new Error "Ωilx___4 expected a regex, got #{rpr regex}"
-      return regex if regex[ internals.rx_symbol ]?
       return new RegExp regex.source, ( @normalize_regex_flags { flags: regex.flags, mode: 'plain', } )
 
     #-------------------------------------------------------------------------------------------------------
@@ -78,10 +76,7 @@ new_regex_tag = ( global_flags = null ) ->
   { regex }     = internals.slevithan_regex
   global_flags  = internals.normalize_regex_flags { flags: global_flags, mode: 'slr', }
   #.........................................................................................................
-  tag_function  = ( P... ) ->
-    R                         = ( regex global_flags ) P...
-    R[ internals.rx_symbol ]  = true
-    return R
+  tag_function  = ( P... ) -> ( regex global_flags ) P...
   #.........................................................................................................
   return new Proxy tag_function,
     get: ( target, key ) ->
