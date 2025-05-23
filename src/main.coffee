@@ -105,9 +105,9 @@ class Token
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  match_at: ( start, text ) ->
+  match_at: ( start, source ) ->
     @matcher.lastIndex = start
-    return null unless ( match = text.match @matcher )?
+    return null unless ( match = source.match @matcher )?
     return new Lexeme @, match
 
   #---------------------------------------------------------------------------------------------------------
