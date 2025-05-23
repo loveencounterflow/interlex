@@ -216,7 +216,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   new_level: ( cfg ) ->
     if @levels[ cfg.name ]?
-      throw new Error "Ωilx___7 level #{rpr level.name} elready exists"
+      throw new Error "Ωilx___8 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
     unless @start_level?
@@ -247,7 +247,7 @@ class Grammar
         { fqname
           start } = lexeme
         snippet   = source[ start - 10 ... start ] + '⚠' + source[ start + 1 .. start + 10 ]
-        throw new Error "Ωilx___8 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
+        throw new Error "Ωilx___9 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
       #.....................................................................................................
       yield lexeme
       @state.count += @cfg.counter_step
