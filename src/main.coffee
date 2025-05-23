@@ -153,10 +153,11 @@ class Level
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    cfg    ?= {}
-    @name   = cfg.name ? 'gnd'
-    hide @, 'grammar',  cfg.grammar
-    hide @, 'tokens',   [ ( cfg.tokens ? [] )..., ]
+    cfg            ?= {}
+    @name           = cfg.name ? 'gnd'
+    hide @,         'grammar',  cfg.grammar
+    hide @,         'tokens',   [ ( cfg.tokens ? [] )..., ]
+    hide_getter @,  'strategy', => @grammar.cfg.strategy
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -193,6 +194,12 @@ class Level
     after sorting will be one that has both maximum length (because of the sort) *and* come earlier in the
     list of declarations (because of sort stability): ###
     return ( internals.sort_lexemes_by_length_dec lexemes )[ 0 ]
+
+  #---------------------------------------------------------------------------------------------------------
+  match_at: ( start, source ) ->
+    return @match_first_at    start, source if @strategy is 'first'
+    return @match_longest_at  start, source if @strategy is 'longest'
+    throw new Error "Ωilx___7 should never happen: got strategy: #{rpr @strategy}"
 
 
 #===========================================================================================================
@@ -232,6 +239,7 @@ class Grammar
       counter_name:         'line_nr'
       counter_value:        1
       counter_step:         1
+      strategy:             'first'
     @cfg                 ?= { cfg_template..., cfg..., }
     @name                 = @cfg.name
     @state                = { count: null, }
@@ -269,7 +277,7 @@ class Grammar
     loop
       lexeme  = null
       level   = stack.peek()
-      lexeme  = level.match_first_at start, source
+      lexeme  = level.match_at start, source
       #.....................................................................................................
       ### Terminate if none of the tokens of the current level has matched at the current position: ###
       break unless lexeme?
