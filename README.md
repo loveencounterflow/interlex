@@ -12,6 +12,7 @@
     - [Producing a Regex Tag Function with `new_regex_tag()`](#producing-a-regex-tag-function-with-new_regex_tag)
   - [To Do](#to-do)
   - [Is Done](#is-done)
+  - [Don't](#dont)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -85,7 +86,6 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
 * **`[—]`** allow positional arguments to `Level::new_token()`: `( name, matcher, cfg )`
 * **`[—]`** bundle `start`, `stop` and later `lnr` &c under `position`?
-* **`[—]`** 'wrap' tokenizing so that handling of line splitting, line numbering is isolated yet transparent
 * **`[—]`** include indices for groups:
 
   ```
@@ -95,13 +95,8 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   ```
 
 * **`[—]`** rename result of `new_regex_tag` to reflect use of flags
-* **`[—]`** during matching, ensure that when lexeme was produced it did consume text
-  * **`[—]`** is it possible and useful to allow regular lexemes that take up zero space akin to special
-    lexemes (to be written) that indicate start, end, change of level?
-* **`[—]`** extend sanity checks for matcher regex:
-  * **`[—]`** must not have `g`?
-  * **`[—]`** must have `d`
-  * **`[—]`** must have `v` not `u`?
+* **`[—]`** is it possible and useful to allow regular lexemes that take up zero space akin to special
+  lexemes (to be written) that indicate start, end, change of level?
 * **`[—]`** allow functions for `token.matcher`?
   * must accept `( start, text, { token, level, grammar, } )`
   * must return `null` or a lexeme
@@ -128,6 +123,14 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[+]`** when using regex for `token.matcher`, should we **(1)** update flags or **(2)** reject regexes
   without required flags?—See what `slevithan/regex` does with `v` flag (throws `Error: Implicit flags
   v/u/x/n cannot be explicitly added`)
+* **`[+]`** during matching, ensure that when lexeme was produced it did consume text
+* **`[+]`** extend sanity checks for matcher regex:
+  * **`[+]`** must not have `g`?
+  * **`[+]`** must have `d`
+  * **`[+]`** must have `v` not `u`?
 
-<!-- ## Don't -->
+## Don't
+
+* **`[—]`** <del>'wrap' tokenizing so that handling of line splitting, line numbering is isolated yet
+  transparent</del>
 
