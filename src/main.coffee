@@ -242,6 +242,13 @@ class Grammar
       ### Terminate if none of the tokens of the current level has matched at the current position: ###
       break unless lexeme?
       #.....................................................................................................
+      ### Refuse to accept empty match: ###
+      if lexeme.hit is ''
+        { fqname
+          start } = lexeme
+        snippet   = source[ start - 10 ... start ] + '⚠' + source[ start + 1 .. start + 10 ]
+        throw new Error "Ωilx___8 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
+      #.....................................................................................................
       yield lexeme
       @state.count += @cfg.counter_step
       start         = lexeme.stop
