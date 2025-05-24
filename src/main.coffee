@@ -166,7 +166,7 @@ class Level
   #---------------------------------------------------------------------------------------------------------
   new_token: ( cfg ) ->
     if cfg.level? and cfg.level isnt @
-      throw new Error "Ωilx___6 inconsistent level"
+      throw new Error "Ωilx___7 inconsistent level"
     @tokens.push token = new Token { cfg..., level: @, }
     return token
 
@@ -199,7 +199,7 @@ class Level
   match_at: ( start, source ) ->
     return @match_first_at    start, source if @strategy is 'first'
     return @match_longest_at  start, source if @strategy is 'longest'
-    throw new Error "Ωilx___7 should never happen: got strategy: #{rpr @strategy}"
+    throw new Error "Ωilx___8 should never happen: got strategy: #{rpr @strategy}"
 
 
 #===========================================================================================================
@@ -257,7 +257,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   new_level: ( cfg ) ->
     if @levels[ cfg.name ]?
-      throw new Error "Ωilx___8 level #{rpr level.name} elready exists"
+      throw new Error "Ωilx___9 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
     unless @start_level?
@@ -287,7 +287,7 @@ class Grammar
         { fqname
           start } = lexeme
         snippet   = source[ start - 10 ... start ] + '⚠' + source[ start + 1 .. start + 10 ]
-        throw new Error "Ωilx___9 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
+        throw new Error "Ωilx__10 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
       #.....................................................................................................
       yield lexeme
       @state.count += @cfg.counter_step
