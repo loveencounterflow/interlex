@@ -125,6 +125,15 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
     separate border tokens that should remain in the containing context."
 * **`[—]`** implement API to test whether lexing has finished
   * **`[—]`** option to throw or emit error in case lexing is unfinished
+* **`[—]`** allow empty matches provided the token defines a jump
+  * **`[—]`** documentation: "emtpy matches are allowed only as intermediate results (with strategy
+    `longest)` or when the respective token declares a jump". **Note** disallowing empty jumps in internal,
+    intermediate results is somewhat misleading because it, too, does not by any means catch all cases where
+    any of the declared matches could have conceivably remained empty. Which is to say we should either
+    confine ourselves to doing runtime sanity checks (soemthing we can certainly do, with ease) and accept
+    that we have no way to discover matchers that could *potentially* return empty matches; or, else, we
+    implement watertight up-front checks that only reguler expressions that can never yield an empty match
+    are allowable (something we can almost certainly not do, like at all).
 
 ## Is Done
 
