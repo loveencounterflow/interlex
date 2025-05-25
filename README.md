@@ -84,6 +84,7 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 ## To Do
 
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
+  * **`[—]`** allow to declare tokens when calling `Level::new_token()`
 * **`[—]`** allow positional arguments to `Level::new_token()`: `( name, matcher, cfg )`
 * **`[—]`** bundle `start`, `stop` and later `lnr` &c under `position`?
 * **`[—]`** include indices for groups:
@@ -118,11 +119,12 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** move `fqname` formation to token, use API
 * **`[—]`** implement 'inclusive' ('progressive'), 'exclusive' ('regressive') jumps
   * **`[—]`** allow to configure grammar defaults for fore- and backward jumps
-  * **`[—]`** use syntax as before (`[level`, `..]` vs `level[`, `]..`)?
-  * **`[—]`** `[string`, `..]` vs `string[`, `]..`
-  * <del>**`[—]`** `(string`, `..)` vs `string(`, `)..`</del>
-  * <del>**`[—]`** `!string`, `..!` vs `string!`, `!..`</del>
-  * <del>**`[—]`** `/string`, `../` vs `string/`, `/..`</del>
+  * **`[—]`** use syntax as before (`[level`, `..]` vs `level[`, `]..`)
+  * **`[—]`** documentation: "use inclusive jumps when lexing an embedding without separate border tokens or
+    to move border tokens into the embedded level; use exclusive jumps when lexing an embedding with
+    separate border tokens that should remain in the containing context."
+* **`[—]`** implement API to test whether lexing has finished
+  * **`[—]`** option to throw or emit error in case lexing is unfinished
 
 ## Is Done
 
