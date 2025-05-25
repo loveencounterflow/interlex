@@ -115,6 +115,14 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 
 * **`[—]`** allow different metrics (code units, code points, graphemes) to determine `lexeme.length`, which
   lexeme gets returned for `Level::match_longest_at()`
+* **`[—]`** move `fqname` formation to token, use API
+* **`[—]`** implement 'inclusive' ('progressive'), 'exclusive' ('regressive') jumps
+  * **`[—]`** allow to configure grammar defaults for fore- and backward jumps
+  * **`[—]`** use syntax as before (`[level`, `..]` vs `level[`, `]..`)?
+  * **`[—]`** `[string`, `..]` vs `string[`, `]..`
+  * **`[—]`** `(string`, `..)` vs `string(`, `)..`
+  * **`[—]`** `!string`, `..!` vs `string!`, `!..`
+  * **`[—]`** `/string`, `../` vs `string/`, `/..`
 
 ## Is Done
 
