@@ -199,9 +199,18 @@ class Level
 
   #---------------------------------------------------------------------------------------------------------
   match_at: ( start, source ) ->
-    return @match_first_at    start, source if @strategy is 'first'
-    return @match_longest_at  start, source if @strategy is 'longest'
-    throw new Error "Ωilx___8 should never happen: got strategy: #{rpr @strategy}"
+    switch @strategy
+      when 'first'    then  lexeme = @match_first_at    start, source
+      when 'longest'  then  lexeme = @match_longest_at  start, source
+      else throw new Error "Ωilx___8 should never happen: got strategy: #{rpr @strategy}"
+    #.......................................................................................................
+    ### Accept no lexeme matching but refuse lexeme with empty match: ###
+    return null   unless lexeme?
+    return lexeme unless lexeme.hit is ''
+    { fqname
+      start } = lexeme
+    snippet   = source[ start - 10 ... start ] + '⚠' + source[ start .. start + 10 ]
+    throw new Error "Ωilx___9 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
 
 
 #===========================================================================================================
@@ -283,13 +292,6 @@ class Grammar
       #.....................................................................................................
       ### Terminate if none of the tokens of the current level has matched at the current position: ###
       break unless lexeme?
-      #.....................................................................................................
-      ### Refuse to accept empty match: ###
-      if lexeme.hit is ''
-        { fqname
-          start } = lexeme
-        snippet   = source[ start - 10 ... start ] + '⚠' + source[ start .. start + 10 ]
-        throw new Error "Ωilx__10 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
       #.....................................................................................................
       yield lexeme
       @state.count += @cfg.counter_step
