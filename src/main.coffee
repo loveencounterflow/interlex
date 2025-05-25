@@ -135,19 +135,18 @@ class Lexeme
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( token, match ) ->
-    @name       = token.name
-    @fqname     = "#{token.level.name}.#{token.name}"
-    @level      = token.level
-    @hit        = match[ 0 ]
-    @start      = match.index
-    @stop       = @start + @hit.length
-    @length     = @hit.length
-    @groups     = match.groups ? null
-    @jump       = token.jump
-    @jump_spec  = token.jump_spec
-    name        = token.grammar.cfg.counter_name
-    count       = token.grammar.state.count
-    @[ name ]   = count
+    @name                         = token.name
+    @fqname                       = "#{token.level.name}.#{token.name}"
+    @level                        = token.level
+    @hit                          = match[ 0 ]
+    @start                        = match.index
+    @stop                         = @start + @hit.length
+    @length                       = @hit.length
+    @groups                       = match.groups ? null
+    @jump                         = token.jump
+    @jump_spec                    = token.jump_spec
+    grammar                       = token.grammar
+    @[ grammar.cfg.counter_name ] = grammar.state.count
     return undefined
 
 
