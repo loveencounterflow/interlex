@@ -288,7 +288,7 @@ class Grammar
       if lexeme.hit is ''
         { fqname
           start } = lexeme
-        snippet   = source[ start - 10 ... start ] + '⚠' + source[ start + 1 .. start + 10 ]
+        snippet   = source[ start - 10 ... start ] + '⚠' + source[ start .. start + 10 ]
         throw new Error "Ωilx__10 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
       #.....................................................................................................
       yield lexeme
