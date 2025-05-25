@@ -120,9 +120,9 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   * **`[—]`** allow to configure grammar defaults for fore- and backward jumps
   * **`[—]`** use syntax as before (`[level`, `..]` vs `level[`, `]..`)?
   * **`[—]`** `[string`, `..]` vs `string[`, `]..`
-  * **`[—]`** `(string`, `..)` vs `string(`, `)..`
-  * **`[—]`** `!string`, `..!` vs `string!`, `!..`
-  * **`[—]`** `/string`, `../` vs `string/`, `/..`
+  * <del>**`[—]`** `(string`, `..)` vs `string(`, `)..`</del>
+  * <del>**`[—]`** `!string`, `..!` vs `string!`, `!..`</del>
+  * <del>**`[—]`** `/string`, `../` vs `string/`, `/..`</del>
 
 ## Is Done
 
