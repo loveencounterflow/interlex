@@ -133,7 +133,11 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
     confine ourselves to doing runtime sanity checks (soemthing we can certainly do, with ease) and accept
     that we have no way to discover matchers that could *potentially* return empty matches; or, else, we
     implement watertight up-front checks that only reguler expressions that can never yield an empty match
-    are allowable (something we can almost certainly not do, like at all).
+    are allowable (something we can almost certainly not do, like at all). Conceptually, no matter the
+    acceptance strategy (`first` or `longest`), there are always some matchers that could have matched a
+    zero-length string (which we cannot know for sure unless we use some non-existing static analysis
+    technique) but that were either not applied (because some other token's matcher came earlier) or applied
+    and discarded (because some other token's matcher gave a longer match).
 
 ## Is Done
 
