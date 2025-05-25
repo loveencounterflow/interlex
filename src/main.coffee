@@ -286,31 +286,24 @@ class Grammar
     lexeme  = null
     #.......................................................................................................
     loop
-      level   = stack.peek()
-      lexeme  = level.match_at start, source
-      #.....................................................................................................
-      ### Terminate if none of the tokens of the current level has matched at the current position: ###
-      break unless lexeme?
-      #.....................................................................................................
+      level         = stack.peek()
+      lexeme        = level.match_at start, source
+      break unless lexeme? # terminate if current level has no matching tokens
       @state.count += @cfg.counter_step
       start         = lexeme.stop
       #.....................................................................................................
       if ( jump = lexeme.jump )? then switch jump.action
-        #...................................................................................................
-        when 'fore'
-          ### TAINT encapsulate ###
-          unless ( new_level = @levels[ jump.target ] )?
-            throw new Error "unknown level #{rpr jump.target}"
-          stack.push new_level
-        #...................................................................................................
-        when 'back'
-          stack.pop()
-        #...................................................................................................
-        else throw new Error "Ωilx___3 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+        when 'fore' then  stack.push ( new_level = @_get_level jump.target )
+        when 'back' then  new_level = stack.pop()
+        else throw new Error "Ωilx__11 should never happen: unknown jump action #{rpr lexeme.jump.action}"
       #.....................................................................................................
       yield lexeme
     return null
 
+  #---------------------------------------------------------------------------------------------------------
+  _get_level: ( level_name ) ->
+    return R if ( R = @levels[ level_name ] )?
+    throw new Error "Ωilx__12 unknown level #{rpr level_name}"
 
   #===========================================================================================================
   ###
