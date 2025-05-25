@@ -259,7 +259,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   new_level: ( cfg ) ->
     if @levels[ cfg.name ]?
-      throw new Error "Ωilx___9 level #{rpr level.name} elready exists"
+      throw new Error "Ωilx__10 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
     unless @start_level?
