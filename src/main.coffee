@@ -281,37 +281,33 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   walk_lexemes: ( source ) ->
-    { f } = require '../../effstring'
-    start = 0
-    stack = new Stack [ @start_level, ]
+    start   = 0
+    stack   = new Stack [ @start_level, ]
+    lexeme  = null
     #.......................................................................................................
     loop
-      lexeme  = null
       level   = stack.peek()
       lexeme  = level.match_at start, source
       #.....................................................................................................
       ### Terminate if none of the tokens of the current level has matched at the current position: ###
       break unless lexeme?
       #.....................................................................................................
-      yield lexeme
       @state.count += @cfg.counter_step
       start         = lexeme.stop
       #.....................................................................................................
-      continue unless ( jump = lexeme.jump )?
-      switch jump.action
+      if ( jump = lexeme.jump )? then switch jump.action
         #...................................................................................................
         when 'fore'
           ### TAINT encapsulate ###
           unless ( new_level = @levels[ jump.target ] )?
             throw new Error "unknown level #{rpr jump.target}"
           stack.push new_level
-          continue
         #...................................................................................................
         when 'back'
           stack.pop()
-          continue
+        else throw new Error "Ωilx___3 should never happen: unknown jump action #{rpr lexeme.jump.action}"
       #.....................................................................................................
-      throw new Error "unknown jump action #{rpr lexeme.jump.action}"
+      yield lexeme
     return null
 
 
