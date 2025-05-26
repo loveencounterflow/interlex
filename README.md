@@ -124,11 +124,6 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   indicated by an `!` exclamation mark behind the jump target, so for example a token declaration in level
   `gnd` that contains `{ jump: 'otherlevel!', }` indicates that the resulting lexeme's `level` will be
   `otherlevel`, not `gnd`."
-
-
-
-
-
 * **`[—]`** implement API to test whether lexing has finished
   * **`[—]`** option to throw or emit error in case lexing is unfinished
 * **`[—]`** allow empty matches provided the token defines a jump
@@ -144,6 +139,12 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
     zero-length string (which we cannot know for sure unless we use some non-existing static analysis
     technique) but that were either not applied (because some other token's matcher came earlier) or applied
     and discarded (because some other token's matcher gave a longer match).
+* **`[—]`** documentation:
+  > * `Token` defines `matcher`, can jump into a level or back
+  > * `Level` has one or more `Token`s
+  > * `Grammar` has one or more `Level`s
+  > * `Lexeme` produced by a `Token` instance when matcher matches source
+
 
 ## Is Done
 
