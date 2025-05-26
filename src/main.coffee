@@ -147,6 +147,7 @@ class Lexeme
   #---------------------------------------------------------------------------------------------------------
   constructor: ( token, match ) ->
     @name                         = token.name
+    set_getter @, 'fqname', => "#{@level.name}.#{@name}"
     @hit                          = match[ 0 ]
     @start                        = match.index
     @stop                         = @start + @hit.length
@@ -154,11 +155,11 @@ class Lexeme
     @groups                       = match.groups ? null
     @jump                         = token.jump
     @jump_spec                    = token.jump_spec
+    @token                        = token
     grammar                       = token.grammar
     @[ grammar.cfg.counter_name ] = grammar.state.count
     #.......................................................................................................
     @set_level token.level
-    set_getter @, 'fqname', => "#{@level.name}.#{@name}"
     #.......................................................................................................
     return undefined
 
