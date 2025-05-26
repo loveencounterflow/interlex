@@ -224,7 +224,7 @@ class Level
     #.......................................................................................................
     ### Accept no lexeme matching but refuse lexeme with empty match: ###
     return null   unless lexeme?
-    return lexeme unless lexeme.hit is ''
+    return lexeme unless ( lexeme.hit is '' ) and ( not lexeme.jump? )
     { fqname
       start } = lexeme
     snippet   = source[ start - 10 ... start ] + '⚠' + source[ start .. start + 10 ]
