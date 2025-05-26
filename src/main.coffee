@@ -129,14 +129,16 @@ class Token
   #---------------------------------------------------------------------------------------------------------
   @_parse_jump: ( jump_spec, level = null ) ->
     return null unless jump_spec?
-    ### TAINT use cleartype ###
-    unless ( match = jump_spec.match internals.jump_spec_re )?
-      throw new Error "Ωilx___5 expected a well-formed jump literal, got #{rpr jump_spec}"
-    return { action: 'back', target: null,              } if match.groups.back
-    target = match.groups.fore
+    match = null
+    for { inex, action, matcher, } in internals.jump_spec_res
+      break if ( match = jump_spec.match matcher )?
+    unless match?
+      throw new Error "Ωilx___5 encountered illegal jump spec #{rpr jump_spec}"
+    # info 'Ωilxt___6', { jump_spec, inex, action, match.groups..., }
+    { target, } = match.groups
     if level? and ( target is level.name )
-      throw new Error "Ωilx___6 cannot jump to same level, got #{rpr target}"
-    return { action: 'fore', target, }
+      throw new Error "Ωilx___7 cannot jump to same level, got #{rpr target}"
+    return { jump_spec, inex, action, target, }
 
 
 #===========================================================================================================
