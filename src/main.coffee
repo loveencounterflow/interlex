@@ -17,6 +17,7 @@ internals = new class Internals
     SLR             = require 'regex'
     #.........................................................................................................
     ### thx to https://github.com/sindresorhus/identifier-regex ###
+    jsid_noanchor_re = SLR.regex"""   [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]*   """
     jsid_re         = SLR.regex""" ^ [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* $ """
     jump_spec_back  = '..'
     jump_spec_re    = SLR.regex" (?<back> ^ #{jump_spec_back} $ ) | (?<fore> #{jsid_re} )"
@@ -25,6 +26,13 @@ internals = new class Internals
     @jsid_re              = jsid_re
     @jump_spec_back       = jump_spec_back
     @jump_spec_re         = jump_spec_re
+    @jump_spec_res        =
+      bare_back:      SLR.regex"^    (?<target> #{jump_spec_back}   )    $"
+      inclusive_back: SLR.regex"^ \] (?<target> #{jump_spec_back}   )    $"
+      exclusive_back: SLR.regex"^    (?<target> #{jump_spec_back}   ) \] $"
+      bare_fore:      SLR.regex"^    (?<target> #{jsid_noanchor_re} )    $"
+      inclusive_fore: SLR.regex"^ \[ (?<target> #{jsid_noanchor_re} )    $"
+      exclusive_fore: SLR.regex"^    (?<target> #{jsid_noanchor_re} ) \[ $"
     #.......................................................................................................
     # thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
     @regex_flags_re             = /^(?!.*(.).*\1)[dgimsuvy]*$/
