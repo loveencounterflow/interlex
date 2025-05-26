@@ -8,8 +8,9 @@
 
 - [InterLex](#interlex)
   - [Token Matchers](#token-matchers)
-  - [Zero-Length Matches](#zero-length-matches)
-    - [Using the `interlex.rx''` Regex Tag Function](#using-the-interlexrx-regex-tag-function)
+    - [Zero-Length Matches](#zero-length-matches)
+  - [Token Jumps](#token-jumps)
+  - [Using the `interlex.rx''` Regex Tag Function](#using-the-interlexrx-regex-tag-function)
     - [Producing a Regex Tag Function with `new_regex_tag()`](#producing-a-regex-tag-function-with-new_regex_tag)
   - [To Do](#to-do)
   - [Is Done](#is-done)
@@ -34,7 +35,7 @@ explicitly set that flag on regex literals to make the JS parser accept the JS s
 cases just using a 'naked' regex literal should be fine—although those who do so will miss out on the many
 finer points of using [`slevithan/regex`](https://github.com/slevithan/regex).
 
-## Zero-Length Matches
+### Zero-Length Matches
 
 * also called 'empty matches'
 * are only rejected when they actually happen to occur while scanning a text because it is not feasable
@@ -47,8 +48,21 @@ finer points of using [`slevithan/regex`](https://github.com/slevithan/regex).
   match and lookaheads, one would inevitably wind up with the stretch of digits split up between two lexemes
   that might even belong to two different levels.
 
+## Token Jumps
 
-### Using the `interlex.rx''` Regex Tag Function
+* Jumps are declared with the property name `jump` and a so-called 'jump spec' which is a string that
+  contains **(1)**&nbsp;either **(a)**&nbsp;another level's name, or **(b)**&nbsp;a symbolic string `..` to
+  indicate 'jump back from current level, return to the previous level'; and **(2)**&nbsp;an optional 'carry
+  mark'.
+* Jumps can be either 'sticky' or 'carrying' depending on whether the lexeme produced from the respective
+  token will 'stick' to the token's level or be 'carried' along to the new level (the jump's target). Sticky
+  jumps have no explicit marker as they represent the 'default of least surprise' (a lexeme looks almost
+  like the token it was produced by, after all); carrying jumps are indicated by an `!` exclamation mark
+  behind the jump target, so for example a token declaration in level `gnd` that contains `{ jump:
+  'otherlevel!', }` indicates that the resulting lexeme's `level` will be `otherlevel`, not `gnd`."
+
+
+## Using the `interlex.rx''` Regex Tag Function
 
 The InterLex `rx''` regex tag function is based on the `regex''` tag function from
 [`slevithan/regex`](https://github.com/slevithan/regex). It is intended to be used mainly to define a
@@ -127,29 +141,9 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** allow different metrics (code units, code points, graphemes) to determine `lexeme.length`, which
   lexeme gets returned for `Level::match_longest_at()`
 * **`[—]`** move `fqname` formation to token, use API
-* **`[—]`** documentation:
-  > jumps can be either 'sticky' or 'carrying' depending on whether the lexeme produced from the respective
-  > token will 'stick' to the token's level or be 'carried' along to the new level (the jump's target).
-  > Sticky jumps have no explicit marker as they represent the 'default of least surprise' (a lexeme looks
-  > almost like the token it was produced by, after all); carrying jumps are indicated by an `!` exclamation
-  > mark behind the jump target, so for example a token declaration in level `gnd` that contains `{ jump:
-  > 'otherlevel!', }` indicates that the resulting lexeme's `level` will be `otherlevel`, not `gnd`."
 * **`[—]`** implement API to test whether lexing has finished
   * **`[—]`** option to throw or emit error in case lexing is unfinished
 * **`[—]`** allow empty matches provided the token defines a jump
-* **`[—]`** documentation:
-  > emtpy matches are allowed only as intermediate results (with strategy `longest)` or when the respective
-  > token declares a jump". **Note** disallowing empty jumps in internal, intermediate results is somewhat
-  > misleading because it, too, does not by any means catch all cases where any of the declared matches
-  > could have conceivably remained empty. Which is to say we should either confine ourselves to doing
-  > runtime sanity checks (soemthing we can certainly do, with ease) and accept that we have no way to
-  > discover matchers that could *potentially* return empty matches; or, else, we implement watertight
-  > up-front checks that only reguler expressions that can never yield an empty match are allowable
-  > (something we can almost certainly not do, like at all). Conceptually, no matter the acceptance strategy
-  > (`first` or `longest`), there are always some matchers that could have matched a zero-length string
-  > (which we cannot know for sure unless we use some non-existing static analysis technique) but that were
-  > either not applied (because some other token's matcher came earlier) or applied and discarded (because
-  > some other token's matcher gave a longer match).
 * **`[—]`** documentation:
   > * `Token` defines `matcher`, can jump into a level or back
   > * `Level` has one or more `Token`s
@@ -171,6 +165,26 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   * **`[+]`** must have `v` not `u`?
 * **`[+]`** is it possible and useful to allow regular lexemes that take up zero space akin to special
   lexemes (to be written) that indicate start, end, change of level?
+* **`[+]`** documentation:
+  > emtpy matches are allowed only as intermediate results (with strategy `longest)` or when the respective
+  > token declares a jump". **Note** disallowing empty jumps in internal, intermediate results is somewhat
+  > misleading because it, too, does not by any means catch all cases where any of the declared matches
+  > could have conceivably remained empty. Which is to say we should either confine ourselves to doing
+  > runtime sanity checks (soemthing we can certainly do, with ease) and accept that we have no way to
+  > discover matchers that could *potentially* return empty matches; or, else, we implement watertight
+  > up-front checks that only reguler expressions that can never yield an empty match are allowable
+  > (something we can almost certainly not do, like at all). Conceptually, no matter the acceptance strategy
+  > (`first` or `longest`), there are always some matchers that could have matched a zero-length string
+  > (which we cannot know for sure unless we use some non-existing static analysis technique) but that were
+  > either not applied (because some other token's matcher came earlier) or applied and discarded (because
+  > some other token's matcher gave a longer match).
+* **`[+]`** documentation:
+  > jumps can be either 'sticky' or 'carrying' depending on whether the lexeme produced from the respective
+  > token will 'stick' to the token's level or be 'carried' along to the new level (the jump's target).
+  > Sticky jumps have no explicit marker as they represent the 'default of least surprise' (a lexeme looks
+  > almost like the token it was produced by, after all); carrying jumps are indicated by an `!` exclamation
+  > mark behind the jump target, so for example a token declaration in level `gnd` that contains `{ jump:
+  > 'otherlevel!', }` indicates that the resulting lexeme's `level` will be `otherlevel`, not `gnd`."
 
 ## Don't
 
