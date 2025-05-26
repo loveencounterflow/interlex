@@ -148,8 +148,6 @@ class Lexeme
   #---------------------------------------------------------------------------------------------------------
   constructor: ( token, match ) ->
     @name                         = token.name
-    @fqname                       = "#{token.level.name}.#{token.name}"
-    @level                        = token.level
     @hit                          = match[ 0 ]
     @start                        = match.index
     @stop                         = @start + @hit.length
@@ -159,7 +157,17 @@ class Lexeme
     @jump_spec                    = token.jump_spec
     grammar                       = token.grammar
     @[ grammar.cfg.counter_name ] = grammar.state.count
+    #.......................................................................................................
+    @set_level token.level
+    set_getter @, 'fqname', => "#{@level.name}.#{@name}"
+    #.......................................................................................................
     return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  set_level: ( level ) ->
+    ### TAINT should typecheck ###
+    @level = level
+    return null
 
 
 #===========================================================================================================
