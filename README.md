@@ -117,22 +117,13 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** allow different metrics (code units, code points, graphemes) to determine `lexeme.length`, which
   lexeme gets returned for `Level::match_longest_at()`
 * **`[—]`** move `fqname` formation to token, use API
-* **`[—]`** implement 'inclusive' ('progressive'), 'exclusive' ('regressive') jumps
-  * **`[—]`** allow to configure grammar defaults for fore- and backward jumps
-  * **`[—]`** use syntax as before (`[level`, `..]` vs `level[`, `]..`)
-  * **`[—]`** documentation: "use inclusive jumps when lexing an embedding without separate border tokens or
-    to move border tokens into the embedded level; use exclusive jumps when lexing an embedding with
-    separate border tokens that should remain in the containing context."—"One way to understand the bracketed jump
-    notation is to imagine the result as a list"
-
-    ————————————————————————————————————————————————————————————————————————————————————————————————————————
-    ————————————————————————————————————————————————————————————————————————————————————————————————————————
-    ————————————————————————————————————————————————————————————————————————————————————————————————————————
-    ————————————————————————————————————————————————————————————————————————————————————————————————————————
-    ————————————————————————————————————————————————————————————————————————————————————————————————————————
-    ————————————————————————————————————————————————————————————————————————————————————————————————————————
-    ————————————————————————————————————————————————————————————————————————————————————————————————————————
-
+* **`[—]`** documentation: "jumps can be either 'sticky' or 'carrying' depending on whether the lexeme
+  produced from the respective token will 'stick' to the token's level or be 'carried' along to the new
+  level (the jump's target). Sticky jumps have no explicit marker as they represent the 'default of least
+  surprise' (a lexeme looks almost like the token it was produced by, after all); carrying jumps are
+  indicated by an `!` exclamation mark behind the jump target, so for example a token declaration in level
+  `gnd` that contains `{ jump: 'otherlevel!', }` indicates that the resulting lexeme's `level` will be
+  `otherlevel`, not `gnd`."
 
 
 
@@ -171,4 +162,7 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 
 * **`[—]`** <del>'wrap' tokenizing so that handling of line splitting, line numbering is isolated yet
   transparent</del>
+* **`[—]`** <del>use syntax as before (`[level`, `..]` vs `level[`, `]..`)</del>
+* **`[—]`** <del>implement 'inclusive' ('progressive'), 'exclusive' ('regressive') jumps</del>
+  * **`[—]`** <del>allow to configure grammar defaults for fore- and backward jumps</del>
 
