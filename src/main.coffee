@@ -26,13 +26,14 @@ internals = new class Internals
     @jsid_re              = jsid_re
     @jump_spec_back       = jump_spec_back
     @jump_spec_re         = jump_spec_re
-    @jump_spec_res        =
-      bare_back:      SLR.regex"^    (?<target> #{jump_spec_back}   )    $"
-      inclusive_back: SLR.regex"^ \] (?<target> #{jump_spec_back}   )    $"
-      exclusive_back: SLR.regex"^    (?<target> #{jump_spec_back}   ) \] $"
-      bare_fore:      SLR.regex"^    (?<target> #{jsid_noanchor_re} )    $"
-      inclusive_fore: SLR.regex"^ \[ (?<target> #{jsid_noanchor_re} )    $"
-      exclusive_fore: SLR.regex"^    (?<target> #{jsid_noanchor_re} ) \[ $"
+    @jump_spec_res        = [
+      { inex: 'bare',      action: 'back', matcher: SLR.regex"^    (?<target> #{jump_spec_back}   )    $", }
+      { inex: 'inclusive', action: 'back', matcher: SLR.regex"^ \] (?<target> #{jump_spec_back}   )    $", }
+      { inex: 'exclusive', action: 'back', matcher: SLR.regex"^    (?<target> #{jump_spec_back}   ) \] $", }
+      { inex: 'bare',      action: 'fore', matcher: SLR.regex"^    (?<target> #{jsid_noanchor_re} )    $", }
+      { inex: 'inclusive', action: 'fore', matcher: SLR.regex"^ \[ (?<target> #{jsid_noanchor_re} )    $", }
+      { inex: 'exclusive', action: 'fore', matcher: SLR.regex"^    (?<target> #{jsid_noanchor_re} ) \[ $", }
+      ]
     #.......................................................................................................
     # thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
     @regex_flags_re             = /^(?!.*(.).*\1)[dgimsuvy]*$/
