@@ -122,7 +122,22 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   * **`[—]`** use syntax as before (`[level`, `..]` vs `level[`, `]..`)
   * **`[—]`** documentation: "use inclusive jumps when lexing an embedding without separate border tokens or
     to move border tokens into the embedded level; use exclusive jumps when lexing an embedding with
-    separate border tokens that should remain in the containing context."
+    separate border tokens that should remain in the containing context."—"One way to understand the bracketed jump
+    notation is to imagine the result as a list"
+
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+
+
+
+
 * **`[—]`** implement API to test whether lexing has finished
   * **`[—]`** option to throw or emit error in case lexing is unfinished
 * **`[—]`** allow empty matches provided the token defines a jump
