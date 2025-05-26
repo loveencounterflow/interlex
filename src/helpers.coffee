@@ -17,6 +17,12 @@ hide_getter = ( object, name, getter ) => Object.defineProperty object, name,
     configurable: true
     get:          getter
 
+#===========================================================================================================
+set_getter = ( object, name, getter ) => Object.defineProperty object, name,
+    enumerable:   true
+    configurable: true
+    get:          getter
+
 # #===========================================================================================================
 # get_instance_methods = ( instance ) ->
 #   isa_function  = ( require './builtins' ).std.function.$isa
@@ -42,6 +48,7 @@ rpr     = ( x ) -> ( require 'loupe' ).inspect x
 module.exports = {
   hide
   hide_getter
+  set_getter
   # get_instance_methods
   # bind_instance_methods
   debug
