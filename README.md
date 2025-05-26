@@ -127,19 +127,19 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** implement API to test whether lexing has finished
   * **`[—]`** option to throw or emit error in case lexing is unfinished
 * **`[—]`** allow empty matches provided the token defines a jump
-  * **`[—]`** documentation:
-    > emtpy matches are allowed only as intermediate results (with strategy `longest)` or when the
-    > respective token declares a jump". **Note** disallowing empty jumps in internal, intermediate results
-    > is somewhat misleading because it, too, does not by any means catch all cases where any of the
-    > declared matches could have conceivably remained empty. Which is to say we should either confine
-    > ourselves to doing runtime sanity checks (soemthing we can certainly do, with ease) and accept that we
-    > have no way to discover matchers that could *potentially* return empty matches; or, else, we implement
-    > watertight up-front checks that only reguler expressions that can never yield an empty match are
-    > allowable (something we can almost certainly not do, like at all). Conceptually, no matter the
-    > acceptance strategy (`first` or `longest`), there are always some matchers that could have matched a
-    > zero-length string (which we cannot know for sure unless we use some non-existing static analysis
-    > technique) but that were either not applied (because some other token's matcher came earlier) or
-    > applied and discarded (because some other token's matcher gave a longer match).
+* **`[—]`** documentation:
+  > emtpy matches are allowed only as intermediate results (with strategy `longest)` or when the respective
+  > token declares a jump". **Note** disallowing empty jumps in internal, intermediate results is somewhat
+  > misleading because it, too, does not by any means catch all cases where any of the declared matches
+  > could have conceivably remained empty. Which is to say we should either confine ourselves to doing
+  > runtime sanity checks (soemthing we can certainly do, with ease) and accept that we have no way to
+  > discover matchers that could *potentially* return empty matches; or, else, we implement watertight
+  > up-front checks that only reguler expressions that can never yield an empty match are allowable
+  > (something we can almost certainly not do, like at all). Conceptually, no matter the acceptance strategy
+  > (`first` or `longest`), there are always some matchers that could have matched a zero-length string
+  > (which we cannot know for sure unless we use some non-existing static analysis technique) but that were
+  > either not applied (because some other token's matcher came earlier) or applied and discarded (because
+  > some other token's matcher gave a longer match).
 * **`[—]`** documentation:
   > * `Token` defines `matcher`, can jump into a level or back
   > * `Level` has one or more `Token`s
