@@ -8,6 +8,7 @@
 
 - [InterLex](#interlex)
   - [Token Matchers](#token-matchers)
+  - [Zero-Length Matches](#zero-length-matches)
     - [Using the `interlex.rx''` Regex Tag Function](#using-the-interlexrx-regex-tag-function)
     - [Producing a Regex Tag Function with `new_regex_tag()`](#producing-a-regex-tag-function-with-new_regex_tag)
   - [To Do](#to-do)
@@ -33,7 +34,18 @@ explicitly set that flag on regex literals to make the JS parser accept the JS s
 cases just using a 'naked' regex literal should be fine—although those who do so will miss out on the many
 finer points of using [`slevithan/regex`](https://github.com/slevithan/regex).
 
+## Zero-Length Matches
 
+* also called 'empty matches'
+* are only rejected when they actually happen to occur while scanning a text because it is not feasable
+  (at this point at least) to recognize all possible empty matches by static analysis of regular expressions
+* empty matches are allowed only when the respective token has a declared jump; in that scenario, empty
+  matches are typically the result of a matcher with a regex lookahead; for example one could declare a
+  token `{ name: 'before_digits', matcher: /(?=[0-9])/, jump: 'number', }` that instructs the lexer to jump
+  to level `number` right before `(?=` a digit `[0-9]`; in that other level `number`, another token declared
+  as `{ name: 'digits', matcher: /[0-9]+/i, }` can then pick up right on the same spot. Without the empty
+  match and lookaheads, one would inevitably wind up with the stretch of digits split up between two lexemes
+  that might even belong to two different levels.
 
 
 ### Using the `interlex.rx''` Regex Tag Function
@@ -96,8 +108,6 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   ```
 
 * **`[—]`** rename result of `new_regex_tag` to reflect use of flags
-* **`[—]`** is it possible and useful to allow regular lexemes that take up zero space akin to special
-  lexemes (to be written) that indicate start, end, change of level?
 * **`[—]`** allow functions for `token.matcher`?
   * must accept `( start, text, { token, level, grammar, } )`
   * must return `null` or a lexeme
@@ -159,6 +169,8 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   * **`[+]`** must not have `g`?
   * **`[+]`** must have `d`
   * **`[+]`** must have `v` not `u`?
+* **`[+]`** is it possible and useful to allow regular lexemes that take up zero space akin to special
+  lexemes (to be written) that indicate start, end, change of level?
 
 ## Don't
 
