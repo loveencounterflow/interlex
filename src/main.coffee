@@ -324,14 +324,6 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
-  ###
-  `Token` defines `matcher`, can jump into a level or back
-  `Level` has one or more `Token`s
-  `Grammar` has one or more `Level`s
-  `Lexeme` produced by a `Token` instance when matcher matches source
-
-  ###
-
     throw new Error "Ωilx__12 unknown level #{rpr level_name}"
 
 #===========================================================================================================
