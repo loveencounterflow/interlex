@@ -28,12 +28,10 @@ internals = new class Internals
     @jump_spec_back       = jump_spec_back
     @jump_spec_re         = jump_spec_re
     @jump_spec_res        = [
-      { inex: 'bare',      action: 'back', matcher: SLR.regex"^    (?<target> #{jump_spec_back}   )    $", }
-      { inex: 'inclusive', action: 'back', matcher: SLR.regex"^ \] (?<target> #{jump_spec_back}   )    $", }
-      { inex: 'exclusive', action: 'back', matcher: SLR.regex"^    (?<target> #{jump_spec_back}   ) \] $", }
-      { inex: 'bare',      action: 'fore', matcher: SLR.regex"^    (?<target> #{jsid_noanchor_re} )    $", }
-      { inex: 'inclusive', action: 'fore', matcher: SLR.regex"^ \[ (?<target> #{jsid_noanchor_re} )    $", }
-      { inex: 'exclusive', action: 'fore', matcher: SLR.regex"^    (?<target> #{jsid_noanchor_re} ) \[ $", }
+      { carry: false,  action: 'back', matcher: SLR.regex"^ (?<target> #{ jump_spec_back    } )   $", }
+      { carry: false,  action: 'fore', matcher: SLR.regex"^ (?<target> #{ jsid_noanchor_re  } )   $", }
+      { carry: true,   action: 'back', matcher: SLR.regex"^ (?<target> #{ jump_spec_back    } ) ! $", }
+      { carry: true,   action: 'fore', matcher: SLR.regex"^ (?<target> #{ jsid_noanchor_re  } ) ! $", }
       ]
     #.......................................................................................................
     # thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
@@ -131,14 +129,14 @@ class Token
   @_parse_jump: ( jump_spec, level = null ) ->
     return null unless jump_spec?
     match = null
-    for { inex, action, matcher, } in internals.jump_spec_res
+    for { carry, action, matcher, } in internals.jump_spec_res
       break if ( match = jump_spec.match matcher )?
     unless match?
       throw new Error "Ωilx___5 encountered illegal jump spec #{rpr jump_spec}"
     { target, } = match.groups
     if level? and ( target is level.name )
-    return { jump_spec, inex, action, target, }
       throw new Error "Ωilx___6 cannot jump to same level, got #{rpr target}"
+    return { jump_spec, carry, action, target, }
 
 
 #===========================================================================================================
@@ -313,10 +311,13 @@ class Grammar
       @state.count += @cfg.counter_step
       start         = lexeme.stop
       #.....................................................................................................
-      if ( jump = lexeme.jump )? then switch jump.action
-        when 'fore' then  stack.push ( new_level = @_get_level jump.target )
-        when 'back' then  new_level = stack.pop()
-        else throw new Error "Ωilx__12 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+      if ( jump = lexeme.jump )?
+        switch jump.action
+          when 'fore' then  stack.push ( new_level = @_get_level jump.target )
+          when 'back' then  new_level = stack.popnpeek()
+          else throw new Error "Ωilx__11 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+        if jump.carry
+          lexeme.set_level new_level
       #.....................................................................................................
       yield lexeme
     return null
