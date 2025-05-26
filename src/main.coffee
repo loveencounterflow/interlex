@@ -177,7 +177,7 @@ class Level
   #---------------------------------------------------------------------------------------------------------
   new_token: ( cfg ) ->
     if cfg.level? and cfg.level isnt @
-      throw new Error "Ωilx___7 inconsistent level"
+      throw new Error "Ωilx___8 inconsistent level"
     @tokens.push token = new Token { cfg..., level: @, }
     return token
 
@@ -211,7 +211,7 @@ class Level
     switch @strategy
       when 'first'    then  lexeme = @match_first_at    start, source
       when 'longest'  then  lexeme = @match_longest_at  start, source
-      else throw new Error "Ωilx___8 should never happen: got strategy: #{rpr @strategy}"
+      else throw new Error "Ωilx___9 should never happen: got strategy: #{rpr @strategy}"
     #.......................................................................................................
     ### Accept no lexeme matching but refuse lexeme with empty match: ###
     return null   unless lexeme?
@@ -219,7 +219,7 @@ class Level
     { fqname
       start } = lexeme
     snippet   = source[ start - 10 ... start ] + '⚠' + source[ start .. start + 10 ]
-    throw new Error "Ωilx___9 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
+    throw new Error "Ωilx__10 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
 
 
 #===========================================================================================================
@@ -277,7 +277,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   new_level: ( cfg ) ->
     if @levels[ cfg.name ]?
-      throw new Error "Ωilx__10 level #{rpr level.name} elready exists"
+      throw new Error "Ωilx__11 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
     unless @start_level?
@@ -304,7 +304,7 @@ class Grammar
       if ( jump = lexeme.jump )? then switch jump.action
         when 'fore' then  stack.push ( new_level = @_get_level jump.target )
         when 'back' then  new_level = stack.pop()
-        else throw new Error "Ωilx__11 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+        else throw new Error "Ωilx__12 should never happen: unknown jump action #{rpr lexeme.jump.action}"
       #.....................................................................................................
       yield lexeme
     return null
@@ -312,7 +312,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
-    throw new Error "Ωilx__12 unknown level #{rpr level_name}"
+    throw new Error "Ωilx__13 unknown level #{rpr level_name}"
 
   #===========================================================================================================
   ###
