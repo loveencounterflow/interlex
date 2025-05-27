@@ -262,19 +262,24 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    cfg_template          =
-      name:                 'g'
-      counter_name:         'line_nr'
-      counter_value:        1
-      counter_step:         1
-      strategy:             'first'
-    @cfg                 ?= { cfg_template..., cfg..., }
-    @name                 = @cfg.name
-    @state                = { count: null, }
+    cfg_template =
+      name:           'g'
+      counter_name:   'line_nr'
+      counter_value:  1
+      counter_step:   1
+      strategy:       'first'
+      emit_signals:   true
+    #.......................................................................................................
+    @cfg                   ?= { cfg_template..., cfg..., }
+    @name                   = @cfg.name
+    @state                  = { count: null, }
     @reset_count()
-    @start_level_name     = null
-    hide @, 'start_level',  null
-    hide @, 'levels',       {}
+    @start_level_name       = null
+    hide @, 'system_tokens',  null
+    hide @, 'start_level',    null
+    hide @, 'levels',         {}
+    #.......................................................................................................
+    @_add_system_level()
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -283,12 +288,23 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
+  _add_system_level: ->
+    $system = @new_level { name: '$system',  }
+    hide @, 'system_tokens',
+      start:  $system.new_token { name: 'start', matcher: /|/, }
+      stop:   $system.new_token { name: 'stop',  matcher: /|/, }
+      jump:   $system.new_token { name: 'jump',  matcher: /|/, }
+      error:  $system.new_token { name: 'error', matcher: /|/, }
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
   new_level: ( cfg ) ->
+    is_system = cfg.name.startsWith '$'
     if @levels[ cfg.name ]?
       throw new Error "Ωilx__10 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
-    unless @start_level?
+    if ( not is_system ) and ( not @start_level? )
       hide @, 'start_level', level
       @start_level_name = level.name
     return level
@@ -298,9 +314,12 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   walk_lexemes: ( source ) ->
-    start   = 0
-    stack   = new Stack [ @start_level, ]
-    lexeme  = null
+    start           = 0
+    stack           = new Stack [ @start_level, ]
+    lexeme          = null
+    old_level_name  = null
+    if @cfg.emit_signals
+      yield @system_tokens.start.match_at 0, source
     #.......................................................................................................
     loop
       level         = stack.peek()
@@ -317,7 +336,29 @@ class Grammar
         if jump.carry
           lexeme.set_level new_level
       #.....................................................................................................
+      if @cfg.emit_signals and ( lexeme.level.name isnt old_level_name )
+        ### TAINT do this in API call ###
+        signal                  = @system_tokens.jump.match_at start, source
+        signal.data.from_level  = old_level_name
+        signal.data.to_level    = lexeme.level.name
+        old_level_name          = lexeme.level.name
+        yield signal
       yield lexeme
+    #.......................................................................................................
+    if @cfg.emit_signals
+      if new_level? and ( old_level_name isnt new_level.name )
+        ### TAINT do this in API call ###
+        signal                  = @system_tokens.jump.match_at start, source
+        signal.data.from_level  = old_level_name
+        signal.data.to_level    = new_level.name
+        yield signal
+      while not stack.is_empty()
+        ### TAINT do this in API call ###
+        signal                  = @system_tokens.jump.match_at start, source
+        signal.data.from_level  = stack.data.pop().name
+        signal.data.to_level    = if stack.is_empty() then null else stack.peek().name
+        yield signal
+      yield @system_tokens.stop.match_at start, source
     return null
 
   #---------------------------------------------------------------------------------------------------------
