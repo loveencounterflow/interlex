@@ -111,7 +111,6 @@ class Token
     hide @, 'grammar',      cfg.level.grammar
     hide @, 'matcher',      cfg.matcher
     hide @, 'jump',         ( @constructor._parse_jump cfg.jump, @level ) ? null
-    hide @, 'jump_spec',    ( cfg.jump                                  ) ? null
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -121,17 +120,17 @@ class Token
     return new Lexeme @, match
 
   #---------------------------------------------------------------------------------------------------------
-  @_parse_jump: ( jump_spec, level = null ) ->
-    return null unless jump_spec?
+  @_parse_jump: ( spec, level = null ) ->
+    return null unless spec?
     match = null
     for { carry, action, matcher, } in internals.jump_spec_res
-      break if ( match = jump_spec.match matcher )?
+      break if ( match = spec.match matcher )?
     unless match?
-      throw new Error "Ωilx___5 encountered illegal jump spec #{rpr jump_spec}"
+      throw new Error "Ωilx___5 encountered illegal jump spec #{rpr spec}"
     { target, } = match.groups
     if level? and ( target is level.name )
       throw new Error "Ωilx___6 cannot jump to same level, got #{rpr target}"
-    return { jump_spec, carry, action, target, }
+    return { spec, carry, action, target, }
 
 
 #===========================================================================================================
@@ -147,7 +146,6 @@ class Lexeme
     @length                       = @hit.length
     @groups                       = match.groups ? null
     @jump                         = token.jump
-    @jump_spec                    = token.jump_spec
     @token                        = token
     grammar                       = token.grammar
     @[ grammar.cfg.counter_name ] = grammar.state.count
