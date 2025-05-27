@@ -150,6 +150,11 @@ class Lexeme
     grammar                       = token.grammar
     @[ grammar.cfg.counter_name ] = grammar.state.count
     #.......................................................................................................
+    @data                         = Object.create null
+    hide_getter @, 'has_data',    =>
+      return true for _ of @data
+      return false
+    #.......................................................................................................
     @set_level token.level
     #.......................................................................................................
     return undefined
