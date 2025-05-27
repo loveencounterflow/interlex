@@ -185,6 +185,8 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   > almost like the token it was produced by, after all); carrying jumps are indicated by an `!` exclamation
   > mark behind the jump target, so for example a token declaration in level `gnd` that contains `{ jump:
   > 'otherlevel!', }` indicates that the resulting lexeme's `level` will be `otherlevel`, not `gnd`."
+* **`[+]`** lexemes now contain both `lx.jump.jump_spec` and `lx.jump_spec` (in addition to
+  `lx.token.jump.jump_spec`); it should conceivably only be `lx.jump.spec`
 
 ## Don't
 
