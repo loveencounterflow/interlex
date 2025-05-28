@@ -296,6 +296,7 @@ class Grammar
     #.......................................................................................................
     loop
       level         = stack.peek()
+      new_level     = level
       lexeme        = level.match_at start, source
       break unless lexeme? # terminate if current level has no matching tokens
       @state.count += @cfg.counter_step
@@ -309,35 +310,32 @@ class Grammar
         if jump.carry
           lexeme.set_level new_level
       #.....................................................................................................
-      if @cfg.emit_signals and ( lexeme.level.name isnt old_level_name )
-        ### TAINT do this in API call ###
-        signal                  = @system_tokens.jump.match_at start, source
-        signal.data.from_level  = old_level_name
-        signal.data.to_level    = lexeme.level.name
-        old_level_name          = lexeme.level.name
-        yield signal
+      # if @cfg.emit_signals and ( lexeme.level.name isnt old_level_name )
+      if @cfg.emit_signals and ( new_level.name isnt old_level_name )
+        yield @_new_jump_signal start, source, old_level_name, new_level.name
+        old_level_name = new_level.name
       yield lexeme
     #.......................................................................................................
     if @cfg.emit_signals
       if new_level? and ( old_level_name isnt new_level.name )
-        ### TAINT do this in API call ###
-        signal                  = @system_tokens.jump.match_at start, source
-        signal.data.from_level  = old_level_name
-        signal.data.to_level    = new_level.name
-        yield signal
-      while not stack.is_empty()
-        ### TAINT do this in API call ###
-        signal                  = @system_tokens.jump.match_at start, source
-        signal.data.from_level  = stack.data.pop().name
-        signal.data.to_level    = if stack.is_empty() then null else stack.peek().name
-        yield signal
+        yield @_new_jump_signal start, source, old_level_name, new_level.name
+      while not stack.is_empty
+        yield @_new_jump_signal start, source, ( stack.pop_name null ), ( stack.peek_name null )
       yield @system_tokens.stop.match_at start, source
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _new_jump_signal: ( start, source, from_level, to_level ) ->
+    R                  = @system_tokens.jump.match_at start, source
+    R.data.from_level  = from_level
+    R.data.to_level    = to_level
+    return R
 
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
     throw new Error "Ωilx__12 unknown level #{rpr level_name}"
+
 
 #===========================================================================================================
 module.exports = {
