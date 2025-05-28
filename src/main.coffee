@@ -139,23 +139,22 @@ class Lexeme
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( token, match ) ->
-    @name                         = token.name
+    @name                 = token.name
     set_getter @, 'fqname', => "#{@level.name}.#{@name}"
-    @hit                          = match[ 0 ]
-    @start                        = match.index
-    @stop                         = @start + @hit.length
-    @length                       = @hit.length
-    @groups                       = match.groups ? null
-    @jump                         = token.jump
-    @token                        = token
-    @lnr                          = token.grammar.state.lnr
+    @hit                  = match[ 0 ]
+    @start                = match.index
+    @stop                 = @start + @hit.length
+    @length               = @hit.length
+    @groups               = match.groups ? null
+    @jump                 = token.jump
+    @token                = token
+    @lnr                  = token.grammar.state.lnr
+    @data                 = Object.create null
     #.......................................................................................................
-    @data                         = Object.create null
+    @set_level token.level
     hide_getter @, 'has_data',    =>
       return true for _ of @data
       return false
-    #.......................................................................................................
-    @set_level token.level
     #.......................................................................................................
     return undefined
 
