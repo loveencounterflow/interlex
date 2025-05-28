@@ -1,6 +1,67 @@
 
 'use strict'
 
+#===========================================================================================================
+misfit                    = Symbol 'misfit'
+
+#===========================================================================================================
+class Levelstack
+
+  #---------------------------------------------------------------------------------------------------------
+  constructor: ( P... ) ->
+    @data = P
+    hide_getter @, 'length',    => @data.length
+    hide_getter @, 'is_empty',  => @data.length is 0
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  pop: ( fallback = misfit ) ->
+    if @is_empty
+      return fallback unless fallback is misfit
+      throw new Error "Ωilx__10 stack is empty"
+    return @data.pop()
+
+  #---------------------------------------------------------------------------------------------------------
+  peek: ( fallback = misfit ) ->
+    if @is_empty
+      return fallback unless fallback is misfit
+      throw new Error "Ωilx__11 stack is empty"
+    return @data.at -1
+
+  #---------------------------------------------------------------------------------------------------------
+  popnpeek: ( fallback = misfit ) ->
+    if @is_empty
+      return fallback unless fallback is misfit
+      throw new Error "Ωilx__12 stack is empty"
+    @data.pop()
+    return @data.at -1
+
+  #---------------------------------------------------------------------------------------------------------
+  pop_name: ( fallback = misfit ) ->
+    if @is_empty
+      return fallback unless fallback is misfit
+      throw new Error "Ωilx__13 stack is empty"
+    return @data.pop().name
+
+  #---------------------------------------------------------------------------------------------------------
+  peek_name: ( fallback = misfit ) ->
+    if @is_empty
+      return fallback unless fallback is misfit
+      throw new Error "Ωilx__14 stack is empty"
+    return ( @data.at -1 ).name
+
+  #---------------------------------------------------------------------------------------------------------
+  popnpeek_name: ( fallback = misfit ) ->
+    if @is_empty
+      return fallback unless fallback is misfit
+      throw new Error "Ωilx__15 stack is empty"
+    @data.pop()
+    return ( @data.at -1 ).name
+
+  #---------------------------------------------------------------------------------------------------------
+  push: ( P... ) -> @data.push P...
+
+
 # #===========================================================================================================
 # @bind_proto = ( that, f ) -> that::[ f.name ] = f.bind that::
 
@@ -46,6 +107,7 @@ rpr     = ( x ) -> ( require 'loupe' ).inspect x
 
 #===========================================================================================================
 module.exports = {
+  Levelstack
   hide
   hide_getter
   set_getter
