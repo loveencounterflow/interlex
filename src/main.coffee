@@ -311,16 +311,16 @@ class Grammar
           lexeme.set_level new_level
       #.....................................................................................................
       # if @cfg.emit_signals and ( lexeme.level.name isnt old_level_name )
-      if @cfg.emit_signals and ( new_level.name isnt old_level_name )
-        yield @_new_jump_signal start, source, old_level_name, new_level.name
-        old_level_name = new_level.name
+      # if @cfg.emit_signals and ( new_level.name isnt old_level_name )
+      #   yield @_new_jump_signal start, source, old_level_name, new_level.name
+      #   old_level_name = new_level.name
       yield lexeme
     #.......................................................................................................
     if @cfg.emit_signals
-      if new_level? and ( old_level_name isnt new_level.name )
-        yield @_new_jump_signal start, source, old_level_name, new_level.name
-      while not stack.is_empty
-        yield @_new_jump_signal start, source, ( stack.pop_name null ), ( stack.peek_name null )
+      # if new_level? and ( old_level_name isnt new_level.name )
+      #   yield @_new_jump_signal start, source, old_level_name, new_level.name
+      # while not stack.is_empty
+      #   yield @_new_jump_signal start, source, ( stack.pop_name null ), ( stack.peek_name null )
       yield @system_tokens.stop.match_at start, source
     return null
 
