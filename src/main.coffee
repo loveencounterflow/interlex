@@ -148,8 +148,7 @@ class Lexeme
     @groups                       = match.groups ? null
     @jump                         = token.jump
     @token                        = token
-    grammar                       = token.grammar
-    @[ grammar.cfg.counter_name ] = grammar.state.count
+    @lnr                          = token.grammar.state.lnr
     #.......................................................................................................
     @data                         = Object.create null
     hide_getter @, 'has_data',    =>
@@ -237,27 +236,24 @@ class Grammar
   constructor: ( cfg ) ->
     cfg_template =
       name:           'g'
-      counter_name:   'line_nr'
-      counter_value:  1
-      counter_step:   1
       strategy:       'first'
       emit_signals:   true
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
     @name                   = @cfg.name
-    @state                  = { count: null, }
-    @reset_count()
+    @state                  = { lnr: null, }
     @start_level_name       = null
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
     hide @, 'levels',         {}
     #.......................................................................................................
+    @reset_lnr 1
     @_add_system_level()
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  reset_count: ->
-    @state.count = @cfg.counter_value
+  reset_lnr: ( lnr = 1 ) ->
+    @state.lnr = lnr
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -287,6 +283,12 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   walk_lexemes: ( source ) ->
+    yield from @_walk_lexemes source
+    @state.lnr++
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _walk_lexemes: ( source ) ->
     start           = 0
     stack           = new Levelstack @start_level
     lexeme          = null
@@ -299,7 +301,6 @@ class Grammar
       new_level     = level
       lexeme        = level.match_at start, source
       break unless lexeme? # terminate if current level has no matching tokens
-      @state.count += @cfg.counter_step
       start         = lexeme.stop
       #.....................................................................................................
       if ( jump = lexeme.jump )?
