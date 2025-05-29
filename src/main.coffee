@@ -316,7 +316,7 @@ class Grammar
           jump_after_lexeme   = true
       #.....................................................................................................
       if jump_before_lexeme
-        yield @_new_jump_signal start, source, level.name, lexeme.level.name
+      if jump_before then yield @_new_jump_signal lexeme.start, source,        level.name, lexeme.level.name
       yield lexeme
       if jump_after_lexeme
         yield @_new_jump_signal start, source, lexeme.level.name, new_level.name
