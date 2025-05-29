@@ -17,10 +17,9 @@ internals = new class Internals
   constructor: ->
     SLR             = require 'regex'
     #.........................................................................................................
-    ### thx to https://github.com/sindresorhus/identifier-regex ###
-    #.........................................................................................................
     @Levelstack           = Levelstack
     @slevithan_regex      = SLR
+    ### thx to https://github.com/sindresorhus/identifier-regex ###
     @jsid_re              = SLR.regex""" [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* """
     @jump_spec_back       = '..'
     @jump_spec_res        = [
@@ -316,10 +315,6 @@ class Grammar
         else
           jump_after_lexeme   = true
       #.....................................................................................................
-      # if @cfg.emit_signals and ( lexeme.level.name isnt old_level_name )
-      # if @cfg.emit_signals and ( new_level.name isnt old_level_name )
-      #   yield @_new_jump_signal start, source, old_level_name, new_level.name
-      #   old_level_name = new_level.name
       if jump_before_lexeme
         yield @_new_jump_signal start, source, level.name, lexeme.level.name
       yield lexeme
@@ -327,8 +322,6 @@ class Grammar
         yield @_new_jump_signal start, source, lexeme.level.name, new_level.name
     #.......................................................................................................
     if @cfg.emit_signals
-      # if new_level? and ( old_level_name isnt new_level.name )
-      #   yield @_new_jump_signal start, source, old_level_name, new_level.name
       while not stack.is_empty
         yield @_new_jump_signal start, source, ( stack.pop_name null ), ( stack.peek_name null )
       yield @system_tokens.stop.match_at start, source
