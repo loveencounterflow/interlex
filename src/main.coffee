@@ -301,25 +301,23 @@ class Grammar
       lexeme        = level.match_at start, source
       break unless lexeme? # terminate if current level has no matching tokens
       start         = lexeme.stop
+      jump_before   = false
+      jump_after    = false
       #.....................................................................................................
-      jump_before_lexeme  = false
-      jump_after_lexeme   = false
       if ( jump = lexeme.jump )?
         switch jump.action
           when 'fore' then  stack.push ( new_level = @_get_level jump.target )
           when 'back' then  new_level = stack.popnpeek()
           else throw new Error "Ωilx__11 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
-          jump_before_lexeme  = true
+          jump_before  = true
           lexeme.set_level new_level
         else
-          jump_after_lexeme   = true
+          jump_after   = true
       #.....................................................................................................
-      if jump_before_lexeme
       if jump_before then yield @_new_jump_signal lexeme.start, source,        level.name, lexeme.level.name
       yield lexeme
-      if jump_after_lexeme
-        yield @_new_jump_signal start, source, lexeme.level.name, new_level.name
+      if jump_after  then yield @_new_jump_signal        start, source, lexeme.level.name,    new_level.name
     #.......................................................................................................
     if @cfg.emit_signals
       while not stack.is_empty
