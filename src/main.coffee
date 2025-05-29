@@ -290,8 +290,10 @@ class Grammar
     start           = 0
     stack           = new Levelstack @start_level
     lexeme          = null
+    emit_signals    = @cfg.emit_signals
     old_level_name  = null
-    if @cfg.emit_signals
+    #.......................................................................................................
+    if emit_signals
       yield @system_tokens.start.match_at 0, source
       yield @_new_jump_signal 0, source, null, @start_level.name
     #.......................................................................................................
@@ -310,16 +312,16 @@ class Grammar
           when 'back' then  new_level = stack.popnpeek()
           else throw new Error "Ωilx__11 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
-          jump_before  = true
+          jump_before  = true if emit_signals
           lexeme.set_level new_level
         else
-          jump_after   = true
+          jump_after   = true if emit_signals
       #.....................................................................................................
       if jump_before then yield @_new_jump_signal lexeme.start, source,        level.name, lexeme.level.name
       yield lexeme
       if jump_after  then yield @_new_jump_signal        start, source, lexeme.level.name,    new_level.name
     #.......................................................................................................
-    if @cfg.emit_signals
+    if emit_signals
       while not stack.is_empty
         yield @_new_jump_signal start, source, ( stack.pop_name null ), ( stack.peek_name null )
       yield @system_tokens.stop.match_at start, source
