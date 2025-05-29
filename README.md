@@ -149,6 +149,7 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   > * `Level` has one or more `Token`s
   > * `Grammar` has one or more `Level`s
   > * `Lexeme` produced by a `Token` instance when matcher matches source
+* **`[—]`** implement `discardable`, `ghost` tokens, especially for zero-length jumpers?
 
 
 ## Is Done
