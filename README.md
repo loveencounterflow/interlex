@@ -150,6 +150,10 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   > * `Grammar` has one or more `Level`s
   > * `Lexeme` produced by a `Token` instance when matcher matches source
 * **`[—]`** implement `discardable`, `ghost` tokens, especially for zero-length jumpers?
+* **`[—]`** implement setting to simplify jumps such that any series of jumps starting with `from_level:
+  'a'` and ending with `to_level: b` without any intervening non-`jump` lexemes are simplified to a single
+  `jump` from `a` to `b`
+* **`[—]`** rename `$system` to `$signals`
 
 
 ## Is Done
