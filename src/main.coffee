@@ -236,8 +236,10 @@ class Grammar
       name:           'g'
       strategy:       'first'
       emit_signals:   true
+      simplify_jumps: true
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
+    @cfg.simplify_jumps     = false unless @cfg.emit_signals
     @name                   = @cfg.name
     @state                  = { lnr: null, }
     @start_level_name       = null
@@ -281,12 +283,40 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   walk_lexemes: ( source ) ->
-    yield from @_walk_lexemes source
+    unless @cfg.simplify_jumps
+      yield from @_walk_lexemes_1 source
+      return null
+    #.......................................................................................................
+    ### Consolidate all contiguous jump signals into single signal: ###
+    buffer = []
+    for lexeme from @_walk_lexemes_1 source
+      if lexeme.fqname is '$signal.jump'
+        buffer.push lexeme
+      else
+        switch buffer.length
+          when 0 then yield lexeme
+          when 1 then yield buffer.pop()
+          else
+            jump                = buffer.at  0
+            ### TAINT use API? ###
+            last_jump           = buffer.at -1
+            jump.stop           = last_jump.stop
+            jump.data.to_level  = last_jump.data.to_level
+            buffer.length       = 0
+            yield jump
+            yield lexeme
+        continue
+    #.......................................................................................................
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _walk_lexemes_1: ( source ) ->
+    yield from @_walk_lexemes_2 source
     @state.lnr++
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _walk_lexemes: ( source ) ->
+  _walk_lexemes_2: ( source ) ->
     start           = 0
     stack           = new Levelstack @start_level
     lexeme          = null
