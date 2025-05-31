@@ -150,10 +150,7 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   > * `Grammar` has one or more `Level`s
   > * `Lexeme` produced by a `Token` instance when matcher matches source
 * **`[—]`** implement `discardable`, `ghost` tokens, especially for zero-length jumpers?
-* **`[—]`** implement setting to simplify jumps such that any series of jumps starting with `from_level:
-  'a'` and ending with `to_level: b` without any intervening non-`jump` lexemes are simplified to a single
-  `jump` from `a` to `b`
-* **`[—]`** rename `$system` to `$signals`
+
 
 
 ## Is Done
@@ -192,6 +189,13 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   > 'otherlevel!', }` indicates that the resulting lexeme's `level` will be `otherlevel`, not `gnd`."
 * **`[+]`** lexemes now contain both `lx.jump.jump_spec` and `lx.jump_spec` (in addition to
   `lx.token.jump.jump_spec`); it should conceivably only be `lx.jump.spec`
+* **`[+]`** implement setting to simplify jumps such that any series of jumps starting with `from_level:
+  'a'` and ending with `to_level: b` without any intervening non-`jump` signals are simplified to a single
+  `jump` from `a` to `b`
+* **`[+]`** rename `$system` to `$signal`
+* **`[+]`** aggregate CFG settings such that the resulting version has the final results; e.g. a
+  constellation of `{ emit_signals: false, simplify_jumps: true, }` can be aggregated as `{ emit_signals:
+  false, simplify_jumps: false, }`
 
 ## Don't
 
