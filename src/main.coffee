@@ -256,12 +256,12 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _add_system_level: ->
-    $system = @new_level { name: '$system',  }
+    $signal = @new_level { name: '$signal',  }
     hide @, 'system_tokens',
-      start:  $system.new_token { name: 'start', matcher: /|/, }
-      stop:   $system.new_token { name: 'stop',  matcher: /|/, }
-      jump:   $system.new_token { name: 'jump',  matcher: /|/, }
-      error:  $system.new_token { name: 'error', matcher: /|/, }
+      start:  $signal.new_token { name: 'start', matcher: /|/, }
+      stop:   $signal.new_token { name: 'stop',  matcher: /|/, }
+      jump:   $signal.new_token { name: 'jump',  matcher: /|/, }
+      error:  $signal.new_token { name: 'error', matcher: /|/, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
