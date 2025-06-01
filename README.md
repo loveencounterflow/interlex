@@ -139,7 +139,18 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   * `_normalize_new_flags`
 
 * **`[—]`** allow different metrics (code units, code points, graphemes) to determine `lexeme.length`, which
-  lexeme gets returned for `Level::match_longest_at()`
+  lexeme gets returned for `Level::match_longest_at()`; compare:
+  ```
+  help 'Ωilxt_416', Array.from 'a🈯z'
+  help 'Ωilxt_417', 'a🈯z'.split /(.)/u
+  help 'Ωilxt_418', 'a🈯z'.split( /(.)/v )
+  help 'Ωilxt_419', 'a🈯z'.split( /(.)/d )
+  help 'Ωilxt_420', match = 'a🈯z'.match /^(?<head>[a-z]+)(?<other>[^a-z]+)(?<tail>[a-z]+)/d
+  help 'Ωilxt_421', { match.groups..., }
+  help 'Ωilxt_422', { match.indices.groups..., }
+  # help 'Ωilxt_423', rx"."
+  # help 'Ωilxt_424', rx/./
+  ```
 * **`[—]`** move `fqname` formation to token, use API
 * **`[—]`** implement API to test whether lexing has finished
   * **`[—]`** option to throw or emit error in case lexing is unfinished
