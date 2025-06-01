@@ -322,6 +322,10 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _walk_lexemes_1: ( source ) ->
     yield from @_walk_lexemes_2 source
+  _scan_2_startstop_lnr: ( source ) ->
+    yield @system_tokens.start.match_at 0,            source
+    yield from @_scan_3_match_tokens                  source
+    yield @system_tokens.stop.match_at source.length, source
     @state.lnr++
     return null
 
