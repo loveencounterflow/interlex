@@ -279,15 +279,25 @@ class Grammar
     return level
 
   #---------------------------------------------------------------------------------------------------------
-  get_lexemes: ( P... ) -> [ ( @walk_lexemes P... )..., ]
+  scan_to_list: ( P... ) -> [ ( @scan P... )..., ]
 
   #---------------------------------------------------------------------------------------------------------
-  walk_lexemes: ( source ) ->
-    unless @cfg.simplify_jumps
-      yield from @_walk_lexemes_1 source
-      return null
-    #.......................................................................................................
-    ### Consolidate all contiguous jump signals into single signal: ###
+  scan: ( source ) ->
+    yield from switch true
+      when @cfg.simplify_jumps  then  @_scan_simplify_jumps   source
+      when @cfg.emit_signals    then  @_walk_lexemes_1        source
+      else                            @_scan_remove_signals   source
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _scan_remove_signals: ( source ) ->
+    for lexeme from @_walk_lexemes_1 source
+      yield lexeme if ( lexeme.fqname is '$signal.error' ) or ( lexeme.level.name isnt '$signal' )
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _scan_simplify_jumps: ( source ) ->
+    ### Consolidate all contiguous jump signals into single signal ###
     buffer = []
     for lexeme from @_walk_lexemes_1 source
       if lexeme.fqname is '$signal.jump'
