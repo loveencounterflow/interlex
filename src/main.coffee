@@ -284,22 +284,22 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   scan: ( source ) ->
     yield from switch true
-      when @cfg.simplify_jumps  then  @_scan_simplify_jumps   source
-      when @cfg.emit_signals    then  @_walk_lexemes_1        source
-      else                            @_scan_remove_signals   source
+      when @cfg.simplify_jumps  then  @_scan_1b_simplify_jumps  source
+      when @cfg.emit_signals    then  @_scan_2_startstop_lnr    source
+      else                            @_scan_1a_remove_signals  source
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_remove_signals: ( source ) ->
-    for lexeme from @_walk_lexemes_1 source
+  _scan_1a_remove_signals: ( source ) ->
+    for lexeme from @_scan_2_startstop_lnr source
       yield lexeme if ( lexeme.fqname is '$signal.error' ) or ( lexeme.level.name isnt '$signal' )
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_simplify_jumps: ( source ) ->
+  _scan_1b_simplify_jumps: ( source ) ->
     ### Consolidate all contiguous jump signals into single signal ###
     buffer = []
-    for lexeme from @_walk_lexemes_1 source
+    for lexeme from @_scan_2_startstop_lnr source
       if lexeme.fqname is '$signal.jump'
         buffer.push lexeme
       else
@@ -320,8 +320,6 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _walk_lexemes_1: ( source ) ->
-    yield from @_walk_lexemes_2 source
   _scan_2_startstop_lnr: ( source ) ->
     yield @system_tokens.start.match_at 0,            source
     yield from @_scan_3_match_tokens                  source
@@ -330,7 +328,7 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _walk_lexemes_2: ( source ) ->
+  _scan_3_match_tokens: ( source ) ->
     start           = 0
     stack           = new Levelstack @start_level
     lexeme          = null
