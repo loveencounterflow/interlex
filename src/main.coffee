@@ -285,13 +285,13 @@ class Grammar
   scan: ( source ) ->
     yield from switch true
       when @cfg.simplify_jumps  then  @_scan_1b_simplify_jumps  source
-      when @cfg.emit_signals    then  @_scan_2_startstop_lnr    source
+      when @cfg.emit_signals    then  @_scan_2_validate         source
       else                            @_scan_1a_remove_signals  source
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _scan_1a_remove_signals: ( source ) ->
-    for lexeme from @_scan_2_startstop_lnr source
+    for lexeme from @_scan_2_validate source
       yield lexeme if ( lexeme.fqname is '$signal.error' ) or ( lexeme.level.name isnt '$signal' )
     return null
 
@@ -299,7 +299,7 @@ class Grammar
   _scan_1b_simplify_jumps: ( source ) ->
     ### Consolidate all contiguous jump signals into single signal ###
     buffer = []
-    for lexeme from @_scan_2_startstop_lnr source
+    for lexeme from @_scan_2_validate source
       if lexeme.fqname is '$signal.jump'
         buffer.push lexeme
       else
@@ -320,15 +320,21 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_2_startstop_lnr: ( source ) ->
+  _scan_2_validate: ( source ) ->
+    for lexeme from @_scan_3_startstop_lnr source
+      yield lexeme
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _scan_3_startstop_lnr: ( source ) ->
     yield @system_tokens.start.match_at 0,            source
-    yield from @_scan_3_match_tokens                  source
+    yield from @_scan_4_match_tokens                  source
     yield @system_tokens.stop.match_at source.length, source
     @state.lnr++
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_3_match_tokens: ( source ) ->
+  _scan_4_match_tokens: ( source ) ->
     start           = 0
     stack           = new Levelstack @start_level
     lexeme          = null
