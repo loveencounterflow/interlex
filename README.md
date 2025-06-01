@@ -167,8 +167,11 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** documentation:
 
   All scans must be **exhaustive**, **compact**, **contiguous**, **bijective** and **monotonous**, meaning:
-  * **Exhaustive** (a.k.a. "no leftovers"): all positions in a source from the first to the last codepoint
-    must be covered by a lexeme.
+  * **Exhaustive** (a.k.a. "no leftovers"): each position in a source from the first to the last codepoint
+    must be covered by some lexeme; more specifically—because dense coverage already falls out from the
+    requirements of compactness and contiguity—the first (non-signal) lexeme must cover the source position
+    with index `0`, and the last (non-signal) lexeme must cover the source position with index
+    `source.length - 1` (a.k.a. `source.at -1`).
   * **Compact** (a.k.a. "no going gaps"): excluding the first and the last lexeme in a given scan, for each
     lexeme `l` there must be a lexeme `k` that covers the codepoint at `l.start - 1` and another lexeme `m`
     that covers the codepoint at `l.stop`.
@@ -207,6 +210,13 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** documentation: "Even with `Grammar::cfg.emit_signals` set to `false`, `Grammar::scan()` will
   still emit error signals; only `start`, `stop` and `jump` signals will be suppressed."
 * **`[—]`** unify `Lexeme::groups`, `Lexeme::data`
+* **`[—]`** documentation: "do not use star quantifier(?) in regexes unless you know what you're doing; ex.
+  `/[a-z]*/` will match even without there being any ASCII letters"
+* **`[—]`** implement lexeme consolidation / simplification where all contiguous lexemes with the same
+  `fqname` are aggregated into a single lexeme (ex. `{ name: 'text', matcher: rx.i"\\[0-9]|[a-z\s]+", }`
+  will issue tokens for hits `'R'`, `'\\2'`, `'D'`, `'\\2'` when scanning `'R\\2D\\2'`; simplification will
+  reduce these four lexemes to a single lexeme)
+
 
 ## Is Done
 
