@@ -296,14 +296,14 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   scan: ( source ) ->
     yield from switch true
-      when @cfg.simplify_jumps  then  @_scan_1b_simplify_jumps  source
-      when @cfg.emit_signals    then  @_scan_2_validate         source
-      else                            @_scan_1a_remove_signals  source
+      when @cfg.simplify_jumps  then  @_scan_1b_simplify_jumps      source
+      when @cfg.emit_signals    then  @_scan_2_validate_exhaustion  source
+      else                            @_scan_1a_remove_signals      source
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _scan_1a_remove_signals: ( source ) ->
-    for lexeme from @_scan_2_validate source
+    for lexeme from @_scan_2_validate_exhaustion source
       yield lexeme if ( lexeme.fqname is '$signal.error' ) or ( lexeme.level.name isnt '$signal' )
     return null
 
@@ -311,7 +311,7 @@ class Grammar
   _scan_1b_simplify_jumps: ( source ) ->
     ### Consolidate all contiguous jump signals into single signal ###
     buffer = []
-    for lexeme from @_scan_2_validate source
+    for lexeme from @_scan_2_validate_exhaustion source
       #.....................................................................................................
       if lexeme.fqname is '$signal.jump'
         buffer.push lexeme
@@ -338,7 +338,7 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_2_validate: ( source ) ->
+  _scan_2_validate_exhaustion: ( source ) ->
     for lexeme from @_scan_3_startstop_lnr source
       yield lexeme
     return null
