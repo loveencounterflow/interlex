@@ -200,6 +200,10 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   fields as user lexemes, and can for many purposes run through the same processing pipeline as user
   lexemes.
 
+* **`[—]`** based on the Five Scanner Constraints, can we set an upper limit to the number of steps
+  necessary to scan a given source with a known (upper limit of) number codepoints? Does it otherwise fall
+  out from the implemented algorithm that we can never enter an infinite loop when scanning?
+
 ## Is Done
 
 * **`[+]`** implement chunk numbering with CFG settings `{ counter_name: 'line_nr', counter_start: 1, }`
