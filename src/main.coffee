@@ -288,6 +288,7 @@ class Grammar
   _new_error: ( kind, start, stop, source, message ) ->
     R         = @_new_signal 'error', start, source, { kind, message, }
     R.stop    = stop
+    R.hit     = source[ start .. stop ]
     return R
 
   #---------------------------------------------------------------------------------------------------------
