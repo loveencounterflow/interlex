@@ -339,8 +339,27 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _scan_2_validate_exhaustion: ( source ) ->
+    is_first    = true
+    last_idx    = source.length
+    #.......................................................................................................
     for lexeme from @_scan_3_startstop_lnr source
+      switch true
+        #...................................................................................................
+        when lexeme.fqname is '$signal.stop'
+          if lexeme.stop isnt last_idx
+            yield @_new_error 'earlystop', lexeme.stop, last_idx, source, \
+              "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
+        #...................................................................................................
+        when lexeme.level.name is '$signal'
+          null
+        #...................................................................................................
+        when is_first and ( lexeme.start isnt 0 )
+          yield @_new_error 'latestart', 0, lexeme.start, source, \
+            "expected start at 0, got #{rpr lexeme.start}"
+      #.....................................................................................................
       yield lexeme
+      is_first    = false
+    #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
