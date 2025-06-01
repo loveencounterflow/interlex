@@ -279,6 +279,18 @@ class Grammar
     return level
 
   #---------------------------------------------------------------------------------------------------------
+  _new_signal: ( name, idx, source, data = null ) ->
+    R       = @system_tokens[ name ].match_at idx, source
+    R.data  = Object.assign ( Object.create null ), data if data?
+    return R
+
+  #---------------------------------------------------------------------------------------------------------
+  _new_error: ( kind, start, stop, source, message ) ->
+    R         = @_new_signal 'error', start, source, { kind, message, }
+    R.stop    = stop
+    return R
+
+  #---------------------------------------------------------------------------------------------------------
   scan_to_list: ( P... ) -> [ ( @scan P... )..., ]
 
   #---------------------------------------------------------------------------------------------------------
