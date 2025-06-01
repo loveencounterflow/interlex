@@ -155,29 +155,33 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** consider to rename `Grammar::walk_lexemes()` to `Grammar::scan()`
 * **`[—]`** documentation:
 
-  All errorless scans must be **exhaustive**, **compact**, **contiguous**, **unequivocal** and
-  **monotonous**, meaning:
-  * **exhaustive**: all positions in a source from the first to the last codepoint must be covered by a
-    lexeme;
-  * **compact**: excluding the first and the last lexeme in a given scan, for each lexeme `l` there must be
-    a lexeme `k` that covers the codepoint at `l.start - 1` and another lexeme `m` that covers the codepoint
-    at `l.stop`;
-  * **contiguous**: each lexeme represents a single part (called the `Lexeme::hit`) of the source; it's not
-    possible for a single lexeme to cover one part of the source here and another, separate part of the
-    source over there;
-  * **unequivocal**: after an errorless scan, each codepoint of the source will be associated with exactly
-    one lexeme; no codepoint can belong to two or more lexemes at any time (although when using zero-length
-    matchers, the spaces *between* codeints that come right before and after a given lexeme may belong to
-    other lexemes);
-  * **monotonous**: the positions of all lexemes will be emitted in a non-strictly monotonously increasing
-    order, meaning that for all consecutive lexemes `k`, `l`, `k.stop ≤ k.start` will hold and `k.stop >
-    k.start` is impossible ("no going back").
+  All scans must be **exhaustive**, **compact**, **contiguous**, **bijective** and **monotonous**, meaning:
+  * **Exhaustive** (a.k.a. "no leftovers"): all positions in a source from the first to the last codepoint
+    must be covered by a lexeme.
+  * **Compact** (a.k.a. "no going gaps"): excluding the first and the last lexeme in a given scan, for each
+    lexeme `l` there must be a lexeme `k` that covers the codepoint at `l.start - 1` and another lexeme `m`
+    that covers the codepoint at `l.stop`.
+  * **Contiguous** (a.k.a. "no scatter"): each lexeme represents a single part (called the `Lexeme::hit`) of
+    the source; it's not possible for a single lexeme to cover one part of the source here and another,
+    separate part of the source over there.
+  * **Bijective** (a.k.a. "one on one"): after an errorless scan, each codepoint of the source will be
+    associated with exactly one lexeme; no codepoint can belong to two or more lexemes at any time (although
+    when using zero-length matchers, the spaces *between* codeints that come right before and after a given
+    lexeme may belong to other lexemes).
+  * **Monotonous** (a.k.a. "no going back"): the positions of all lexemes will be emitted in a non-strictly
+    monotonously increasing order, meaning that for all consecutive lexemes `k`, `l`, `k.stop ≤ k.start`
+    will hold and `k.stop > k.start` is impossible.
 
   Together these principles impose strong constraints on what a well-formed scan can be and lead to some
   practically interesting invariants; for example, the concatenation of all `Lexeme::hit`s from all lexemes
   (and signals) resulting from a scan of a given `source` are equal to the source, i.e. `source == [ ( hit
   for hit from Grammar.scan source )..., ].join ''`
 
+  The grammar is required to / will emit error signals in all situations where any of the above constraints
+  is violated.
+
+* **`[—]`** write tests to ensure all of the Five Scanner Constraints (exhaustiveness, compactness,
+  contiguity, bijection and monotony) do hold
 * **`[—]`** documentation:
 
   Signals are just lexemes emitted by the scanner (i.e. the grammar). Internally they are formed the same
