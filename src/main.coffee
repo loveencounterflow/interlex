@@ -345,9 +345,12 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _scan_3_startstop_lnr: ( source ) ->
-    yield @system_tokens.start.match_at 0,            source
-    yield from @_scan_4_match_tokens                  source
-    yield @system_tokens.stop.match_at source.length, source
+    prv_lexeme = null
+    yield @system_tokens.start.match_at 0, source
+    for lexeme from @_scan_4_match_tokens source
+      prv_lexeme = lexeme if lexeme.level.name isnt '$signal'
+      yield lexeme
+    yield @system_tokens.stop.match_at ( prv_lexeme?.stop ? 0 ), source
     @state.lnr++
     return null
 
