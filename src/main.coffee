@@ -278,7 +278,7 @@ class Grammar
       @start_level_name = level.name
     return level
 
-  #---------------------------------------------------------------------------------------------------------
+  #=========================================================================================================
   _new_signal: ( name, idx, source, data = null ) ->
     R       = @system_tokens[ name ].match_at idx, source
     R.data  = Object.assign ( Object.create null ), data if data?
@@ -292,6 +292,10 @@ class Grammar
     return R
 
   #---------------------------------------------------------------------------------------------------------
+  _new_jump_signal: ( start, source, from_level, to_level ) ->
+    return @_new_signal 'jump', start, source, { from_level, to_level, }
+
+  #=========================================================================================================
   scan_to_list: ( P... ) -> [ ( @scan P... )..., ]
 
   #---------------------------------------------------------------------------------------------------------
@@ -366,11 +370,11 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _scan_3_startstop_lnr: ( source ) ->
     prv_lexeme = null
-    yield @system_tokens.start.match_at 0, source
+    yield @_new_signal 'start', 0, source
     for lexeme from @_scan_4_match_tokens source
       prv_lexeme = lexeme if lexeme.level.name isnt '$signal'
       yield lexeme
-    yield @system_tokens.stop.match_at ( prv_lexeme?.stop ? 0 ), source
+    yield @_new_signal 'stop', ( prv_lexeme?.stop ? 0 ), source
     @state.lnr++
     return null
 
@@ -410,13 +414,6 @@ class Grammar
     while not stack.is_empty
       yield @_new_jump_signal start, source, ( stack.pop_name null ), ( stack.peek_name null )
     return null
-
-  #---------------------------------------------------------------------------------------------------------
-  _new_jump_signal: ( start, source, from_level, to_level ) ->
-    R                  = @system_tokens.jump.match_at start, source
-    R.data.from_level  = from_level
-    R.data.to_level    = to_level
-    return R
 
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
