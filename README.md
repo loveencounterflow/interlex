@@ -204,6 +204,9 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   necessary to scan a given source with a known (upper limit of) number codepoints? Does it otherwise fall
   out from the implemented algorithm that we can never enter an infinite loop when scanning?
 
+* **`[—]`** documentation: "Even with `Grammar::cfg.emit_signals` set to `false`, `Grammar::scan()` will
+  still emit error signals; only `start`, `stop` and `jump` signals will be suppressed."
+
 ## Is Done
 
 * **`[+]`** implement chunk numbering with CFG settings `{ counter_name: 'line_nr', counter_start: 1, }`
