@@ -300,22 +300,28 @@ class Grammar
     ### Consolidate all contiguous jump signals into single signal ###
     buffer = []
     for lexeme from @_scan_2_validate source
+      #.....................................................................................................
       if lexeme.fqname is '$signal.jump'
         buffer.push lexeme
-      else
-        switch buffer.length
-          when 0 then yield lexeme
-          when 1 then yield buffer.pop()
-          else
-            jump                = buffer.at  0
-            ### TAINT use API? ###
-            last_jump           = buffer.at -1
-            jump.stop           = last_jump.stop
-            jump.data.to_level  = last_jump.data.to_level
-            buffer.length       = 0
-            yield jump
-            yield lexeme
         continue
+      #.....................................................................................................
+      if buffer.length is 0
+        yield lexeme
+        continue
+      #.....................................................................................................
+      if buffer.length is 1
+        yield buffer.pop()
+        yield lexeme
+        continue
+      #.....................................................................................................
+      jump                = buffer.at  0
+      ### TAINT use API? ###
+      last_jump           = buffer.at -1
+      jump.stop           = last_jump.stop
+      jump.data.to_level  = last_jump.data.to_level
+      buffer.length       = 0
+      yield jump
+      yield lexeme
     #.......................................................................................................
     return null
 
