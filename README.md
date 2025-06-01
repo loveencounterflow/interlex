@@ -206,6 +206,7 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 
 * **`[—]`** documentation: "Even with `Grammar::cfg.emit_signals` set to `false`, `Grammar::scan()` will
   still emit error signals; only `start`, `stop` and `jump` signals will be suppressed."
+* **`[—]`** unify `Lexeme::groups`, `Lexeme::data`
 
 ## Is Done
 
