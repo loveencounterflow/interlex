@@ -111,6 +111,7 @@ class Token
       grammar:      null
       matcher:      null
       jump:         null
+      merge:        false
     #.......................................................................................................
     cfg        ?= { cfg_template..., cfg..., }
     @name       = cfg.name
@@ -119,6 +120,7 @@ class Token
     hide @, 'grammar',      cfg.level.grammar
     hide @, 'matcher',      cfg.matcher
     hide @, 'jump',         ( @constructor._parse_jump cfg.jump, @level ) ? null
+    hide @, 'merge',        cfg.merge
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -364,7 +366,7 @@ class Grammar
     is_first    = true
     last_idx    = source.length
     #.......................................................................................................
-    for lexeme from @_scan_3_startstop_lnr source
+    for lexeme from @_scan_3_merge source
       switch true
         #...................................................................................................
         when lexeme.fqname is '$signal.stop'
@@ -385,7 +387,39 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_3_startstop_lnr: ( source ) ->
+  _scan_3_merge: ( source ) ->
+    buffer        = []
+    active_fqname = null
+    #.......................................................................................................
+    flush = ->
+      return null unless active_fqname?
+      merged_lexeme = buffer.at 0
+      if buffer.length is 1
+        yield merged_lexeme
+      else
+        last_lexeme         = buffer.at -1
+        merged_lexeme.hit   = ( lxm.hit for lxm in buffer ).join ''
+        merged_lexeme.stop  = last_lexeme.stop
+        yield merged_lexeme
+      active_fqname = null
+      buffer.length = 0
+      return null
+    #.......................................................................................................
+    for lexeme from @_scan_4_startstop_lnr source
+      if ( not lexeme.token.merge ) or ( lexeme.level.name is '$signal' )
+        yield from flush()
+        yield lexeme
+        continue
+      if lexeme.fqname is active_fqname
+        buffer.push lexeme
+        continue
+      yield from flush()
+      active_fqname = lexeme.fqname
+      buffer.push lexeme
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _scan_4_startstop_lnr: ( source ) ->
     prv_lexeme = null
     yield @_new_signal 'start', 0, source
     for lexeme from @_scan_4_match_tokens source
