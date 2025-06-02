@@ -227,7 +227,6 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   contiguous lexemes with the same `fqname` are aggregated into a single lexeme (ex. `{ name: 'text',
   matcher: rx.i"\\[0-9]|[a-z\s]+", }` will issue tokens for hits `'R'`, `'\\2'`, `'D'`, `'\\2'` when
   scanning `'R\\2D\\2'`; simplification will reduce these four lexemes to a single lexeme)
-* **`[–]`** rename `simplify_jumps` -> `merge_jumps`
 
 
 ## Is Done
@@ -273,6 +272,8 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[+]`** aggregate CFG settings such that the resulting version has the final results; e.g. a
   constellation of `{ emit_signals: false, simplify_jumps: true, }` can be aggregated as `{ emit_signals:
   false, simplify_jumps: false, }`
+* **`[+]`** rename `simplify_jumps` -> `merge_jumps`
+
 
 ## Don't
 
