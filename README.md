@@ -11,9 +11,9 @@
   - [Token Declarations](#token-declarations)
   - [Token Matchers](#token-matchers)
     - [Zero-Length Matches](#zero-length-matches)
-  - [Token Jumps](#token-jumps)
-  - [Using the `interlex.rx''` Regex Tag Function](#using-the-interlexrx-regex-tag-function)
+    - [Using the `interlex.rx''` Regex Tag Function](#using-the-interlexrx-regex-tag-function)
     - [Producing a Regex Tag Function with `new_regex_tag()`](#producing-a-regex-tag-function-with-new_regex_tag)
+  - [Token Jumps](#token-jumps)
   - [To Be Written](#to-be-written)
     - [Overview](#overview)
     - [Five Scanner Constraints](#five-scanner-constraints)
@@ -68,11 +68,11 @@
 
 ## Token Matchers
 
-
-Token matchers should preferrably constructed using the InterLex `rx''` regex tag function, but one can also
-use plain JS RegEx literals. All regular expressions will be silently 'upgraded' by [removing illegal and
-adding necessary flags](#producing-a-regex-tag-function-with-new_regex_tag), so for example declaring `{
-fit: /A[a-z]+/, }` will actually result in the regular expression `/A[a-z]+/dvy` to be used.
+Token matchers—defined using the `fit` key in token declarations—should preferrably constructed using the
+InterLex `rx''` regex tag function, but one can also use plain JS RegEx literals. All regular expressions
+will be silently 'upgraded' by [removing illegal and adding necessary
+flags](#producing-a-regex-tag-function-with-new_regex_tag), so for example declaring `{ fit: /A[a-z]+/, }`
+will actually result in the regular expression `/A[a-z]+/dvy` to be used.
 
 Note that in order to use some features of 3rd gen Unicode support afforded by the `v` flag one will need to
 explicitly set that flag on regex literals to make the JS parser accept the JS source file, but for many use
@@ -92,21 +92,8 @@ finer points of using [`slevithan/regex`](https://github.com/slevithan/regex).
   match and lookaheads, one would inevitably wind up with the stretch of digits split up between two lexemes
   that might even belong to two different levels.
 
-## Token Jumps
 
-* Jumps are declared with the property name `jump` and a so-called 'jump spec' which is a string that
-  contains **(1)**&nbsp;either **(a)**&nbsp;another level's name, or **(b)**&nbsp;a symbolic string `..` to
-  indicate 'jump back from current level, return to the previous level'; and **(2)**&nbsp;an optional 'carry
-  mark'.
-* Jumps can be either 'sticky' or 'carrying' depending on whether the lexeme produced from the respective
-  token will 'stick' to the token's level or be 'carried' along to the new level (the jump's target). Sticky
-  jumps have no explicit marker as they represent the 'default of least surprise' (a lexeme looks almost
-  like the token it was produced by, after all); carrying jumps are indicated by an `!` exclamation mark
-  behind the jump target, so for example a token declaration in level `gnd` that contains `{ jump:
-  'otherlevel!', }` indicates that the resulting lexeme's `level` will be `otherlevel`, not `gnd`."
-
-
-## Using the `interlex.rx''` Regex Tag Function
+### Using the `interlex.rx''` Regex Tag Function
 
 The InterLex `rx''` regex tag function is based on the `regex''` tag function from
 [`slevithan/regex`](https://github.com/slevithan/regex). It is intended to be used mainly to define a
@@ -151,14 +138,29 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   identical to the default tag function, `rx''`, and, say, `new_regex_tag 'iiiii'` is no different from
   `new_regex_tag 'i'`. There's no way to unset a flag.
 
+
+## Token Jumps
+
+* Jumps are declared with the property name `jump` and a so-called 'jump spec' which is a string that
+  contains **(1)**&nbsp;either **(a)**&nbsp;another level's name, or **(b)**&nbsp;a symbolic string `..` to
+  indicate 'jump back from current level, return to the previous level'; and **(2)**&nbsp;an optional 'carry
+  mark'.
+* Jumps can be either 'sticky' or 'carrying' depending on whether the lexeme produced from the respective
+  token will 'stick' to the token's level or be 'carried' along to the new level (the jump's target). Sticky
+  jumps have no explicit marker as they represent the 'default of least surprise' (a lexeme looks almost
+  like the token it was produced by, after all); carrying jumps are indicated by an `!` exclamation mark
+  behind the jump target, so for example a token declaration in level `gnd` that contains `{ jump:
+  'otherlevel!', }` indicates that the resulting lexeme's `level` will be `otherlevel`, not `gnd`."
+
 ## To Be Written
 
 ### Overview
 
-* `Token` defines `fit`, can jump into a level or back
-* `Level` has one or more `Token`s
 * `Grammar` has one or more `Level`s
-* `Lexeme` produced by a `Token` instance when `Token::fit` matches source
+* `Level` has one or more `Token`s
+* `Token` defines `fit`, can jump into a level or back
+* `Lexeme`s are produced by a `Token` when `Token::fit` matches the source text at the current position
+* `Token`s have `fit`s, `Lexeme`s have `hit`s; `fit`s produce `hit`s
 
 ### Five Scanner Constraints
 
