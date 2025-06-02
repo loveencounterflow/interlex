@@ -7,6 +7,7 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [InterLex](#interlex)
+  - [Grammar API](#grammar-api)
   - [Token Matchers](#token-matchers)
     - [Zero-Length Matches](#zero-length-matches)
   - [Token Jumps](#token-jumps)
@@ -21,6 +22,16 @@
 
 
 # InterLex
+
+
+## Grammar API
+
+* **`Grammar::scan: ( source ) ->`**: Iterate over all lexemes that result from matching tokens against the
+  `source` text.
+* **`Grammar::scan_to_list: ( source ) ->`**: Same as `Grammar::scan()` but returns a list of lexemes
+  instead of a generator.
+* **`Grammar::scan_first: ( source ) ->`**: Iterates over lexemes yielded by `Grammar::scan source` until it
+  encounters the first non-signal lexeme and returns that lexeme. Handy for testing token matchers.
 
 ## Token Matchers
 
