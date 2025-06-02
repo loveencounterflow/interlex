@@ -223,12 +223,13 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** unify `Lexeme::groups`, `Lexeme::data`
 * **`[—]`** documentation: "do not use star quantifier(?) in regexes unless you know what you're doing; ex.
   `/[a-z]*/` will match even without there being any ASCII letters"
-* **`[—]`** implement lexeme <del>consolidation / simplification</del> <ins>merging</ins> where all
+* **`[+]`** implement lexeme <del>consolidation / simplification</del> <ins>merging</ins> where all
   contiguous lexemes with the same `fqname` are aggregated into a single lexeme (ex. `{ name: 'text',
   matcher: rx.i"\\[0-9]|[a-z\s]+", }` will issue tokens for hits `'R'`, `'\\2'`, `'D'`, `'\\2'` when
   scanning `'R\\2D\\2'`; simplification will reduce these four lexemes to a single lexeme)
-  * **`[—]`** clarify how to treat entries in `Lexeme::data` when merging; at first implement using
-    `Object.assign()`, later maybe allow custom function
+  * **`[—]`** clarify how to treat entries in `Lexeme::data` when merging
+  * **`[+]`** at first implement using `Object.assign()`, later maybe allow custom function
+  * **`[—]`** later maybe allow custom function
 * **`[—]`** implement `Lexeme::pos` property to represent `lnr`, `start`, `stop` as text
 * **`[—]`** implement proper type handling with ClearType
 * **`[—]`** unify handling of `cfg`; should it always / never become a property of the instance?
