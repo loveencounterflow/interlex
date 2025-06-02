@@ -122,11 +122,11 @@ class Token
     cfg        ?= { cfg_template..., cfg..., }
     @name       = cfg.name
     cfg.matcher = internals.normalize_regex cfg.matcher
-    hide @, 'level',        cfg.level
-    hide @, 'grammar',      cfg.level.grammar
-    hide @, 'matcher',      cfg.matcher
-    hide @, 'jump',         ( @constructor._parse_jump cfg.jump, @level ) ? null
-    hide @, 'merge',        cfg.merge
+    hide @, 'level',                cfg.level
+    hide @, 'grammar',              cfg.level.grammar
+    hide @, 'matcher',              cfg.matcher
+    hide @, 'jump',                 ( @constructor._parse_jump cfg.jump, @level ) ? null
+    hide @, 'merge',                cfg.merge
     hide @, 'data_merge_strategy',  if ( isa std.function, cfg.merge ) then 'call' else 'assign'
     return undefined
 
