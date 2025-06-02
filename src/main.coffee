@@ -403,22 +403,34 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _scan_3_merge: ( source ) ->
-    buffer        = []
+    lexemes       = []
     active_fqname = null
+    #.......................................................................................................
+    merge_data_as_lists = ( merged, lexemes ) ->
+      R = Object.create null
+      for lexeme in lexemes
+        for key, value of lexeme.data
+          ( R[ key ] ?= [] ).push value
+      merged.assign R
+      return null
     #.......................................................................................................
     flush = ->
       return null unless active_fqname?
-      merged_lexeme = buffer.at 0
-      if buffer.length is 1
-        yield merged_lexeme
+      merged = ( lexemes.at 0 )._clone()
+      if lexemes.length is 1
+        yield merged
       else
-        last_lexeme         = buffer.at -1
-        merged_lexeme.hit   = ( lxm.hit for lxm in buffer ).join ''
-        merged_lexeme.assign ( lxm.data for lxm in buffer )...
-        merged_lexeme.stop  = last_lexeme.stop
-        yield merged_lexeme
+        last_lexeme = lexemes.at -1
+        merged.hit  = ( lxm.hit for lxm in lexemes ).join ''
+        merged.stop = last_lexeme.stop
+        switch merged.token.data_merge_strategy
+          when 'assign' then merged.assign ( lxm.data for lxm in lexemes )...
+          when 'call'   then merged.token.merge.call null, { merged, lexemes, }
+          when 'list'   then merge_data_as_lists merged, lexemes
+          else throw new Error "Ωilx__11 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
+        yield merged
       active_fqname = null
-      buffer.length = 0
+      lexemes.length = 0
       return null
     #.......................................................................................................
     for lexeme from @_scan_4_startstop_lnr source
@@ -427,11 +439,11 @@ class Grammar
         yield lexeme
         continue
       if lexeme.fqname is active_fqname
-        buffer.push lexeme
+        lexemes.push lexeme
         continue
       yield from flush()
       active_fqname = lexeme.fqname
-      buffer.push lexeme
+      lexemes.push lexeme
     return null
 
   #---------------------------------------------------------------------------------------------------------
