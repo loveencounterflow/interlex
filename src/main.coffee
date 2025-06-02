@@ -129,7 +129,14 @@ class Token
     hide @, 'matcher',              cfg.matcher
     hide @, 'jump',                 ( @constructor._parse_jump cfg.jump, @level ) ? null
     hide @, 'merge',                cfg.merge
-    hide @, 'data_merge_strategy',  if ( isa std.function, cfg.merge ) then 'call' else 'assign'
+    ### TAINT use proper typing ###
+    hide @, 'data_merge_strategy', switch true
+      when @merge is false                        then null
+      when @merge is true                         then 'list'
+      when @merge is 'assign'                     then 'assign'
+      when @merge is 'list'                       then 'list'
+      when ( isa std.function, @merge )           then 'call'
+      else throw new Error "Ωilx__11 expected a valid input for `merge`, got #{rpr @merge}"
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
