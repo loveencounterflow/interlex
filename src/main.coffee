@@ -144,12 +144,12 @@ class Lexeme
     @start                = match.index
     @stop                 = @start + @hit.length
     @length               = @hit.length
-    @groups               = match.groups ? null
     @jump                 = token.jump
     @token                = token
     @lnr                  = token.grammar.state.lnr
     @data                 = Object.create null
     #.......................................................................................................
+    @assign match.groups
     @set_level token.level
     hide_getter @, 'has_data',    =>
       return true for _ of @data
@@ -284,7 +284,7 @@ class Grammar
   #=========================================================================================================
   _new_signal: ( name, idx, source, data = null ) ->
     R       = @system_tokens[ name ].match_at idx, source
-    R.data  = Object.assign ( Object.create null ), data if data?
+    R.assign data
     return R
 
   #---------------------------------------------------------------------------------------------------------
@@ -344,7 +344,7 @@ class Grammar
       ### TAINT use API? ###
       last_jump           = buffer.at -1
       jump.stop           = last_jump.stop
-      jump.data.to_level  = last_jump.data.to_level
+      jump.assign { to_level: last_jump.data.to_level, }
       buffer.length       = 0
       yield jump
       yield lexeme
