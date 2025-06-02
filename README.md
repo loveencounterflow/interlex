@@ -215,7 +215,6 @@ without there being any ASCII letters
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
   * **`[—]`** allow to declare tokens when calling `Level::new_token()`
 * **`[—]`** allow positional arguments to `Level::new_token()`: `( name, fit, cfg )`
-* **`[—]`** bundle `start`, `stop` and later `lnr` &c under `position`?
 * **`[—]`** include indices for groups:
 
   ```
@@ -225,10 +224,11 @@ without there being any ASCII letters
   ```
 
 * **`[—]`** rename result of `new_regex_tag` to reflect use of flags
-* **`[—]`** allow functions for `token.fit`?
-  * must accept `( start, text, { token, level, grammar, } )`
-  * must return `null` or a lexeme
-* **`[—]`** allow string for `token.fit`?
+* **`[—]`** allow for `token.fit`:
+  * **`[—]`** functions?
+    * must accept `( start, text, { token, level, grammar, } )`
+    * must return `null` or a lexeme
+  * **`[—]`** strings?
 * **`[—]`** these internal settings / convenience values should be systematized and maybe collected in a
   common place; some of the regex flag values can and should be derived from more basic settings:
   * `_jsid_re`
@@ -256,29 +256,19 @@ without there being any ASCII letters
   ```
 * **`[—]`** move `fqname` formation to token, use API
 * **`[—]`** implement API to test whether lexing has finished
-  * **`[—]`** option to throw or emit error in case lexing is unfinished
-* **`[—]`** allow empty matches provided the token defines a jump
-* **`[—]`** implement `discardable`, `ghost` tokens, especially for zero-length jumpers?
-* **`[—]`** ensure `$signal.stop` is emitted in any case (barring exceptions)
-* **`[—]`** emit `$signal.error` upon premature eod-of-scan
-* **`[—]`** consider to rename `Grammar::walk_lexemes()` to `Grammar::scan()`
-
+* **`[—]`** implement `discardable`, `ghost` tokens, especially for zero-length jumpers? Could use CFG setting
+  `Token::emit`, in line with `Grammar::emit_signals`
 * **`[—]`** write tests to ensure all of the Five Scanner Constraints hold:
   * **`[+]`** exhaustiveness
   * **`[—]`** compactness
   * **`[—]`** contiguity
   * **`[—]`** bijection
   * **`[—]`** monotony
-
 * **`[—]`** based on the Five Scanner Constraints, can we set an upper limit to the number of steps
   necessary to scan a given source with a known (upper limit of) number codepoints? Does it otherwise fall
   out from the implemented algorithm that we can never enter an infinite loop when scanning?
-
 * **`[—]`** implement proper type handling with ClearType
 * **`[—]`** unify handling of `cfg`; should it always / never become a property of the instance?
-* **`[—]`** can we put the functionalities of `Grammar::_scan_1b_merge_jumps()` and
-  `Grammar::_scan_3_merge()` into a single method?
-* **`[—]`** allow `Token::fit` to be a function? Might also be an object with a `.match()` method?
 
 
 ## Is Done
@@ -335,6 +325,11 @@ without there being any ASCII letters
   * **`[+]`** later maybe allow custom function
 * **`[+]`** unify `Lexeme::groups`, `Lexeme::data`
 * **`[+]`** rename `Token::matcher` to `.fit()`?
+* **`[+]`** <del>option to throw or</del> emit error in case lexing is unfinished
+* **`[+]`** allow empty matches provided the token defines a jump
+* **`[+]`** ensure `$signal.stop` is emitted in any case (barring exceptions)
+* **`[+]`** emit `$signal.error` upon premature eod-of-scan
+* **`[+]`** consider to rename `Grammar::walk_lexemes()` to `Grammar::scan()`
 
 
 ## Don't
@@ -344,4 +339,7 @@ without there being any ASCII letters
 * **`[—]`** <del>use syntax as before (`[level`, `..]` vs `level[`, `]..`)</del>
 * **`[—]`** <del>implement 'inclusive' ('progressive'), 'exclusive' ('regressive') jumps</del>
   * **`[—]`** <del>allow to configure grammar defaults for fore- and backward jumps</del>
+* **`[—]`** <del>bundle `start`, `stop` and later `lnr` &c under `position`?</del>
+* **`[—]`** <del>can we put the functionalities of `Grammar::_scan_1b_merge_jumps()` and
+  `Grammar::_scan_3_merge()` into a single method?</del>
 
