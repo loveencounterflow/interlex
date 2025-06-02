@@ -136,7 +136,7 @@ class Token
       when @merge is 'assign'                     then 'assign'
       when @merge is 'list'                       then 'list'
       when ( isa std.function, @merge )           then 'call'
-      else throw new Error "Ωilx__11 expected a valid input for `merge`, got #{rpr @merge}"
+      else throw new Error "Ωilx___5 expected a valid input for `merge`, got #{rpr @merge}"
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -152,10 +152,10 @@ class Token
     for { carry, action, fit, } in internals.jump_spec_res
       break if ( match = spec.match fit )?
     unless match?
-      throw new Error "Ωilx___5 encountered illegal jump spec #{rpr spec}"
+      throw new Error "Ωilx___6 encountered illegal jump spec #{rpr spec}"
     { target, } = match.groups
     if level? and ( target is level.name )
-      throw new Error "Ωilx___6 cannot jump to same level, got #{rpr target}"
+      throw new Error "Ωilx___7 cannot jump to same level, got #{rpr target}"
     return { spec, carry, action, target, }
 
 
@@ -217,7 +217,7 @@ class Level
   #---------------------------------------------------------------------------------------------------------
   new_token: ( cfg ) ->
     if cfg.level? and cfg.level isnt @
-      throw new Error "Ωilx___7 inconsistent level"
+      throw new Error "Ωilx___8 inconsistent level"
     @tokens.push token = new Token { cfg..., level: @, }
     return token
 
@@ -251,7 +251,7 @@ class Level
     switch @strategy
       when 'first'    then  lexeme = @match_first_at    start, source
       when 'longest'  then  lexeme = @match_longest_at  start, source
-      else throw new Error "Ωilx___8 should never happen: got strategy: #{rpr @strategy}"
+      else throw new Error "Ωilx___9 should never happen: got strategy: #{rpr @strategy}"
     #.......................................................................................................
     ### Accept no lexeme matching but refuse lexeme with empty match: ###
     return null   unless lexeme?
@@ -259,7 +259,7 @@ class Level
     { fqname
       start } = lexeme
     snippet   = source[ start - 10 ... start ] + '⚠' + source[ start .. start + 10 ]
-    throw new Error "Ωilx___9 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
+    throw new Error "Ωilx__10 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
 
 
 #===========================================================================================================
@@ -305,7 +305,7 @@ class Grammar
   new_level: ( cfg ) ->
     is_system = cfg.name.startsWith '$'
     if @levels[ cfg.name ]?
-      throw new Error "Ωilx__10 level #{rpr level.name} elready exists"
+      throw new Error "Ωilx__11 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
     if ( not is_system ) and ( not @start_level? )
@@ -431,7 +431,7 @@ class Grammar
         when 'assign' then merged.assign ( lxm.data for lxm in lexemes )...
         when 'call'   then merged.token.merge.call null, { merged, lexemes, }
         when 'list'   then merge_data_as_lists merged, lexemes
-        else throw new Error "Ωilx__11 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
+        else throw new Error "Ωilx__14 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
       yield merged
       active_fqname = null
       lexemes.length = 0
@@ -501,7 +501,7 @@ class Grammar
         switch jump.action
           when 'fore' then  stack.push ( new_level = @_get_level jump.target )
           when 'back' then  new_level = stack.popnpeek()
-          else throw new Error "Ωilx__12 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+          else throw new Error "Ωilx__19 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
           jump_before  = true
           lexeme.set_level new_level
@@ -519,7 +519,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
-    throw new Error "Ωilx__13 unknown level #{rpr level_name}"
+    throw new Error "Ωilx__20 unknown level #{rpr level_name}"
 
 
 #===========================================================================================================
