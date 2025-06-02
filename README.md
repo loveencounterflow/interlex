@@ -156,11 +156,12 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 
 ### Overview
 
-* `Grammar` has one or more `Level`s
-* `Level` has one or more `Token`s
-* `Token` defines `fit`, can jump into a level or back
-* `Lexeme`s are produced by a `Token` when `Token::fit` matches the source text at the current position
-* `Token`s have `fit`s, `Lexeme`s have `hit`s; `fit`s produce `hit`s
+* `Grammar` has one or more `Level`s.
+* `Level` has one or more `Token`s.
+* `Token` defines `fit`, can jump into a level or back.
+* `Lexeme`s are produced by a `Token` when `Token::fit` matches the source text at the current position.
+* `Token`s have `fit`s, `Lexeme`s have `hit`s; `fit`s produce `hit`s.
+* `fit`s are also called 'matchers', `hit`s are also called 'matches'.
 
 ### Five Scanner Constraints
 
