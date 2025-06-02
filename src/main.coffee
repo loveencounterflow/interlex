@@ -121,7 +121,7 @@ class Token
       jump:         null
       merge:        false
     #.......................................................................................................
-    cfg        ?= { cfg_template..., cfg..., }
+    cfg         = { cfg_template..., cfg..., }
     @name       = cfg.name
     cfg.matcher = internals.normalize_regex cfg.matcher
     hide @, 'level',                cfg.level
