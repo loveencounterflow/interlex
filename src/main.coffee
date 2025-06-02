@@ -299,6 +299,12 @@ class Grammar
   scan_to_list: ( P... ) -> [ ( @scan P... )..., ]
 
   #---------------------------------------------------------------------------------------------------------
+  scan_first: ( P... ) ->
+    for lexeme from @scan P...
+      return lexeme unless lexeme.level.name is '$signal'
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
   scan: ( source ) ->
     yield from switch true
       when @cfg.simplify_jumps  then  @_scan_1b_simplify_jumps      source
