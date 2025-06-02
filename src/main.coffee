@@ -10,6 +10,12 @@
   debug
   info
   rpr                   } = require './helpers'
+{ std
+  isa
+  isa_optional
+  create
+  validate
+  validate_optional     } = require 'cleartype'
 
 
 #===========================================================================================================
