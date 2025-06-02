@@ -7,6 +7,7 @@
   hide
   hide_getter
   set_getter
+  clone
   debug
   info
   rpr                   } = require './helpers'
@@ -24,6 +25,7 @@ internals = new class Internals
     SLR             = require 'regex'
     #.........................................................................................................
     @Levelstack           = Levelstack
+    @clone                = clone
     @slevithan_regex      = SLR
     ### thx to https://github.com/sindresorhus/identifier-regex ###
     @jsid_re              = SLR.regex""" [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* """
@@ -173,6 +175,12 @@ class Lexeme
       return false
     #.......................................................................................................
     return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  _clone: ->
+    R       = clone @
+    R.data  = clone @data
+    return R
 
   #---------------------------------------------------------------------------------------------------------
   set_level: ( level ) ->

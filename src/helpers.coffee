@@ -84,6 +84,15 @@ set_getter = ( object, name, getter ) => Object.defineProperty object, name,
     configurable: true
     get:          getter
 
+#===========================================================================================================
+clone = ( x ) ->
+  ### thx to https://chatgpt.com/c/68146386-600c-8005-9833-1319bd47c100 ###
+  # return Object.assign ( Object.create Object.getPrototypeOf x ), x
+  ### improved version ###
+  R = Object.create Object.getPrototypeOf x
+  Object.defineProperties R, Object.getOwnPropertyDescriptors x
+  return R
+
 # #===========================================================================================================
 # get_instance_methods = ( instance ) ->
 #   isa_function  = ( require './builtins' ).std.function.$isa
@@ -111,6 +120,7 @@ module.exports = {
   hide
   hide_getter
   set_getter
+  clone
   # get_instance_methods
   # bind_instance_methods
   debug
