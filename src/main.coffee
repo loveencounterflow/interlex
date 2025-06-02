@@ -105,6 +105,14 @@ class Token
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
+    cfg_template =
+      name:         null
+      level:        null
+      grammar:      null
+      matcher:      null
+      jump:         null
+    #.......................................................................................................
+    cfg        ?= { cfg_template..., cfg..., }
     @name       = cfg.name
     cfg.matcher = internals.normalize_regex cfg.matcher
     hide @, 'level',        cfg.level
