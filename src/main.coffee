@@ -399,6 +399,7 @@ class Grammar
       else
         last_lexeme         = buffer.at -1
         merged_lexeme.hit   = ( lxm.hit for lxm in buffer ).join ''
+        merged_lexeme.assign ( lxm.data for lxm in buffer )...
         merged_lexeme.stop  = last_lexeme.stop
         yield merged_lexeme
       active_fqname = null
