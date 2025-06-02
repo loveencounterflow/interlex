@@ -424,18 +424,15 @@ class Grammar
     flush = ->
       return null unless active_fqname?
       merged = ( lexemes.at 0 )._clone()
-      if lexemes.length is 1
-        yield merged
-      else
-        last_lexeme = lexemes.at -1
-        merged.hit  = ( lxm.hit for lxm in lexemes ).join ''
-        merged.stop = last_lexeme.stop
-        switch merged.token.data_merge_strategy
-          when 'assign' then merged.assign ( lxm.data for lxm in lexemes )...
-          when 'call'   then merged.token.merge.call null, { merged, lexemes, }
-          when 'list'   then merge_data_as_lists merged, lexemes
-          else throw new Error "Ωilx__11 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
-        yield merged
+      last_lexeme = lexemes.at -1
+      merged.hit  = ( lxm.hit for lxm in lexemes ).join ''
+      merged.stop = last_lexeme.stop
+      switch merged.token.data_merge_strategy
+        when 'assign' then merged.assign ( lxm.data for lxm in lexemes )...
+        when 'call'   then merged.token.merge.call null, { merged, lexemes, }
+        when 'list'   then merge_data_as_lists merged, lexemes
+        else throw new Error "Ωilx__11 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
+      yield merged
       active_fqname = null
       lexemes.length = 0
       return null
