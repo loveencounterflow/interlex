@@ -20,6 +20,7 @@
     - [Signals: Implementation Note](#signals-implementation-note)
     - [Errors Always Emitted](#errors-always-emitted)
     - [Do Not Use Star Quantifiers](#do-not-use-star-quantifiers)
+    - [Always Unicode, Except](#always-unicode-except)
   - [To Do](#to-do)
   - [Is Done](#is-done)
   - [Don't](#dont)
@@ -210,6 +211,15 @@ Even with `Grammar::cfg.emit_signals` set to `false`, `Grammar::scan()` will sti
 do not use star quantifier(?) in regexes unless you know what you're doing; ex. `/[a-z]*/` will match even
 without there being any ASCII letters
 
+### Always Unicode, Except
+
+* Since all regex matchers (regex `fit`s) have the `v` flag set, `fit: /./` will always match Unicode
+  code**points** (not Unicode code **units**);
+* however, JavaScript string indices continue to index Unicode code **units** (not Unicode code**points**);
+* hence, `Lexeme::start`, `::stop`, `::length` and `::pos` all index the source in terms of Unicode code
+  **units** although the matches (`hit`s) are constructed by looking at Unicode code**points**.
+* Yes, this is annoying.
+
 ## To Do
 
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
@@ -267,8 +277,18 @@ without there being any ASCII letters
 * **`[—]`** based on the Five Scanner Constraints, can we set an upper limit to the number of steps
   necessary to scan a given source with a known (upper limit of) number codepoints? Does it otherwise fall
   out from the implemented algorithm that we can never enter an infinite loop when scanning?
+  * **`[—]`** an infinite loop can result from zero-length matches and ensuing forth-and-back jumps which
+    should be recognized and terminated
 * **`[—]`** implement proper type handling with ClearType
 * **`[—]`** unify handling of `cfg`; should it always / never become a property of the instance?
+* **`[—]`** take error signals out of `$signal` and put into new `$error` level? That would entail instead
+  of, say, `{ fqname: '$signal.error', data: { kind: 'earlystop', ..., } }` we would get `{ fqname:
+  '$error.earlystop', data: { ..., } }` which is more suitable for processing; additionally, `Token`s and
+  `Lexeme`s could gain properties
+  * `::is_system` for lexemes in levels starting with `$`
+  * `::is_error` for lexemes in level `$error`
+  * `::is_signal` for lexemes in level `$signal`
+  * `::is_user`  for lexemes in user-defined levels
 
 
 ## Is Done
