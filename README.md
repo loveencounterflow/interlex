@@ -212,10 +212,11 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** unify `Lexeme::groups`, `Lexeme::data`
 * **`[—]`** documentation: "do not use star quantifier(?) in regexes unless you know what you're doing; ex.
   `/[a-z]*/` will match even without there being any ASCII letters"
-* **`[—]`** implement lexeme consolidation / simplification where all contiguous lexemes with the same
-  `fqname` are aggregated into a single lexeme (ex. `{ name: 'text', matcher: rx.i"\\[0-9]|[a-z\s]+", }`
-  will issue tokens for hits `'R'`, `'\\2'`, `'D'`, `'\\2'` when scanning `'R\\2D\\2'`; simplification will
-  reduce these four lexemes to a single lexeme)
+* **`[—]`** implement lexeme <del>consolidation / simplification</del> <ins>merging</ins> where all
+  contiguous lexemes with the same `fqname` are aggregated into a single lexeme (ex. `{ name: 'text',
+  matcher: rx.i"\\[0-9]|[a-z\s]+", }` will issue tokens for hits `'R'`, `'\\2'`, `'D'`, `'\\2'` when
+  scanning `'R\\2D\\2'`; simplification will reduce these four lexemes to a single lexeme)
+* **`[–]`** rename `simplify_jumps` -> `merge_jumps`
 
 
 ## Is Done
