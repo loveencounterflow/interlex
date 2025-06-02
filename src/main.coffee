@@ -320,10 +320,10 @@ class Grammar
     return R
 
   #---------------------------------------------------------------------------------------------------------
-  _new_error_signal: ( kind, start, stop, source, message ) ->
-    R       = @_new_signal 'error', start, source, { kind, message, }
+  _new_error_signal: ( ref, kind, start, stop, source, message ) ->
+    R       = @_new_signal 'error', start, source, { kind, message, ref, }
     R.stop  = stop
-    R.hit   = source[ start .. stop ]
+    R.hit   = source[ start ... stop ]
     return R
 
   #---------------------------------------------------------------------------------------------------------
@@ -393,14 +393,14 @@ class Grammar
         #...................................................................................................
         when lexeme.fqname is '$signal.stop'
           if lexeme.stop isnt last_idx
-            yield @_new_error_signal 'earlystop', lexeme.stop, last_idx, source, \
+            yield @_new_error_signal 'Ωilx__12', 'earlystop', lexeme.stop, last_idx, source, \
               "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
         #...................................................................................................
         when lexeme.level.name is '$signal'
           null
         #...................................................................................................
         when is_first and ( lexeme.start isnt 0 )
-          yield @_new_error_signal 'latestart', 0, lexeme.start, source, \
+          yield @_new_error_signal 'Ωilx__13', 'latestart', 0, lexeme.start, source, \
             "expected start at 0, got #{rpr lexeme.start}"
       #.....................................................................................................
       yield lexeme
