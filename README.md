@@ -15,11 +15,11 @@
   - [Using the `interlex.rx''` Regex Tag Function](#using-the-interlexrx-regex-tag-function)
     - [Producing a Regex Tag Function with `new_regex_tag()`](#producing-a-regex-tag-function-with-new_regex_tag)
   - [To Be Written](#to-be-written)
-    - [XXXXXXXXXXXX](#xxxxxxxxxxxx)
-    - [XXXXXXXXXXXX](#xxxxxxxxxxxx-1)
-    - [XXXXXXXXXXXX](#xxxxxxxxxxxx-2)
-    - [XXXXXXXXXXXX](#xxxxxxxxxxxx-3)
-    - [XXXXXXXXXXXX](#xxxxxxxxxxxx-4)
+    - [Overview](#overview)
+    - [Five Scanner Constraints](#five-scanner-constraints)
+    - [Signals: Implementation Note](#signals-implementation-note)
+    - [Errors Always Emitted](#errors-always-emitted)
+    - [Do Not Use Star Quantifiers](#do-not-use-star-quantifiers)
   - [To Do](#to-do)
   - [Is Done](#is-done)
   - [Don't](#dont)
@@ -45,12 +45,12 @@
 * **`name`** (`null`): Must be a string giving the name of the token. Names must be unique to the level.
 * **`level`** (set by `Level.new_token()`):
 * **`grammar`** (set by `Level.new_token()`):
-* **`matcher`** (`null`): What to match at the current position of the source; see [Token
+* **`fit`** (`null`): What to match at the current position of the source; see [Token
   Matchers](#token-matchers).
 * **`jump`** (`null`): Which level to jump to when token matches; see [Token Jumps](#token-jumps).
 * **`merge`** (`false`):
   * When set to `true`, will merge contiguous lexemes resulting from this token into a single one. Simplest
-    example: a token declared as `{ name: 'number', matcher: /[0-9]/, }` will match single Arabic digits, so
+    example: a token declared as `{ name: 'number', fit: /[0-9]/, }` will match single Arabic digits, so
     `Grammar::scan_first '953'` will return a lexeme `{ name: 'number', hit: '9', }`. With `{ ..., merge:
     true, }`, though, the same `Grammar::scan_first '953'` will now return a lexeme `{ name: 'number', hit:
     '953', }` because the contiguous stretch of digits will be merged into a single lexeme.
@@ -72,7 +72,7 @@
 Token matchers should preferrably constructed using the InterLex `rx''` regex tag function, but one can also
 use plain JS RegEx literals. All regular expressions will be silently 'upgraded' by [removing illegal and
 adding necessary flags](#producing-a-regex-tag-function-with-new_regex_tag), so for example declaring `{
-matcher: /A[a-z]+/, }` will actually result in the regular expression `/A[a-z]+/dvy` to be used.
+fit: /A[a-z]+/, }` will actually result in the regular expression `/A[a-z]+/dvy` to be used.
 
 Note that in order to use some features of 3rd gen Unicode support afforded by the `v` flag one will need to
 explicitly set that flag on regex literals to make the JS parser accept the JS source file, but for many use
@@ -85,10 +85,10 @@ finer points of using [`slevithan/regex`](https://github.com/slevithan/regex).
 * are only rejected when they actually happen to occur while scanning a text because it is not feasable
   (at this point at least) to recognize all possible empty matches by static analysis of regular expressions
 * empty matches are allowed only when the respective token has a declared jump; in that scenario, empty
-  matches are typically the result of a matcher with a regex lookahead; for example one could declare a
-  token `{ name: 'before_digits', matcher: /(?=[0-9])/, jump: 'number', }` that instructs the lexer to jump
+  matches are typically the result of a `fit` with a regex lookahead; for example one could declare a
+  token `{ name: 'before_digits', fit: /(?=[0-9])/, jump: 'number', }` that instructs the lexer to jump
   to level `number` right before `(?=` a digit `[0-9]`; in that other level `number`, another token declared
-  as `{ name: 'digits', matcher: /[0-9]+/i, }` can then pick up right on the same spot. Without the empty
+  as `{ name: 'digits', fit: /[0-9]+/i, }` can then pick up right on the same spot. Without the empty
   match and lookaheads, one would inevitably wind up with the stretch of digits split up between two lexemes
   that might even belong to two different levels.
 
@@ -110,7 +110,7 @@ finer points of using [`slevithan/regex`](https://github.com/slevithan/regex).
 
 The InterLex `rx''` regex tag function is based on the `regex''` tag function from
 [`slevithan/regex`](https://github.com/slevithan/regex). It is intended to be used mainly to define a
-`matcher` for InterLex `Token`s, allows to convert a string into a regular expression object with
+`fit` for InterLex `Token`s, allows to convert a string into a regular expression object with
 * `rx"[abc]+"` (CoffeeScript) or
 * ```rx`[abc]+`‍``` (JavaScript).
 
@@ -119,7 +119,7 @@ implicitly set, for which see below.
 
 In contradistinction to the original `regex''` tag function provided by `slevithan/regex`, the `rx''` tag
 function offers the capability to set additional flags by using JS dotted accessor syntax, which is a fancy
-way to say that when e.g. you have a matcher `rx"[abc]"` to match any of the letters `'a'`, `'b'`, `'c'` in
+way to say that when e.g. you have `fit: rx"[abc]"` to match any of the letters `'a'`, `'b'`, `'c'` in
 a given source, then in order to set the case-**i**nsensitivy flag `i` you can write `rx.i"[abc]"` to match
 any of `'a'`, `'b'`, `'c'`, `'A'`, `'B'`, or `'C'`.
 
@@ -153,14 +153,14 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 
 ## To Be Written
 
-### XXXXXXXXXXXX
+### Overview
 
-* `Token` defines `matcher`, can jump into a level or back
+* `Token` defines `fit`, can jump into a level or back
 * `Level` has one or more `Token`s
 * `Grammar` has one or more `Level`s
-* `Lexeme` produced by a `Token` instance when matcher matches source
+* `Lexeme` produced by a `Token` instance when `Token::fit` matches source
 
-### XXXXXXXXXXXX
+### Five Scanner Constraints
 
 All scans must be **exhaustive**, **compact**, **contiguous**, **bijective** and **monotonous**, meaning:
 * **Exhaustive** (a.k.a. "no leftovers"): each position in a source from the first to the last codepoint
@@ -190,28 +190,28 @@ for hit from Grammar.scan source )..., ].join ''`
 The grammar is required to / will emit error signals in all situations where any of the above constraints
 is violated.
 
-### XXXXXXXXXXXX
+### Signals: Implementation Note
 
 Signals are just lexemes emitted by the scanner (i.e. the grammar). Internally they are formed the same
 way that user lexemes are formed (namely from a token, a source, and a position); they have the same
 fields as user lexemes, and can for many purposes run through the same processing pipeline as user
 lexemes.
 
-### XXXXXXXXXXXX
+### Errors Always Emitted
 
-"Even with `Grammar::cfg.emit_signals` set to `false`, `Grammar::scan()` will still emit error signals; only
-`start`, `stop` and `jump` signals will be suppressed."
+Even with `Grammar::cfg.emit_signals` set to `false`, `Grammar::scan()` will still emit error signals; only
+`start`, `stop` and `jump` signals will be suppressed.
 
-### XXXXXXXXXXXX
+### Do Not Use Star Quantifiers
 
-"do not use star quantifier(?) in regexes unless you know what you're doing; ex.
-`/[a-z]*/` will match even without there being any ASCII letters"
+do not use star quantifier(?) in regexes unless you know what you're doing; ex. `/[a-z]*/` will match even
+without there being any ASCII letters
 
 ## To Do
 
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
   * **`[—]`** allow to declare tokens when calling `Level::new_token()`
-* **`[—]`** allow positional arguments to `Level::new_token()`: `( name, matcher, cfg )`
+* **`[—]`** allow positional arguments to `Level::new_token()`: `( name, fit, cfg )`
 * **`[—]`** bundle `start`, `stop` and later `lnr` &c under `position`?
 * **`[—]`** include indices for groups:
 
@@ -222,10 +222,10 @@ lexemes.
   ```
 
 * **`[—]`** rename result of `new_regex_tag` to reflect use of flags
-* **`[—]`** allow functions for `token.matcher`?
+* **`[—]`** allow functions for `token.fit`?
   * must accept `( start, text, { token, level, grammar, } )`
   * must return `null` or a lexeme
-* **`[—]`** allow string for `token.matcher`?
+* **`[—]`** allow string for `token.fit`?
 * **`[—]`** these internal settings / convenience values should be systematized and maybe collected in a
   common place; some of the regex flag values can and should be derived from more basic settings:
   * `_jsid_re`
@@ -260,8 +260,12 @@ lexemes.
 * **`[—]`** emit `$signal.error` upon premature eod-of-scan
 * **`[—]`** consider to rename `Grammar::walk_lexemes()` to `Grammar::scan()`
 
-* **`[—]`** write tests to ensure all of the Five Scanner Constraints (exhaustiveness, compactness,
-  contiguity, bijection and monotony) do hold
+* **`[—]`** write tests to ensure all of the Five Scanner Constraints hold:
+  * **`[+]`** exhaustiveness
+  * **`[—]`** compactness
+  * **`[—]`** contiguity
+  * **`[—]`** bijection
+  * **`[—]`** monotony
 
 * **`[—]`** based on the Five Scanner Constraints, can we set an upper limit to the number of steps
   necessary to scan a given source with a known (upper limit of) number codepoints? Does it otherwise fall
@@ -271,6 +275,7 @@ lexemes.
 * **`[—]`** unify handling of `cfg`; should it always / never become a property of the instance?
 * **`[—]`** can we put the functionalities of `Grammar::_scan_1b_merge_jumps()` and
   `Grammar::_scan_3_merge()` into a single method?
+* **`[—]`** allow `Token::fit` to be a function? Might also be an object with a `.match()` method?
 
 
 ## Is Done
@@ -326,6 +331,7 @@ lexemes.
   * **`[+]`** at first implement using `Object.assign()`, later maybe allow custom function
   * **`[+]`** later maybe allow custom function
 * **`[+]`** unify `Lexeme::groups`, `Lexeme::data`
+* **`[+]`** rename `Token::matcher` to `.fit()`?
 
 
 ## Don't
