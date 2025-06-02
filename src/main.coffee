@@ -31,10 +31,10 @@ internals = new class Internals
     @jsid_re              = SLR.regex""" [ $ _ \p{ID_Start} ] [ $ _ \u200C \u200D \p{ID_Continue} ]* """
     @jump_spec_back       = '..'
     @jump_spec_res        = [
-      { carry: false,  action: 'back', matcher: SLR.regex"^ (?<target> #{ @jump_spec_back  } )   $", }
-      { carry: false,  action: 'fore', matcher: SLR.regex"^ (?<target> #{ @jsid_re         } )   $", }
-      { carry: true,   action: 'back', matcher: SLR.regex"^ (?<target> #{ @jump_spec_back  } ) ! $", }
-      { carry: true,   action: 'fore', matcher: SLR.regex"^ (?<target> #{ @jsid_re         } ) ! $", }
+      { carry: false,  action: 'back', fit: SLR.regex"^ (?<target> #{ @jump_spec_back  } )   $", }
+      { carry: false,  action: 'fore', fit: SLR.regex"^ (?<target> #{ @jsid_re         } )   $", }
+      { carry: true,   action: 'back', fit: SLR.regex"^ (?<target> #{ @jump_spec_back  } ) ! $", }
+      { carry: true,   action: 'fore', fit: SLR.regex"^ (?<target> #{ @jsid_re         } ) ! $", }
       ]
     #.......................................................................................................
     # thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
@@ -117,16 +117,16 @@ class Token
       name:         null
       level:        null
       grammar:      null
-      matcher:      null
+      fit:          null
       jump:         null
       merge:        false
     #.......................................................................................................
     cfg         = { cfg_template..., cfg..., }
     @name       = cfg.name
-    cfg.matcher = internals.normalize_regex cfg.matcher
+    cfg.fit     = internals.normalize_regex cfg.fit
     hide @, 'level',                cfg.level
     hide @, 'grammar',              cfg.level.grammar
-    hide @, 'matcher',              cfg.matcher
+    hide @, 'fit',                  cfg.fit
     hide @, 'jump',                 ( @constructor._parse_jump cfg.jump, @level ) ? null
     hide @, 'merge',                cfg.merge
     ### TAINT use proper typing ###
@@ -141,16 +141,16 @@ class Token
 
   #---------------------------------------------------------------------------------------------------------
   match_at: ( start, source ) ->
-    @matcher.lastIndex = start
-    return null unless ( match = source.match @matcher )?
+    @fit.lastIndex = start
+    return null unless ( match = source.match @fit )?
     return new Lexeme @, match
 
   #---------------------------------------------------------------------------------------------------------
   @_parse_jump: ( spec, level = null ) ->
     return null unless spec?
     match = null
-    for { carry, action, matcher, } in internals.jump_spec_res
-      break if ( match = spec.match matcher )?
+    for { carry, action, fit, } in internals.jump_spec_res
+      break if ( match = spec.match fit )?
     unless match?
       throw new Error "Ωilx___5 encountered illegal jump spec #{rpr spec}"
     { target, } = match.groups
@@ -295,10 +295,10 @@ class Grammar
   _add_system_level: ->
     $signal = @new_level { name: '$signal',  }
     hide @, 'system_tokens',
-      start:  $signal.new_token { name: 'start', matcher: /|/, }
-      stop:   $signal.new_token { name: 'stop',  matcher: /|/, }
-      jump:   $signal.new_token { name: 'jump',  matcher: /|/, }
-      error:  $signal.new_token { name: 'error', matcher: /|/, }
+      start:  $signal.new_token { name: 'start', fit: /|/, }
+      stop:   $signal.new_token { name: 'stop',  fit: /|/, }
+      jump:   $signal.new_token { name: 'jump',  fit: /|/, }
+      error:  $signal.new_token { name: 'error', fit: /|/, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
