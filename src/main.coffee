@@ -239,10 +239,10 @@ class Grammar
       name:           'g'
       strategy:       'first'
       emit_signals:   true
-      simplify_jumps: true
+      merge_jumps:    true
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
-    @cfg.simplify_jumps     = false unless @cfg.emit_signals
+    @cfg.merge_jumps        = false unless @cfg.emit_signals
     @name                   = @cfg.name
     @state                  = { lnr: null, }
     @start_level_name       = null
@@ -310,7 +310,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   scan: ( source ) ->
     yield from switch true
-      when @cfg.simplify_jumps  then  @_scan_1b_simplify_jumps      source
+      when @cfg.merge_jumps     then  @_scan_1b_merge_jumps         source
       when @cfg.emit_signals    then  @_scan_2_validate_exhaustion  source
       else                            @_scan_1a_remove_signals      source
     return null
@@ -322,7 +322,7 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_1b_simplify_jumps: ( source ) ->
+  _scan_1b_merge_jumps: ( source ) ->
     ### Consolidate all contiguous jump signals into single signal ###
     buffer = []
     for lexeme from @_scan_2_validate_exhaustion source
