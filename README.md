@@ -227,6 +227,7 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   contiguous lexemes with the same `fqname` are aggregated into a single lexeme (ex. `{ name: 'text',
   matcher: rx.i"\\[0-9]|[a-z\s]+", }` will issue tokens for hits `'R'`, `'\\2'`, `'D'`, `'\\2'` when
   scanning `'R\\2D\\2'`; simplification will reduce these four lexemes to a single lexeme)
+* **`[—]`** implement `Lexeme::pos` property to represent `lnr`, `start`, `stop` as text
 
 
 ## Is Done
