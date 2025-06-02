@@ -8,6 +8,7 @@
 
 - [InterLex](#interlex)
   - [Grammar API](#grammar-api)
+  - [Token Declarations](#token-declarations)
   - [Token Matchers](#token-matchers)
     - [Zero-Length Matches](#zero-length-matches)
   - [Token Jumps](#token-jumps)
@@ -32,6 +33,22 @@
   instead of a generator.
 * **`Grammar::scan_first: ( source ) ->`**: Iterates over lexemes yielded by `Grammar::scan source` until it
   encounters the first non-signal lexeme and returns that lexeme. Handy for testing token matchers.
+
+## Token Declarations
+
+* **`name`** (`null`): Must be a string giving the name of the token. Names must be unique to the level.
+* **`level`** (set by `Level.new_token()`):
+* **`grammar`** (set by `Level.new_token()`):
+* **`matcher`** (`null`): What to match at the current position of the source; see [Token
+  Matchers](#token-matchers).
+* **`jump`** (`null`): Which level to jump to when token matches; see [Token Jumps](#token-jumps).
+* **`merge`** (`false`): When set to `true`, will merge contiguous lexemes resulting from this token into a
+  single one. Simplest example: a token declared as `{ name: 'number', matcher: /[0-9]/, }` will match
+  single Arabic digits, so `Grammar::scan_first '953'` will return a lexeme `{ name: 'number', hit: '9', }`.
+  With `{ ..., merge: true, }`, though, the same `Grammar::scan_first '953'` will now return a lexeme `{
+  name: 'number', hit: '953', }` because the contiguous stretch of digots will be merged into a single
+  lexeme.
+
 
 ## Token Matchers
 
@@ -233,6 +250,8 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** implement `Lexeme::pos` property to represent `lnr`, `start`, `stop` as text
 * **`[—]`** implement proper type handling with ClearType
 * **`[—]`** unify handling of `cfg`; should it always / never become a property of the instance?
+* **`[—]`** can we put the functionalities of `Grammar::_scan_1b_merge_jumps()` and
+  `Grammar::_scan_3_merge()` into a single method?
 
 
 ## Is Done
