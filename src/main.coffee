@@ -158,15 +158,15 @@ class Lexeme
   #---------------------------------------------------------------------------------------------------------
   constructor: ( token, match ) ->
     @name                 = token.name
-    set_getter @, 'fqname', => "#{@level.name}.#{@name}"
     @hit                  = match[ 0 ]
     @start                = match.index
     @stop                 = @start + @hit.length
-    @length               = @hit.length
     @jump                 = token.jump
     @token                = token
     @lnr                  = token.grammar.state.lnr
     @data                 = Object.create null
+    set_getter @, 'fqname', => "#{@level.name}.#{@name}"
+    set_getter @, 'length', => @hit.length
     #.......................................................................................................
     @assign match.groups
     @set_level token.level
