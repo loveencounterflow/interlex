@@ -14,6 +14,12 @@
   - [Token Jumps](#token-jumps)
   - [Using the `interlex.rx''` Regex Tag Function](#using-the-interlexrx-regex-tag-function)
     - [Producing a Regex Tag Function with `new_regex_tag()`](#producing-a-regex-tag-function-with-new_regex_tag)
+  - [To Be Written](#to-be-written)
+    - [XXXXXXXXXXXX](#xxxxxxxxxxxx)
+    - [XXXXXXXXXXXX](#xxxxxxxxxxxx-1)
+    - [XXXXXXXXXXXX](#xxxxxxxxxxxx-2)
+    - [XXXXXXXXXXXX](#xxxxxxxxxxxx-3)
+    - [XXXXXXXXXXXX](#xxxxxxxxxxxx-4)
   - [To Do](#to-do)
   - [Is Done](#is-done)
   - [Don't](#dont)
@@ -145,6 +151,62 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   identical to the default tag function, `rx''`, and, say, `new_regex_tag 'iiiii'` is no different from
   `new_regex_tag 'i'`. There's no way to unset a flag.
 
+## To Be Written
+
+### XXXXXXXXXXXX
+
+* `Token` defines `matcher`, can jump into a level or back
+* `Level` has one or more `Token`s
+* `Grammar` has one or more `Level`s
+* `Lexeme` produced by a `Token` instance when matcher matches source
+
+### XXXXXXXXXXXX
+
+All scans must be **exhaustive**, **compact**, **contiguous**, **bijective** and **monotonous**, meaning:
+* **Exhaustive** (a.k.a. "no leftovers"): each position in a source from the first to the last codepoint
+  must be covered by some lexeme; more specifically—because dense coverage already falls out from the
+  requirements of compactness and contiguity—the first (non-signal) lexeme must cover the source position
+  with index `0`, and the last (non-signal) lexeme must cover the source position with index
+  `source.length - 1` (a.k.a. `source.at -1`).
+* **Compact** (a.k.a. "no going gaps"): excluding the first and the last lexeme in a given scan, for each
+  lexeme `l` there must be a lexeme `k` that covers the codepoint at `l.start - 1` and another lexeme `m`
+  that covers the codepoint at `l.stop`.
+* **Contiguous** (a.k.a. "no scatter"): each lexeme represents a single part (called the `Lexeme::hit`) of
+  the source; it's not possible for a single lexeme to cover one part of the source here and another,
+  separate part of the source over there.
+* **Bijective** (a.k.a. "one on one"): after an errorless scan, each codepoint of the source will be
+  associated with exactly one lexeme; no codepoint can belong to two or more lexemes at any time (although
+  when using zero-length matchers, the spaces *between* codeints that come right before and after a given
+  lexeme may belong to other lexemes).
+* **Monotonous** (a.k.a. "no going back"): the positions of all lexemes will be emitted in a non-strictly
+  monotonously increasing order, meaning that for all consecutive lexemes `k`, `l`, `k.stop ≤ k.start`
+  will hold and `k.stop > k.start` is impossible.
+
+Together these principles impose strong constraints on what a well-formed scan can be and lead to some
+practically interesting invariants; for example, the concatenation of all `Lexeme::hit`s from all lexemes
+(and signals) resulting from a scan of a given `source` are equal to the source, i.e. `source == [ ( hit
+for hit from Grammar.scan source )..., ].join ''`
+
+The grammar is required to / will emit error signals in all situations where any of the above constraints
+is violated.
+
+### XXXXXXXXXXXX
+
+Signals are just lexemes emitted by the scanner (i.e. the grammar). Internally they are formed the same
+way that user lexemes are formed (namely from a token, a source, and a position); they have the same
+fields as user lexemes, and can for many purposes run through the same processing pipeline as user
+lexemes.
+
+### XXXXXXXXXXXX
+
+"Even with `Grammar::cfg.emit_signals` set to `false`, `Grammar::scan()` will still emit error signals; only
+`start`, `stop` and `jump` signals will be suppressed."
+
+### XXXXXXXXXXXX
+
+"do not use star quantifier(?) in regexes unless you know what you're doing; ex.
+`/[a-z]*/` will match even without there being any ASCII letters"
+
 ## To Do
 
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
@@ -193,71 +255,18 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 * **`[—]`** implement API to test whether lexing has finished
   * **`[—]`** option to throw or emit error in case lexing is unfinished
 * **`[—]`** allow empty matches provided the token defines a jump
-* **`[—]`** documentation:
-  > * `Token` defines `matcher`, can jump into a level or back
-  > * `Level` has one or more `Token`s
-  > * `Grammar` has one or more `Level`s
-  > * `Lexeme` produced by a `Token` instance when matcher matches source
 * **`[—]`** implement `discardable`, `ghost` tokens, especially for zero-length jumpers?
 * **`[—]`** ensure `$signal.stop` is emitted in any case (barring exceptions)
 * **`[—]`** emit `$signal.error` upon premature eod-of-scan
 * **`[—]`** consider to rename `Grammar::walk_lexemes()` to `Grammar::scan()`
-* **`[—]`** documentation:
-
-  All scans must be **exhaustive**, **compact**, **contiguous**, **bijective** and **monotonous**, meaning:
-  * **Exhaustive** (a.k.a. "no leftovers"): each position in a source from the first to the last codepoint
-    must be covered by some lexeme; more specifically—because dense coverage already falls out from the
-    requirements of compactness and contiguity—the first (non-signal) lexeme must cover the source position
-    with index `0`, and the last (non-signal) lexeme must cover the source position with index
-    `source.length - 1` (a.k.a. `source.at -1`).
-  * **Compact** (a.k.a. "no going gaps"): excluding the first and the last lexeme in a given scan, for each
-    lexeme `l` there must be a lexeme `k` that covers the codepoint at `l.start - 1` and another lexeme `m`
-    that covers the codepoint at `l.stop`.
-  * **Contiguous** (a.k.a. "no scatter"): each lexeme represents a single part (called the `Lexeme::hit`) of
-    the source; it's not possible for a single lexeme to cover one part of the source here and another,
-    separate part of the source over there.
-  * **Bijective** (a.k.a. "one on one"): after an errorless scan, each codepoint of the source will be
-    associated with exactly one lexeme; no codepoint can belong to two or more lexemes at any time (although
-    when using zero-length matchers, the spaces *between* codeints that come right before and after a given
-    lexeme may belong to other lexemes).
-  * **Monotonous** (a.k.a. "no going back"): the positions of all lexemes will be emitted in a non-strictly
-    monotonously increasing order, meaning that for all consecutive lexemes `k`, `l`, `k.stop ≤ k.start`
-    will hold and `k.stop > k.start` is impossible.
-
-  Together these principles impose strong constraints on what a well-formed scan can be and lead to some
-  practically interesting invariants; for example, the concatenation of all `Lexeme::hit`s from all lexemes
-  (and signals) resulting from a scan of a given `source` are equal to the source, i.e. `source == [ ( hit
-  for hit from Grammar.scan source )..., ].join ''`
-
-  The grammar is required to / will emit error signals in all situations where any of the above constraints
-  is violated.
 
 * **`[—]`** write tests to ensure all of the Five Scanner Constraints (exhaustiveness, compactness,
   contiguity, bijection and monotony) do hold
-* **`[—]`** documentation:
-
-  Signals are just lexemes emitted by the scanner (i.e. the grammar). Internally they are formed the same
-  way that user lexemes are formed (namely from a token, a source, and a position); they have the same
-  fields as user lexemes, and can for many purposes run through the same processing pipeline as user
-  lexemes.
 
 * **`[—]`** based on the Five Scanner Constraints, can we set an upper limit to the number of steps
   necessary to scan a given source with a known (upper limit of) number codepoints? Does it otherwise fall
   out from the implemented algorithm that we can never enter an infinite loop when scanning?
 
-* **`[—]`** documentation: "Even with `Grammar::cfg.emit_signals` set to `false`, `Grammar::scan()` will
-  still emit error signals; only `start`, `stop` and `jump` signals will be suppressed."
-* **`[—]`** unify `Lexeme::groups`, `Lexeme::data`
-* **`[—]`** documentation: "do not use star quantifier(?) in regexes unless you know what you're doing; ex.
-  `/[a-z]*/` will match even without there being any ASCII letters"
-* **`[+]`** implement lexeme <del>consolidation / simplification</del> <ins>merging</ins> where all
-  contiguous lexemes with the same `fqname` are aggregated into a single lexeme (ex. `{ name: 'text',
-  matcher: rx.i"\\[0-9]|[a-z\s]+", }` will issue tokens for hits `'R'`, `'\\2'`, `'D'`, `'\\2'` when
-  scanning `'R\\2D\\2'`; simplification will reduce these four lexemes to a single lexeme)
-  * **`[—]`** clarify how to treat entries in `Lexeme::data` when merging
-  * **`[+]`** at first implement using `Object.assign()`, later maybe allow custom function
-  * **`[—]`** later maybe allow custom function
-* **`[—]`** implement `Lexeme::pos` property to represent `lnr`, `start`, `stop` as text
 * **`[—]`** implement proper type handling with ClearType
 * **`[—]`** unify handling of `cfg`; should it always / never become a property of the instance?
 * **`[—]`** can we put the functionalities of `Grammar::_scan_1b_merge_jumps()` and
@@ -308,6 +317,15 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   constellation of `{ emit_signals: false, simplify_jumps: true, }` can be aggregated as `{ emit_signals:
   false, simplify_jumps: false, }`
 * **`[+]`** rename `simplify_jumps` -> `merge_jumps`
+* **`[+]`** implement `Lexeme::pos` property to represent `lnr`, `start`, `stop` as text
+* **`[+]`** implement lexeme <del>consolidation / simplification</del> <ins>merging</ins> where all
+  contiguous lexemes with the same `fqname` are aggregated into a single lexeme (ex. `{ name: 'text',
+  matcher: rx.i"\\[0-9]|[a-z\s]+", }` will issue tokens for hits `'R'`, `'\\2'`, `'D'`, `'\\2'` when
+  scanning `'R\\2D\\2'`; simplification will reduce these four lexemes to a single lexeme)
+  * **`[+]`** clarify how to treat entries in `Lexeme::data` when merging
+  * **`[+]`** at first implement using `Object.assign()`, later maybe allow custom function
+  * **`[+]`** later maybe allow custom function
+* **`[+]`** unify `Lexeme::groups`, `Lexeme::data`
 
 
 ## Don't
