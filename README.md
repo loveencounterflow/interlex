@@ -42,13 +42,23 @@
 * **`matcher`** (`null`): What to match at the current position of the source; see [Token
   Matchers](#token-matchers).
 * **`jump`** (`null`): Which level to jump to when token matches; see [Token Jumps](#token-jumps).
-* **`merge`** (`false`): When set to `true`, will merge contiguous lexemes resulting from this token into a
-  single one. Simplest example: a token declared as `{ name: 'number', matcher: /[0-9]/, }` will match
-  single Arabic digits, so `Grammar::scan_first '953'` will return a lexeme `{ name: 'number', hit: '9', }`.
-  With `{ ..., merge: true, }`, though, the same `Grammar::scan_first '953'` will now return a lexeme `{
-  name: 'number', hit: '953', }` because the contiguous stretch of digots will be merged into a single
-  lexeme.
-
+* **`merge`** (`false`):
+  * When set to `true`, will merge contiguous lexemes resulting from this token into a single one. Simplest
+    example: a token declared as `{ name: 'number', matcher: /[0-9]/, }` will match single Arabic digits, so
+    `Grammar::scan_first '953'` will return a lexeme `{ name: 'number', hit: '9', }`. With `{ ..., merge:
+    true, }`, though, the same `Grammar::scan_first '953'` will now return a lexeme `{ name: 'number', hit:
+    '953', }` because the contiguous stretch of digits will be merged into a single lexeme.
+  * Other than `true` or `false`, one can also explicitly declare the data merge strategy to be used:
+    * When set to `list`, will turn all values in the `data` property of each merged lexeme into a list of
+      values; this is also the default strategy used for `merge: true`.
+    * When set to `assign`, will use `Object.assign()` to set key / value pairs from all the merged lexemes
+      in the order of their appearance; this should be faster than `merge: 'list'` but also means that only
+      the last occurrences of each named data item will be preserved in the merged lexeme.
+    * When `merge` is set to a function, that function will be called with an object `{ merged, lexemes, }`
+      where `merge` is a clone (independent copy) of the first matched lexeme and `lexemes` is a list of all
+      matched lexemes; inside the function, one can manipulate `merged.data` to one's liking. Observe that
+      `merged.hit` will already be set to the concatenation of all lexeme `hit`s and `merged.stop` has been
+      set to the last match's `stop` property.
 
 ## Token Matchers
 
