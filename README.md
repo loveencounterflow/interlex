@@ -289,6 +289,11 @@ without there being any ASCII letters
   * `::is_error` for lexemes in level `$error`
   * `::is_signal` for lexemes in level `$signal`
   * `::is_user`  for lexemes in user-defined levels
+* **`[—]`** implement a `select()` method somewhere that formalizes matching against lexemes
+* **`[—]`** among the Five Scanner Constraints, monotony can be defined in a stricter way, namely, that you
+  can only enter a level at a given position once; the second time you enter a given level (by moving
+  forewards or backwards), the current position (`lexeme.start`) must be at least `1` greater than your
+  previous entry point
 
 
 ## Is Done
