@@ -340,14 +340,14 @@ class Grammar
     return level
 
   #=========================================================================================================
-  _new_signal: ( name, idx, source, data = null ) ->
-    R       = @system_tokens[ name ].match_at idx, source
+  _new_signal: ( name, start, source, data = null ) ->
+    R       = @system_tokens[ name ].match_at start, source
     R.assign data
     return R
 
   #---------------------------------------------------------------------------------------------------------
-  _new_error_signal: ( ref, kind, start, stop, source, message ) ->
     R       = @_new_signal 'error', start, source, { kind, message, ref, }
+  _new_error_signal: ( ref, name, start, stop, source, message ) ->
     R.stop  = stop
     R.hit   = source[ start ... stop ]
     return R
