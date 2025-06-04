@@ -49,6 +49,10 @@
 * **`fit`** (`null`): What to match at the current position of the source; see [Token
   Matchers](#token-matchers).
 * **`jump`** (`null`): Which level to jump to when token matches; see [Token Jumps](#token-jumps).
+* **`emit`** (`true`): When set to `false`, lexemes produced by the token will not be emitted; this os
+  intended to be used mainly with zero-length-matching jump tokens that don't consume any text and are only
+  there to start or finish a given level, something that will also be indicated by jump signals. Tokens that
+  are declared with `{ emit: false, }` are called 'ghost' tokens.
 * **`merge`** (`false`):
   * When set to `true`, will merge contiguous lexemes resulting from this token into a single one. Simplest
     example: a token declared as `{ name: 'number', fit: /[0-9]/, }` will match single Arabic digits, so
@@ -280,8 +284,6 @@ without there being any ASCII letters
   ```
 * **`[—]`** move `fqname` formation to token, use API
 * **`[—]`** implement API to test whether lexing has finished
-* **`[—]`** implement `discardable`, `ghost` tokens, especially for zero-length jumpers? Could use CFG setting
-  `Token::emit`, in line with `Grammar::emit_signals`
 * **`[—]`** write tests to ensure all of the Five Scanner Constraints hold:
   * **`[+]`** exhaustiveness
   * **`[—]`** compactness
@@ -376,6 +378,8 @@ without there being any ASCII letters
 * **`[+]`** implement infinite loop prevention; levels; each level keeps track of positions, complains when
   re-visiting position (which violates the "no two visits" principle)
   * **`[+]`** notify all levels when scanning starts to reset any state
+* **`[+]`** implement `discardable`, `ghost` tokens, especially for zero-length jumpers? Could use CFG
+  setting `Token::emit`, in line with `Grammar::emit_signals`
 
 
 ## Don't
