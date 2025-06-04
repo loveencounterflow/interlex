@@ -167,24 +167,38 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
 ### Five Scanner Constraints
 
 All scans must be **exhaustive**, **compact**, **contiguous**, **bijective** and **monotonous**, meaning:
+
 * **Exhaustive** (a.k.a. "no leftovers"): each position in a source from the first to the last codepoint
   must be covered by some lexeme; more specifically—because dense coverage already falls out from the
   requirements of compactness and contiguity—the first (non-signal) lexeme must cover the source position
   with index `0`, and the last (non-signal) lexeme must cover the source position with index
   `source.length - 1` (a.k.a. `source.at -1`).
-* **Compact** (a.k.a. "no going gaps"): excluding the first and the last lexeme in a given scan, for each
-  lexeme `l` there must be a lexeme `k` that covers the codepoint at `l.start - 1` and another lexeme `m`
-  that covers the codepoint at `l.stop`.
+
+* **Compact** (a.k.a. "no gaps"): excluding the first and the last lexeme in a given scan, for each lexeme
+  `kₙ` there must be a directly preceding lexeme `kₙ₋₁` that covers the codepoint at `kₙ.start - 1` and
+  another directly following lexeme `kₙ₊₁` that covers the codepoint at `l.stop`.
+
 * **Contiguous** (a.k.a. "no scatter"): each lexeme represents a single part (called the `Lexeme::hit`) of
   the source; it's not possible for a single lexeme to cover one part of the source here and another,
   separate part of the source over there.
+
 * **Bijective** (a.k.a. "one on one"): after an errorless scan, each codepoint of the source will be
   associated with exactly one lexeme; no codepoint can belong to two or more lexemes at any time (although
   when using zero-length matchers, the spaces *between* codeints that come right before and after a given
   lexeme may belong to other lexemes).
-* **Monotonous** (a.k.a. "no going back"): the positions of all lexemes will be emitted in a non-strictly
-  monotonously increasing order, meaning that for all consecutive lexemes `k`, `l`, `k.stop ≤ k.start`
-  will hold and `k.stop > k.start` is impossible.
+
+* **Monotonous** (a.k.a. "no going back"):
+  * the `start` positions of all lexemes will be emitted in a monotonously increasing order, meaning
+    that for all consecutive lexemes `kₙ`, `kₙ₊₁` it must hold that `kₙ.start < kₙ₊₁.start`.
+  * This condition is loosened to `kₙ.start ≤ kₙ₊₁.start` for tokens that declare a jump to another level;
+    these and only jump tokens are allowed to match the empty string. This means jump tokens can be
+    formulated as regex lookaheads; non-jump tokens can of course do lookaheads, too, but they must also
+    advance the current position of the scan.
+  * From the above (and under the assumption that neither the tokens nor the source will be modified during
+    a scan, except for state) there follows a "no two visits" corollary: for any given source text, each
+    level of a correctly constructed lexer will only be asked to match a given position in the source up to
+    one time—otherwise the lexer would return the same sequence of lexemes over and over again without ever
+    stopping.
 
 Together these principles impose strong constraints on what a well-formed scan can be and lead to some
 practically interesting invariants; for example, the concatenation of all `Lexeme::hit`s from all lexemes
@@ -294,6 +308,19 @@ without there being any ASCII letters
   can only enter a level at a given position once; the second time you enter a given level (by moving
   forewards or backwards), the current position (`lexeme.start`) must be at least `1` greater than your
   previous entry point
+* **`[—]`** implement infinite loop prevention by delegating to levels; the
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  * **`[—]`** notify all levels when scanning starts to reset any state
+* **`[—]`** allow the lexer to stop 'silently' when a non-jump token matched the empty string? Add token
+  declaration field `allow_empty_end`? Better name?
+* **`[—]`** what should the `action` of a merged jumped be?
+* **`[—]`** flatten `jump` property?
+* **`[—]`** simplify jump signals to `data: { to: Level::name, }`
 
 
 ## Is Done
