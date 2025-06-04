@@ -21,7 +21,7 @@
     - [Errors Always Emitted](#errors-always-emitted)
     - [Do Not Use Star Quantifiers](#do-not-use-star-quantifiers)
     - [Always Unicode, Except](#always-unicode-except)
-    - [Always Unicode, Except](#always-unicode-except-1)
+    - [Errors as Exceptions or Signals](#errors-as-exceptions-or-signals)
   - [To Do](#to-do)
   - [Is Done](#is-done)
   - [Don't](#dont)
@@ -239,7 +239,7 @@ without there being any ASCII letters
   **units** although the matches (`hit`s) are constructed by looking at Unicode code**points**.
 * Yes, this is annoying.
 
-### Always Unicode, Except
+### Errors as Exceptions or Signals
 
 * errors are either thrown as JS exceptions or error signals
 * error signals are defined in a system levwl called `$error`
