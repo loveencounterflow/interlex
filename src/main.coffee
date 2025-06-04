@@ -209,10 +209,16 @@ class Level
     hide @,         'grammar',  cfg.grammar
     hide @,         'tokens',   [ ( cfg.tokens ? [] )..., ]
     hide_getter @,  'strategy', => @grammar.cfg.strategy
+    hide @,         'positions', new Set()
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
   [Symbol.iterator]: -> yield t for t in @tokens
+
+  #---------------------------------------------------------------------------------------------------------
+  _on_before_scan: ->
+    @positions.clear()
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   new_token: ( cfg ) ->
@@ -248,6 +254,10 @@ class Level
 
   #---------------------------------------------------------------------------------------------------------
   match_at: ( start, source ) ->
+    if @positions.has start
+      ### TAINT show source ###
+      throw new Error "Ωilx___9 encountered loop at position #{rpr start} #{rpr @positions}"
+    @positions.add start
     switch @strategy
       when 'first'    then  lexeme = @match_first_at    start, source
       when 'longest'  then  lexeme = @match_longest_at  start, source
@@ -341,10 +351,17 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   scan: ( source ) ->
+    @_notify_levels()
     yield from switch true
       when @cfg.merge_jumps     then  @_scan_1b_merge_jumps         source
       when @cfg.emit_signals    then  @_scan_2_validate_exhaustion  source
       else                            @_scan_1a_remove_signals      source
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _notify_levels: ->
+    for level_name, level of @levels
+      level._on_before_scan()
     return null
 
   #---------------------------------------------------------------------------------------------------------
