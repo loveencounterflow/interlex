@@ -177,8 +177,9 @@ class Lexeme
     @lnr                  = token.grammar.state.lnr
     # @terminate            = token.termin
     @data                 = Object.create null
-    set_getter @, 'fqname', => "#{@level.name}.#{@name}"
-    set_getter @, 'length', => @hit.length
+    set_getter @, 'fqname',   => "#{@level.name}.#{@name}"
+    set_getter @, 'length',   => @hit.length
+    set_getter @, 'is_error', => @token.level.name is '$error'
     #.......................................................................................................
     @assign match.groups
     @set_level token.level
@@ -527,7 +528,7 @@ class Grammar
       yield lexeme if lexeme.token.emit
       if jump_after  then yield @_new_jump_signal        start, source,    new_level.name
       ### TAINT this should really check for lexeme.terminate ###
-      break if lexeme.fqname is '$signal.error'
+      break if lexeme.is_error
     #.......................................................................................................
     while not stack.is_empty
       stack.pop_name null
