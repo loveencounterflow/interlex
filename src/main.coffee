@@ -175,6 +175,7 @@ class Lexeme
     @jump                 = token.jump
     @token                = token
     @lnr                  = token.grammar.state.lnr
+    # @terminate            = token.termin
     @data                 = Object.create null
     set_getter @, 'fqname', => "#{@level.name}.#{@name}"
     set_getter @, 'length', => @hit.length
