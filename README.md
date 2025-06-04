@@ -313,7 +313,8 @@ without there being any ASCII letters
 * **`[—]`** implement option to turn exceptions into error signals
 * **`[—]`** what should the `action` of a merged jumped be?
 * **`[—]`** flatten `jump` property?
-* **`[—]`** simplify jump signals to `data: { to: Level::name, }`
+* **`[—]`** simplify jump signals to <del>`data: { to: Level::name, }`</del> <ins>`data: { target:
+  Level::name, }`</ins>
 
 
 ## Is Done
