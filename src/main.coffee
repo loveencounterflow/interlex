@@ -258,7 +258,8 @@ class Level
   match_at: ( start, source ) ->
     if @positions.has start
       ### TAINT show source ###
-      throw new Error "Ωilx___9 encountered loop at position #{rpr start} #{rpr @positions}"
+      quote = quote_source source, start
+      throw new Error "Ωilx___9 encountered loop at position #{rpr start} #{quote}"
     @positions.add start
     switch @strategy
       when 'first'    then  lexeme = @match_first_at    start, source
@@ -270,8 +271,9 @@ class Level
     return lexeme unless ( lexeme.hit is '' ) and ( not lexeme.jump? )
     { fqname
       start } = lexeme
-    snippet   = source[ start - 10 ... start ] + '⚠' + source[ start .. start + 10 ]
-    throw new Error "Ωilx__10 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} (indicated by '⚠': #{rpr snippet})"
+    quote     = quote_source source, lexeme.start
+    throw new Error "Ωilx__11 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} #{quote}"
+
 
 
 #===========================================================================================================
