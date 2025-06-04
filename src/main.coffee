@@ -262,8 +262,11 @@ class Level
     ### Loop Detection: refuse to visit same position twice ###
     if @positions.has start
       ### TAINT show source ###
-      quote = quote_source source, start
-      throw new Error "Ωilx___9 encountered loop at position #{rpr start} #{quote}"
+      quote   = quote_source source, start
+      message = "encountered loop at position #{rpr start} #{quote}"
+      if @grammar.cfg.loop_errors is 'emit' then return @grammar._new_error_signal \
+        'Ωilx___9', 'loop', start, start, source, message
+      throw new Error "Ωilx__10 #{message}"
     @positions.add start
     #.......................................................................................................
     switch @strategy
@@ -291,6 +294,7 @@ class Grammar
       strategy:       'first'
       emit_signals:   true
       merge_jumps:    true
+      loop_errors:    'emit'
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
     @cfg.merge_jumps        = false unless @cfg.emit_signals
