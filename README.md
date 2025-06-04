@@ -308,16 +308,7 @@ without there being any ASCII letters
   can only enter a level at a given position once; the second time you enter a given level (by moving
   forewards or backwards), the current position (`lexeme.start`) must be at least `1` greater than your
   previous entry point
-* **`[—]`** implement infinite loop prevention by delegating to levels; the
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  * **`[—]`** notify all levels when scanning starts to reset any state
-* **`[—]`** allow the lexer to stop 'silently' when a non-jump token matched the empty string? Add token
-  declaration field `allow_empty_end`? Better name?
+* **`[—]`** implement option to turn exceptions into error signals
 * **`[—]`** what should the `action` of a merged jumped be?
 * **`[—]`** flatten `jump` property?
 * **`[—]`** simplify jump signals to `data: { to: Level::name, }`
@@ -382,6 +373,9 @@ without there being any ASCII letters
 * **`[+]`** ensure `$signal.stop` is emitted in any case (barring exceptions)
 * **`[+]`** emit `$signal.error` upon premature eod-of-scan
 * **`[+]`** consider to rename `Grammar::walk_lexemes()` to `Grammar::scan()`
+* **`[+]`** implement infinite loop prevention; levels; each level keeps track of positions, complains when
+  re-visiting position (which violates the "no two visits" principle)
+  * **`[+]`** notify all levels when scanning starts to reset any state
 
 
 ## Don't
@@ -394,4 +388,6 @@ without there being any ASCII letters
 * **`[—]`** <del>bundle `start`, `stop` and later `lnr` &c under `position`?</del>
 * **`[—]`** <del>can we put the functionalities of `Grammar::_scan_1b_merge_jumps()` and
   `Grammar::_scan_3_merge()` into a single method?</del>
+* **`[—]`** replaced by option to replace exceptions with error signals <del>allow the lexer to stop 'silently' when a non-jump token matched the empty string? Add token
+  declaration field `allow_empty_end`? Better name?</del>
 
