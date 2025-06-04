@@ -22,6 +22,7 @@
     - [Do Not Use Star Quantifiers](#do-not-use-star-quantifiers)
     - [Always Unicode, Except](#always-unicode-except)
     - [Errors as Exceptions or Signals](#errors-as-exceptions-or-signals)
+    - [Lexeme Status Properties](#lexeme-status-properties)
   - [To Do](#to-do)
   - [Is Done](#is-done)
   - [Don't](#dont)
@@ -248,6 +249,13 @@ without there being any ASCII letters
   * `$error.earlystop`, emitted when scanning has stopped but end of source not reached
   * `Grammar.cfg.loop_errors: {'emit'|'throw'}` controls whether to emit `$error.loop` or throw an exception
 
+### Lexeme Status Properties
+
+* **`Lexeme::is_system`**: true for lexemes in levels `$signal`, `$error`
+* **`Lexeme::is_error`**: true for lexemes in level `$error`
+* **`Lexeme::is_signal`**: true for lexemes in level `$signal`
+* **`Lexeme::is_user`**: true for lexemes that are not system lexemes
+
 ## To Do
 
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
@@ -267,18 +275,6 @@ without there being any ASCII letters
     * must accept `( start, text, { token, level, grammar, } )`
     * must return `null` or a lexeme
   * **`[—]`** strings?
-* **`[—]`** these internal settings / convenience values should be systematized and maybe collected in a
-  common place; some of the regex flag values can and should be derived from more basic settings:
-  * `_jsid_re`
-  * `_jump_spec_back`
-  * `_jump_spec_re`
-  * `_regex_flag_lower_re`
-  * `_regex_flag_upper_re`
-  * `_regex_flags_re`
-  * `_default_flags_set`
-  * `_disallowed_flags_set`
-  * `_normalize_new_flags`
-
 * **`[—]`** allow different metrics (code units, code points, graphemes) to determine `lexeme.length`, which
   lexeme gets returned for `Level::match_longest_at()`; compare:
   ```
@@ -300,18 +296,13 @@ without there being any ASCII letters
   * **`[—]`** contiguity
   * **`[—]`** bijection
   * **`[—]`** monotony
+    * **`[+]`** loop detection
 * **`[—]`** based on the Five Scanner Constraints, can we set an upper limit to the number of steps
   necessary to scan a given source with a known (upper limit of) number codepoints? Does it otherwise fall
   out from the implemented algorithm that we can never enter an infinite loop when scanning?
-  * **`[—]`** an infinite loop can result from zero-length matches and ensuing forth-and-back jumps which
-    should be recognized and terminated
 * **`[—]`** implement proper type handling with ClearType
 * **`[—]`** unify handling of `cfg`; should it always / never become a property of the instance?
-* `Token`s and `Lexeme`s could gain properties
-  * **`[—]`** `::is_system` for lexemes in levels starting with `$`
-  * **`[+]`** `::is_error` for lexemes in level `$error`
-  * **`[—]`** `::is_signal` for lexemes in level `$signal`
-  * **`[—]`** `::is_user`  for lexemes in user-defined levels
+* **`[–]`** should `Level`s and `Token`s get props `is_error`, `is_signal`, `is_system`, `is_user`?
 * **`[—]`** implement a `select()` method somewhere that formalizes matching against lexemes
 * **`[—]`** implement option to turn exceptions into error signals
   * **`[+]`** `Grammar.cfg.loop_errors: {'emit'|'throw'}`
@@ -393,6 +384,24 @@ without there being any ASCII letters
 * **`[+]`** take error signals out of `$signal` and put into new `$error` level? That would entail instead
   of, say, `{ fqname: '$signal.error', data: { kind: 'earlystop', ..., } }` we would get `{ fqname:
   '$error.earlystop', data: { ..., } }` which is more suitable for processing
+* **`[+]`** these internal settings / convenience values should be systematized and maybe collected in a
+  common place; some of the regex flag values can and should be derived from more basic settings:
+  * `_jsid_re`
+  * `_jump_spec_back`
+  * `_jump_spec_re`
+  * `_regex_flag_lower_re`
+  * `_regex_flag_upper_re`
+  * `_regex_flags_re`
+  * `_default_flags_set`
+  * `_disallowed_flags_set`
+  * `_normalize_new_flags`
+* **`[+]`** an infinite loop can result from zero-length matches and ensuing forth-and-back jumps which
+  should be recognized and terminated
+* **`[+]`** `Lexeme`s could gain properties
+  * **`[+]`** `::is_system` for lexemes in levels starting with `$`
+  * **`[+]`** `::is_error` for lexemes in level `$error`
+  * **`[+]`** `::is_signal` for lexemes in level `$signal`
+  * **`[+]`** `::is_user`  for lexemes in user-defined levels
 
 
 ## Don't
