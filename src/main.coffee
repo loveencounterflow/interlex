@@ -297,11 +297,12 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
     cfg_template =
-      name:           'g'
-      strategy:       'first'
-      emit_signals:   true
-      merge_jumps:    true
-      loop_errors:    'emit'
+      name:             'g'
+      strategy:         'first'
+      emit_signals:     true
+      merge_jumps:      true
+      loop_errors:      'emit'
+      earlystop_errors: 'emit'
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
     @cfg.merge_jumps        = false unless @cfg.emit_signals
@@ -443,14 +444,19 @@ class Grammar
         #...................................................................................................
         when lexeme.fqname is '$signal.stop'
           if lexeme.stop isnt last_idx
-            yield @_new_error_signal 'Ωilx__16', 'earlystop', lexeme.stop, last_idx, source, \
-              "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
+            message = "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
+            switch @cfg.earlystop_errors
+              when 'emit'
+                yield @_new_error_signal 'Ωilx__16', 'earlystop', lexeme.stop, last_idx, source, \
+                  "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
+              when 'throw'
+                throw new Error "Ωilx__17 #{message}"
         #...................................................................................................
         when lexeme.level.name is '$signal'
           null
         #...................................................................................................
         when is_first and ( lexeme.start isnt 0 )
-          yield @_new_error_signal 'Ωilx__17', 'latestart', 0, lexeme.start, source, \
+          yield @_new_error_signal 'Ωilx__18', 'latestart', 0, lexeme.start, source, \
             "expected start at 0, got #{rpr lexeme.start}"
       #.....................................................................................................
       yield lexeme
@@ -481,7 +487,7 @@ class Grammar
         when 'assign' then merged.assign ( lxm.data for lxm in lexemes )...
         when 'call'   then merged.token.merge.call null, { merged, lexemes, }
         when 'list'   then merge_data_as_lists merged, lexemes
-        else throw new Error "Ωilx__18 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
+        else throw new Error "Ωilx__19 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
       yield merged
       active_fqname = null
       lexemes.length = 0
@@ -533,7 +539,7 @@ class Grammar
         switch jump.action
           when 'fore' then  stack.push ( new_level = @_get_level jump.target )
           when 'back' then  new_level = stack.popnpeek()
-          else throw new Error "Ωilx__19 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+          else throw new Error "Ωilx__20 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
           jump_before  = true
           lexeme.set_level new_level
@@ -554,7 +560,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
-    throw new Error "Ωilx__20 unknown level #{rpr level_name}"
+    throw new Error "Ωilx__21 unknown level #{rpr level_name}"
 
 
 #===========================================================================================================
