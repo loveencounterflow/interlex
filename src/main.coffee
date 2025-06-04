@@ -8,6 +8,8 @@
   hide_getter
   set_getter
   clone
+  # insert_position_marker
+  quote_source
   debug
   info
   rpr                   } = require './helpers'

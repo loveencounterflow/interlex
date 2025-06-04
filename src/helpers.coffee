@@ -93,6 +93,14 @@ clone = ( x ) ->
   Object.defineProperties R, Object.getOwnPropertyDescriptors x
   return R
 
+#===========================================================================================================
+insert_position_marker = ( text, idx, width = 50, marker = '⚠' ) ->
+  return text[ idx - width / 2 ... idx ] + marker + text[ idx .. idx + width / 2  ]
+
+#-----------------------------------------------------------------------------------------------------------
+quote_source = ( text, idx, width = 50, marker = '⚠' ) ->
+  return "(indicated by #{rpr marker}: #{rpr insert_position_marker text, idx, width, marker})"
+
 # #===========================================================================================================
 # get_instance_methods = ( instance ) ->
 #   isa_function  = ( require './builtins' ).std.function.$isa
@@ -121,6 +129,8 @@ module.exports = {
   hide_getter
   set_getter
   clone
+  insert_position_marker
+  quote_source
   # get_instance_methods
   # bind_instance_methods
   debug
