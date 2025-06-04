@@ -21,6 +21,7 @@
     - [Errors Always Emitted](#errors-always-emitted)
     - [Do Not Use Star Quantifiers](#do-not-use-star-quantifiers)
     - [Always Unicode, Except](#always-unicode-except)
+    - [Always Unicode, Except](#always-unicode-except-1)
   - [To Do](#to-do)
   - [Is Done](#is-done)
   - [Don't](#dont)
@@ -238,6 +239,15 @@ without there being any ASCII letters
   **units** although the matches (`hit`s) are constructed by looking at Unicode code**points**.
 * Yes, this is annoying.
 
+### Always Unicode, Except
+
+* errors are either thrown as JS exceptions or error signals
+* error signals are defined in a system levwl called `$error`
+* implemented
+  * `$error.loop`, emitted when a grammar tries to scan a portion of a source more than once
+  * `$error.earlystop`, emitted when scanning has stopped but end of source not reached
+  * `Grammar.cfg.loop_errors: {'emit'|'throw'}` controls whether to emit `$error.loop` or throw an exception
+
 ## To Do
 
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
@@ -297,14 +307,11 @@ without there being any ASCII letters
     should be recognized and terminated
 * **`[—]`** implement proper type handling with ClearType
 * **`[—]`** unify handling of `cfg`; should it always / never become a property of the instance?
-* **`[—]`** take error signals out of `$signal` and put into new `$error` level? That would entail instead
-  of, say, `{ fqname: '$signal.error', data: { kind: 'earlystop', ..., } }` we would get `{ fqname:
-  '$error.earlystop', data: { ..., } }` which is more suitable for processing; additionally, `Token`s and
-  `Lexeme`s could gain properties
-  * `::is_system` for lexemes in levels starting with `$`
-  * `::is_error` for lexemes in level `$error`
-  * `::is_signal` for lexemes in level `$signal`
-  * `::is_user`  for lexemes in user-defined levels
+* `Token`s and `Lexeme`s could gain properties
+  * **`[—]`** `::is_system` for lexemes in levels starting with `$`
+  * **`[+]`** `::is_error` for lexemes in level `$error`
+  * **`[—]`** `::is_signal` for lexemes in level `$signal`
+  * **`[—]`** `::is_user`  for lexemes in user-defined levels
 * **`[—]`** implement a `select()` method somewhere that formalizes matching against lexemes
 * **`[—]`** implement option to turn exceptions into error signals
   * **`[+]`** `Grammar.cfg.loop_errors: {'emit'|'throw'}`
@@ -383,6 +390,9 @@ without there being any ASCII letters
   can only enter a level at a given position once; the second time you enter a given level (by moving
   forewards or backwards), the current position (`lexeme.start`) must be at least `1` greater than your
   previous entry point
+* **`[+]`** take error signals out of `$signal` and put into new `$error` level? That would entail instead
+  of, say, `{ fqname: '$signal.error', data: { kind: 'earlystop', ..., } }` we would get `{ fqname:
+  '$error.earlystop', data: { ..., } }` which is more suitable for processing
 
 
 ## Don't
