@@ -262,7 +262,7 @@ class Level
   #---------------------------------------------------------------------------------------------------------
   match_at: ( start, source ) ->
     ### Loop Detection: refuse to visit same position twice ###
-    if @positions.has start
+    if ( not @is_system ) and @positions.has start
       ### TAINT show source ###
       quote   = quote_source source, start
       message = "encountered loop at position #{rpr start} #{quote}"
