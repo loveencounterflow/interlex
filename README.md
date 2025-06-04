@@ -311,10 +311,8 @@ without there being any ASCII letters
   forewards or backwards), the current position (`lexeme.start`) must be at least `1` greater than your
   previous entry point
 * **`[—]`** implement option to turn exceptions into error signals
-* **`[—]`** what should the `action` of a merged jumped be?
-* **`[—]`** flatten `jump` property?
-* **`[—]`** simplify jump signals to <del>`data: { to: Level::name, }`</del> <ins>`data: { target:
-  Level::name, }`</ins>
+* **`[—]`** implement API to check whether errors occurred
+* **`[—]`** implement `lexeme.terminate` to cause scanning to stop
 
 
 ## Is Done
@@ -381,6 +379,8 @@ without there being any ASCII letters
   * **`[+]`** notify all levels when scanning starts to reset any state
 * **`[+]`** implement `discardable`, `ghost` tokens, especially for zero-length jumpers? Could use CFG
   setting `Token::emit`, in line with `Grammar::emit_signals`
+* **`[+]`** simplify jump signals to <del>`data: { to: Level::name, }`</del> <ins>`data: { target:
+  Level::name, }`</ins>
 
 
 ## Don't
@@ -395,4 +395,6 @@ without there being any ASCII letters
   `Grammar::_scan_3_merge()` into a single method?</del>
 * **`[—]`** replaced by option to replace exceptions with error signals <del>allow the lexer to stop 'silently' when a non-jump token matched the empty string? Add token
   declaration field `allow_empty_end`? Better name?</del>
+* **`[–]`** <del>flatten `jump` property?</del>
+* **`[—]`** <del>what should the `action` of a merged jumped be?</del>
 
