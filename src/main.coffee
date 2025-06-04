@@ -210,7 +210,8 @@ class Level
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
     cfg            ?= {}
-    @name           = cfg.name ? 'gnd'
+    @name           = cfg.name      ? 'gnd'
+    @is_system      = cfg.is_system ? false
     hide @,         'grammar',  cfg.grammar
     hide @,         'tokens',   [ ( cfg.tokens ? [] )..., ]
     hide_getter @,  'strategy', => @grammar.cfg.strategy
@@ -331,7 +332,7 @@ class Grammar
     is_system = cfg.name.startsWith '$'
     if @levels[ cfg.name ]?
       throw new Error "Ωilx__14 level #{rpr level.name} elready exists"
-    level                   = new Level { cfg..., grammar: @, }
+    level                   = new Level { cfg..., is_system, grammar: @, }
     @levels[ level.name ]   = level
     if ( not is_system ) and ( not @start_level? )
       hide @, 'start_level', level
