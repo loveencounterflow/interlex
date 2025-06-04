@@ -304,8 +304,6 @@ without there being any ASCII letters
 * **`[—]`** unify handling of `cfg`; should it always / never become a property of the instance?
 * **`[–]`** should `Level`s and `Token`s get props `is_error`, `is_signal`, `is_system`, `is_user`?
 * **`[—]`** implement a `select()` method somewhere that formalizes matching against lexemes
-* **`[—]`** implement option to turn exceptions into error signals
-  * **`[+]`** `Grammar.cfg.loop_errors: {'emit'|'throw'}`
 * **`[—]`** implement API to check whether errors occurred
 * **`[—]`** implement `lexeme.terminate` to cause scanning to stop
 
@@ -402,6 +400,9 @@ without there being any ASCII letters
   * **`[+]`** `::is_error` for lexemes in level `$error`
   * **`[+]`** `::is_signal` for lexemes in level `$signal`
   * **`[+]`** `::is_user`  for lexemes in user-defined levels
+* **`[+]`** implement option to turn exceptions into error signals
+  * **`[+]`** `Grammar.cfg.loop_errors: {'emit'|'throw'}`
+  * **`[+]`** `Grammar.cfg.earlystop_errors: {'emit'|'throw'}`
 
 
 ## Don't
