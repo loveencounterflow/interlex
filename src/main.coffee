@@ -122,6 +122,7 @@ class Token
       fit:          null
       jump:         null
       merge:        false
+      emit:         true
     #.......................................................................................................
     cfg         = { cfg_template..., cfg..., }
     @name       = cfg.name
@@ -131,6 +132,7 @@ class Token
     hide @, 'fit',                  cfg.fit
     hide @, 'jump',                 ( @constructor._parse_jump cfg.jump, @level ) ? null
     hide @, 'merge',                cfg.merge
+    hide @, 'emit',                 cfg.emit
     ### TAINT use proper typing ###
     hide @, 'data_merge_strategy', switch true
       when @merge is false                        then null
@@ -256,11 +258,13 @@ class Level
 
   #---------------------------------------------------------------------------------------------------------
   match_at: ( start, source ) ->
+    ### Loop Detection: refuse to visit same position twice ###
     if @positions.has start
       ### TAINT show source ###
       quote = quote_source source, start
       throw new Error "Ωilx___9 encountered loop at position #{rpr start} #{quote}"
     @positions.add start
+    #.......................................................................................................
     switch @strategy
       when 'first'    then  lexeme = @match_first_at    start, source
       when 'longest'  then  lexeme = @match_longest_at  start, source
@@ -512,7 +516,7 @@ class Grammar
           jump_after   = true
       #.....................................................................................................
       if jump_before then yield @_new_jump_signal jump.action, lexeme.start, source,        level.name, lexeme.level.name
-      yield lexeme
+      yield lexeme if lexeme.token.emit
       if jump_after  then yield @_new_jump_signal jump.action,        start, source, lexeme.level.name,    new_level.name
     #.......................................................................................................
     while not stack.is_empty
