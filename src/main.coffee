@@ -454,30 +454,12 @@ class Grammar
   _scan_4_startstop_lnr: ( source ) ->
     prv_lexeme = null
     yield @_new_signal 'start', 0, source
-    for lexeme from @_XXX_scan_4_find_loops source
+    for lexeme from @_scan_4_match_tokens source
       prv_lexeme = lexeme if lexeme.level.name isnt '$signal'
       yield lexeme
     yield @_new_signal 'stop', ( prv_lexeme?.stop ? 0 ), source
     @state.lnr++
     return null
-
-  #---------------------------------------------------------------------------------------------------------
-  _XXX_scan_4_find_loops: ( source ) ->
-    # level_stops = {}
-    for lexeme from @_scan_4_match_tokens source
-      yield lexeme
-      # continue unless lexeme.fqname is '$signal.jump'
-      # to_level_name = lexeme.data.to_level
-      # continue unless to_level_name?
-      # level_stop = level_stops[ to_level_name ] ? null
-      # if level_stop? and ( lexeme.stop <= level_stop )
-      #   debug 'Ωilx__15', level_stops, lexeme.data.from_level, lexeme.data.to_level
-      #   yield @_new_error_signal 'Ωilx__16', 'infiniteloop', lexeme.stop, lexeme.stop, source, \
-      #     "detected infinite loop at #{rpr lexeme.stop}"
-      #   break
-      # # debug 'Ωilx__17', level_stops, lexeme.data.from_level, lexeme.data.to_level
-      # level_stops[ to_level_name ] = lexeme.stop
-      # debug 'Ωilx__18', level_stops, lexeme.data.from_level, lexeme.data.to_level
 
   #---------------------------------------------------------------------------------------------------------
   _scan_4_match_tokens: ( source ) ->
