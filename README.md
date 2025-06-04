@@ -418,4 +418,3 @@ without there being any ASCII letters
   declaration field `allow_empty_end`? Better name?</del>
 * **`[–]`** <del>flatten `jump` property?</del>
 * **`[—]`** <del>what should the `action` of a merged jumped be?</del>
-
