@@ -523,6 +523,8 @@ class Grammar
       if jump_before then yield @_new_jump_signal lexeme.start, source, lexeme.level.name
       yield lexeme if lexeme.token.emit
       if jump_after  then yield @_new_jump_signal        start, source,    new_level.name
+      ### TAINT this should really check for lexeme.terminate ###
+      break if lexeme.fqname is '$signal.error'
     #.......................................................................................................
     while not stack.is_empty
       stack.pop_name null
