@@ -345,8 +345,8 @@ class Grammar
     return R
 
   #---------------------------------------------------------------------------------------------------------
-  _new_jump_signal: ( action, start, source, from_level, to_level ) ->
-    return @_new_signal 'jump', start, source, { action, from_level, to_level, }
+  _new_jump_signal: ( start, source, target ) ->
+    return @_new_signal 'jump', start, source, { target, }
 
   #=========================================================================================================
   scan_to_list: ( P... ) -> [ ( @scan P... )..., ]
@@ -401,7 +401,7 @@ class Grammar
       ### TAINT use API? ###
       last_jump           = buffer.at -1
       jump.stop           = last_jump.stop
-      jump.assign { to_level: last_jump.data.to_level, }
+      jump.assign { target: last_jump.data.target, }
       buffer.length       = 0
       yield jump
       yield lexeme
@@ -493,7 +493,7 @@ class Grammar
     lexeme          = null
     old_level_name  = null
     #.......................................................................................................
-    yield @_new_jump_signal 'fore', 0, source, null, @start_level.name
+    yield @_new_jump_signal 0, source, @start_level.name
     #.......................................................................................................
     loop
       level         = stack.peek()
@@ -515,12 +515,13 @@ class Grammar
         else
           jump_after   = true
       #.....................................................................................................
-      if jump_before then yield @_new_jump_signal jump.action, lexeme.start, source,        level.name, lexeme.level.name
+      if jump_before then yield @_new_jump_signal lexeme.start, source, lexeme.level.name
       yield lexeme if lexeme.token.emit
-      if jump_after  then yield @_new_jump_signal jump.action,        start, source, lexeme.level.name,    new_level.name
+      if jump_after  then yield @_new_jump_signal        start, source,    new_level.name
     #.......................................................................................................
     while not stack.is_empty
-      yield @_new_jump_signal 'back', start, source, ( stack.pop_name null ), ( stack.peek_name null )
+      stack.pop_name null
+      yield @_new_jump_signal start, source, ( stack.peek_name null )
     return null
 
   #---------------------------------------------------------------------------------------------------------
