@@ -177,9 +177,12 @@ class Lexeme
     @lnr                  = token.grammar.state.lnr
     # @terminate            = token.termin
     @data                 = Object.create null
-    set_getter @, 'fqname',   => "#{@level.name}.#{@name}"
-    set_getter @, 'length',   => @hit.length
-    set_getter @, 'is_error', => @token.level.name is '$error'
+    set_getter @, 'fqname',     => "#{@level.name}.#{@name}"
+    set_getter @, 'length',     => @hit.length
+    set_getter @, 'is_error',   => @token.level.name is '$error'
+    set_getter @, 'is_signal',  => @token.level.name is '$signal'
+    set_getter @, 'is_system',  => @token.level.is_system
+    set_getter @, 'is_user',    => not @is_system
     #.......................................................................................................
     @assign match.groups
     @set_level token.level
