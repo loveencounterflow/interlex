@@ -264,9 +264,11 @@ class Level
       ### TAINT show source ###
       quote   = quote_source source, start
       message = "encountered loop at position #{rpr start} #{quote}"
-      if @grammar.cfg.loop_errors is 'emit' then return @grammar._new_error_signal \
-        'Ωilx___9', 'loop', start, start, source, message
-      throw new Error "Ωilx__10 #{message}"
+      switch @grammar.cfg.loop_errors
+        when 'emit' then return @grammar._new_error_signal \
+          'Ωilx___9', 'loop', start, start, source, message
+        when 'throw' then throw new Error "Ωilx__10 #{message}"
+        else throw new Error "Ωilx__11 should never happen: got unknown value for loop_errors: #{rpr @grammar.cfg.loop_errors}"
     @positions.add start
     #.......................................................................................................
     switch @strategy
