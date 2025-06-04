@@ -306,11 +306,8 @@ without there being any ASCII letters
   * `::is_signal` for lexemes in level `$signal`
   * `::is_user`  for lexemes in user-defined levels
 * **`[—]`** implement a `select()` method somewhere that formalizes matching against lexemes
-* **`[—]`** among the Five Scanner Constraints, monotony can be defined in a stricter way, namely, that you
-  can only enter a level at a given position once; the second time you enter a given level (by moving
-  forewards or backwards), the current position (`lexeme.start`) must be at least `1` greater than your
-  previous entry point
 * **`[—]`** implement option to turn exceptions into error signals
+  * **`[+]`** `Grammar.cfg.loop_errors: {'emit'|'throw'}`
 * **`[—]`** implement API to check whether errors occurred
 * **`[—]`** implement `lexeme.terminate` to cause scanning to stop
 
@@ -381,6 +378,11 @@ without there being any ASCII letters
   setting `Token::emit`, in line with `Grammar::emit_signals`
 * **`[+]`** simplify jump signals to <del>`data: { to: Level::name, }`</del> <ins>`data: { target:
   Level::name, }`</ins>
+* **`[+]`** stop scanning when encountering error signal
+* **`[+]`** among the Five Scanner Constraints, monotony can be defined in a stricter way, namely, that you
+  can only enter a level at a given position once; the second time you enter a given level (by moving
+  forewards or backwards), the current position (`lexeme.start`) must be at least `1` greater than your
+  previous entry point
 
 
 ## Don't
