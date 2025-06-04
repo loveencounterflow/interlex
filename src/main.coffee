@@ -310,7 +310,7 @@ class Grammar
     hide @, 'levels',         {}
     #.......................................................................................................
     @reset_lnr 1
-    @_add_system_level()
+    @_add_system_levels()
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -319,13 +319,15 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _add_system_level: ->
-    $signal = @new_level { name: '$signal',  }
+  _add_system_levels: ->
+    $signal = @new_level { name: '$signal', system: true, }
+    $error  = @new_level { name: '$error',  system: true, }
     hide @, 'system_tokens',
-      start:  $signal.new_token { name: 'start', fit: /|/, }
-      stop:   $signal.new_token { name: 'stop',  fit: /|/, }
-      jump:   $signal.new_token { name: 'jump',  fit: /|/, }
-      error:  $signal.new_token { name: 'error', fit: /|/, }
+      start:      $signal.new_token { name: 'start',      fit: /|/, }
+      stop:       $signal.new_token { name: 'stop',       fit: /|/, }
+      jump:       $signal.new_token { name: 'jump',       fit: /|/, }
+      earlystop:  $error.new_token  { name: 'earlystop',  fit: /|/, }
+      loop:       $error.new_token  { name: 'loop',       fit: /|/, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -347,8 +349,9 @@ class Grammar
     return R
 
   #---------------------------------------------------------------------------------------------------------
-    R       = @_new_signal 'error', start, source, { kind, message, ref, }
   _new_error_signal: ( ref, name, start, stop, source, message ) ->
+    R       = @system_tokens[ name ].match_at start, source
+    R.assign { message, ref, }
     R.stop  = stop
     R.hit   = source[ start ... stop ]
     return R
