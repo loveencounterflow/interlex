@@ -306,11 +306,12 @@ class Grammar
     @cfg                   ?= { cfg_template..., cfg..., }
     @cfg.merge_jumps        = false unless @cfg.emit_signals
     @name                   = @cfg.name
-    @state                  = { lnr: null, }
+    @state                  = { lnr: null, errors: [], }
     @start_level_name       = null
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
     hide @, 'levels',         {}
+    hide_getter @, 'has_error', -> @state.errors.length > 0
     #.......................................................................................................
     @reset_lnr 1
     @_add_system_levels()
@@ -319,6 +320,11 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   reset_lnr: ( lnr = 1 ) ->
     @state.lnr = lnr
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  clear_errors: ->
+    @state.errors = []
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -357,6 +363,7 @@ class Grammar
     R.assign { message, ref, }
     R.stop  = stop
     R.hit   = source[ start ... stop ]
+    @state.errors.push R
     return R
 
   #---------------------------------------------------------------------------------------------------------
@@ -374,7 +381,10 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   scan: ( source ) ->
+    @clear_errors()
     @_notify_levels()
+    unless @start_level?
+      throw new Error "Ωilx__15 no levels have been defined; unable to scan"
     yield from switch true
       when @cfg.merge_jumps     then  @_scan_1b_merge_jumps         source
       when @cfg.emit_signals    then  @_scan_2_validate_exhaustion  source
