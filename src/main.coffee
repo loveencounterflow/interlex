@@ -269,7 +269,7 @@ class Level
     switch @strategy
       when 'first'    then  lexeme = @match_first_at    start, source
       when 'longest'  then  lexeme = @match_longest_at  start, source
-      else throw new Error "Ωilx__10 should never happen: got strategy: #{rpr @strategy}"
+      else throw new Error "Ωilx__11 should never happen: got strategy: #{rpr @strategy}"
     #.......................................................................................................
     ### Accept no lexeme matching but refuse lexeme with empty match: ###
     return null   unless lexeme?
@@ -277,7 +277,7 @@ class Level
     { fqname
       start } = lexeme
     quote     = quote_source source, lexeme.start
-    throw new Error "Ωilx__11 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} #{quote}"
+    throw new Error "Ωilx__12 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} #{quote}"
 
 
 
@@ -324,7 +324,7 @@ class Grammar
   new_level: ( cfg ) ->
     is_system = cfg.name.startsWith '$'
     if @levels[ cfg.name ]?
-      throw new Error "Ωilx__12 level #{rpr level.name} elready exists"
+      throw new Error "Ωilx__13 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., grammar: @, }
     @levels[ level.name ]   = level
     if ( not is_system ) and ( not @start_level? )
@@ -419,14 +419,14 @@ class Grammar
         #...................................................................................................
         when lexeme.fqname is '$signal.stop'
           if lexeme.stop isnt last_idx
-            yield @_new_error_signal 'Ωilx__13', 'earlystop', lexeme.stop, last_idx, source, \
+            yield @_new_error_signal 'Ωilx__14', 'earlystop', lexeme.stop, last_idx, source, \
               "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
         #...................................................................................................
         when lexeme.level.name is '$signal'
           null
         #...................................................................................................
         when is_first and ( lexeme.start isnt 0 )
-          yield @_new_error_signal 'Ωilx__14', 'latestart', 0, lexeme.start, source, \
+          yield @_new_error_signal 'Ωilx__15', 'latestart', 0, lexeme.start, source, \
             "expected start at 0, got #{rpr lexeme.start}"
       #.....................................................................................................
       yield lexeme
@@ -457,7 +457,7 @@ class Grammar
         when 'assign' then merged.assign ( lxm.data for lxm in lexemes )...
         when 'call'   then merged.token.merge.call null, { merged, lexemes, }
         when 'list'   then merge_data_as_lists merged, lexemes
-        else throw new Error "Ωilx__15 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
+        else throw new Error "Ωilx__16 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
       yield merged
       active_fqname = null
       lexemes.length = 0
@@ -509,7 +509,7 @@ class Grammar
         switch jump.action
           when 'fore' then  stack.push ( new_level = @_get_level jump.target )
           when 'back' then  new_level = stack.popnpeek()
-          else throw new Error "Ωilx__16 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+          else throw new Error "Ωilx__17 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
           jump_before  = true
           lexeme.set_level new_level
@@ -528,7 +528,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
-    throw new Error "Ωilx__17 unknown level #{rpr level_name}"
+    throw new Error "Ωilx__18 unknown level #{rpr level_name}"
 
 
 #===========================================================================================================
