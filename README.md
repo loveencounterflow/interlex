@@ -315,6 +315,7 @@ without there being any ASCII letters
   and—if the token has no jump—try the next token on the same level, if any; stop with the current level at
   the first token that either matches material, or has a jump, or both. This should become the new default
   strategy (next to `first` and `longest`)
+* **`[—]`** document `cast` setting for `Grammar::`, `Level::`, `Token::`
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
     start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
