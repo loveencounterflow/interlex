@@ -274,7 +274,7 @@ without there being any ASCII letters
   * **`[—]`** functions?
     * must accept `( start, text, { token, level, grammar, } )`
     * must return `null` or a lexeme
-  * **`[—]`** strings?
+  * **`[+]`** strings
 * **`[—]`** allow different metrics (code units, code points, graphemes) to determine `lexeme.length`, which
   lexeme gets returned for `Level::match_longest_at()`; compare:
   ```
@@ -307,6 +307,8 @@ without there being any ASCII letters
 * **`[—]`** implement API to check whether errors occurred
 * **`[—]`** implement `lexeme.terminate` to cause scanning to stop
 * **`[—]`** build lexer for EffString specs
+* **`[—]`** implement callbacks to e.g. cast data items to target values (as in `data: { count: '4', }` ->
+  `data: { count: 4, }`)
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
     start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
