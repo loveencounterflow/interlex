@@ -306,6 +306,42 @@ without there being any ASCII letters
 * **`[—]`** implement a `select()` method somewhere that formalizes matching against lexemes
 * **`[—]`** implement API to check whether errors occurred
 * **`[—]`** implement `lexeme.terminate` to cause scanning to stop
+* **`[—]`** build lexer for EffString specs
+* **`[—]`** implement `reserved` characters:
+  * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
+    start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
+    unmatched text portions
+    * **`[—]`** at any point, allow to construct a pattern that *only* matches reserved characters and a pattern
+      that matches anything *except* reserved characters
+  * **`[—]`** modify behavior of catchall and reserved:
+    * **`[—]`** catchall and reserved are 'declared', not 'added', meaning they will be created implicitly when
+      `_finalize()` is called
+    * **`[—]`** catchall and reserved alway come last (in this order)
+    * **`[—]`** documentation (DRAFT):
+      ## Reserved and Catchall Lexemes
+
+      Each lexeme can announce so-called 'reserved' characters or words; these are for now restricted to strings and
+      lists of strings, but could support regexes in the future as well. The idea is to collect those characters
+      and character sequences that are 'triggers' for a given lexeme and, when the mode has been defined, to
+      automatically construct two lexemes that will capture
+
+      * all the remaining sequences of non-reserved characters; this is called a *catchall* lexeme (whose default
+        TID is set to `$catchall` unless overriden by a `lxid` setting). The catchall lexeme's function lies in
+        explicitly capturing any part of the input that has not been covered by any other lexemer higher up in the
+        chain of patterns, thereby avoiding a more unhelpful `$error` token that would just say 'no match at
+        position so-and-so' and terminate lexing.
+
+      * all the remaining *reserved* characters (default TID: `$reserved`); these could conceivably be used to
+        produce a list of fishy parts in the source, and / or to highlight such places in the output, or, if one
+        feels so inclined, terminate parsing with an error message. For example, when one wants to translate
+        Markdown-like markup syntax to HTML, one could decide that double stars start and end bold type
+        (`<strong>...</strong>`), or, when a single asterisk is used at the start of a line, indicate unordered
+        list items (`<ul>...<li>...</ul>`), and are considered illegal in any other position except inside code
+        stretches and when escaped with a backslash. Such a mechanism can help to uncover problems with the source
+        text instead of just glancing over dubious markup and 'just do something', possibly leading to subtle
+        errors.
+
+
 
 
 ## Is Done
