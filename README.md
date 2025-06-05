@@ -451,7 +451,7 @@ without there being any ASCII letters
 * **`[—]`** <del>bundle `start`, `stop` and later `lnr` &c under `position`?</del>
 * **`[—]`** <del>can we put the functionalities of `Grammar::_scan_1b_merge_jumps()` and
   `Grammar::_scan_3_merge()` into a single method?</del>
-* **`[—]`** replaced by option to replace exceptions with error signals <del>allow the lexer to stop 'silently' when a non-jump token matched the empty string? Add token
+* **`[—]`** <ins>replaced by option to replace exceptions with error signals</ins> <del>allow the lexer to stop 'silently' when a non-jump token matched the empty string? Add token
   declaration field `allow_empty_end`? Better name?</del>
 * **`[–]`** <del>flatten `jump` property?</del>
 * **`[—]`** <del>what should the `action` of a merged jumped be?</del>
