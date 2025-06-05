@@ -13,7 +13,8 @@
   debug
   info
   rpr                   } = require './helpers'
-{ std
+{ type_of
+  std
   isa
   isa_optional
   create
@@ -75,6 +76,13 @@ internals = new class Internals
     @get_unique_sorted_letters = ( text ) => [ ( new Set text )..., ].sort().join ''
 
     #-------------------------------------------------------------------------------------------------------
+    @as_regex = ( text_or_regex ) =>
+      switch type = type_of text_or_regex
+        when 'regex'  then return text_or_regex
+        when 'text'   then return SLR.regex"#{text_or_regex}"
+        else throw new Error "Ωilx___4 expected a text or a regex, got a #{type}"
+
+    #-------------------------------------------------------------------------------------------------------
     @normalize_regex = ( regex ) =>
       ### Given a `regex`, return a new regex with the same pattern but normalized flags. ###
       ### TAINT use proper typing ###
@@ -126,7 +134,7 @@ class Token
     #.......................................................................................................
     cfg         = { cfg_template..., cfg..., }
     @name       = cfg.name
-    cfg.fit     = internals.normalize_regex cfg.fit
+    cfg.fit     = internals.normalize_regex internals.as_regex cfg.fit
     hide @, 'level',                cfg.level
     hide @, 'grammar',              cfg.level.grammar
     hide @, 'fit',                  cfg.fit
