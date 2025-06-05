@@ -131,6 +131,7 @@ class Token
       jump:         null
       merge:        false
       emit:         true
+      cast:         null
     #.......................................................................................................
     cfg         = { cfg_template..., cfg..., }
     @name       = cfg.name
@@ -141,6 +142,7 @@ class Token
     hide @, 'jump',                 ( @constructor._parse_jump cfg.jump, @level ) ? null
     hide @, 'merge',                cfg.merge
     hide @, 'emit',                 cfg.emit
+    hide @, 'cast',                 cfg.cast
     ### TAINT use proper typing ###
     hide @, 'data_merge_strategy', switch true
       when @merge is false                        then null
@@ -224,6 +226,7 @@ class Level
     cfg            ?= {}
     @name           = cfg.name      ? 'gnd'
     @is_system      = cfg.is_system ? false
+    @cast           = cfg.cast      ? null
     hide @,         'grammar',  cfg.grammar
     hide @,         'tokens',   [ ( cfg.tokens ? [] )..., ]
     hide_getter @,  'strategy', => @grammar.cfg.strategy
@@ -311,6 +314,7 @@ class Grammar
       merge_jumps:      true
       loop_errors:      'emit'
       earlystop_errors: 'emit'
+      cast:             null
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
     @cfg.merge_jumps        = false unless @cfg.emit_signals
@@ -320,6 +324,7 @@ class Grammar
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
     hide @, 'levels',         {}
+    hide @, 'cast',           @cfg.cast
     hide_getter @, 'has_error', -> @state.errors.length > 0
     #.......................................................................................................
     @reset_lnr 1
@@ -518,7 +523,7 @@ class Grammar
   _scan_4_startstop_lnr: ( source ) ->
     prv_lexeme = null
     yield @_new_signal 'start', 0, source
-    for lexeme from @_scan_4_match_tokens source
+    for lexeme from @_scan_4_apply_casts source
       prv_lexeme = lexeme if lexeme.level.name isnt '$signal'
       yield lexeme
     yield @_new_signal 'stop', ( prv_lexeme?.stop ? 0 ), source
@@ -526,7 +531,17 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_4_match_tokens: ( source ) ->
+  _scan_4_apply_casts: ( source ) ->
+    for lexeme from @_scan_5_match_tokens source
+      if lexeme.is_user
+        switch true
+          when lexeme.token.cast? then lexeme.token.cast.call @, lexeme
+          when lexeme.level.cast? then lexeme.level.cast.call @, lexeme
+          when             @cast? then             @cast.call @, lexeme
+      yield lexeme
+
+  #---------------------------------------------------------------------------------------------------------
+  _scan_5_match_tokens: ( source ) ->
     start           = 0
     stack           = new Levelstack @start_level
     lexeme          = null
