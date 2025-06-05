@@ -87,7 +87,7 @@ internals = new class Internals
       ### Given a `regex`, return a new regex with the same pattern but normalized flags. ###
       ### TAINT use proper typing ###
       unless regex instanceof RegExp
-        throw new Error "Ωilx___4 expected a regex, got #{rpr regex}"
+        throw new Error "Ωilx___5 expected a regex, got #{rpr regex}"
       return new RegExp regex.source, ( @normalize_regex_flags { flags: regex.flags, mode: 'plain', } )
 
     #-------------------------------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ class Token
       when @merge is 'assign'                     then 'assign'
       when @merge is 'list'                       then 'list'
       when ( isa std.function, @merge )           then 'call'
-      else throw new Error "Ωilx___5 expected a valid input for `merge`, got #{rpr @merge}"
+      else throw new Error "Ωilx___6 expected a valid input for `merge`, got #{rpr @merge}"
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -164,10 +164,10 @@ class Token
     for { carry, action, fit, } in internals.jump_spec_res
       break if ( match = spec.match fit )?
     unless match?
-      throw new Error "Ωilx___6 encountered illegal jump spec #{rpr spec}"
+      throw new Error "Ωilx___7 encountered illegal jump spec #{rpr spec}"
     { target, } = match.groups
     if level? and ( target is level.name )
-      throw new Error "Ωilx___7 cannot jump to same level, got #{rpr target}"
+      throw new Error "Ωilx___8 cannot jump to same level, got #{rpr target}"
     return { spec, carry, action, target, }
 
 
@@ -241,7 +241,7 @@ class Level
   #---------------------------------------------------------------------------------------------------------
   new_token: ( cfg ) ->
     if cfg.level? and cfg.level isnt @
-      throw new Error "Ωilx___8 inconsistent level"
+      throw new Error "Ωilx___9 inconsistent level"
     @tokens.push token = new Token { cfg..., level: @, }
     return token
 
@@ -279,15 +279,15 @@ class Level
       message = "encountered loop at position #{rpr start} #{quote}"
       switch @grammar.cfg.loop_errors
         when 'emit' then return @grammar._new_error_signal \
-          'Ωilx___9', 'loop', start, start, source, message
-        when 'throw' then throw new Error "Ωilx__10 #{message}"
-        else throw new Error "Ωilx__11 should never happen: got unknown value for loop_errors: #{rpr @grammar.cfg.loop_errors}"
+          'Ωilx__10', 'loop', start, start, source, message
+        when 'throw' then throw new Error "Ωilx__11 #{message}"
+        else throw new Error "Ωilx__12 should never happen: got unknown value for loop_errors: #{rpr @grammar.cfg.loop_errors}"
     @positions.add start
     #.......................................................................................................
     switch @strategy
       when 'first'    then  lexeme = @match_first_at    start, source
       when 'longest'  then  lexeme = @match_longest_at  start, source
-      else throw new Error "Ωilx__12 should never happen: got strategy: #{rpr @strategy}"
+      else throw new Error "Ωilx__13 should never happen: got strategy: #{rpr @strategy}"
     #.......................................................................................................
     ### Accept no lexeme matching but refuse lexeme with empty match: ###
     return null   unless lexeme?
@@ -295,7 +295,7 @@ class Level
     { fqname
       start } = lexeme
     quote     = quote_source source, lexeme.start
-    throw new Error "Ωilx__13 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} #{quote}"
+    throw new Error "Ωilx__14 encountered zero-length match for token #{rpr fqname} at position #{lexeme.start} #{quote}"
 
 
 
@@ -352,7 +352,7 @@ class Grammar
   new_level: ( cfg ) ->
     is_system = cfg.name.startsWith '$'
     if @levels[ cfg.name ]?
-      throw new Error "Ωilx__14 level #{rpr level.name} elready exists"
+      throw new Error "Ωilx__15 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., is_system, grammar: @, }
     @levels[ level.name ]   = level
     if ( not is_system ) and ( not @start_level? )
@@ -393,7 +393,7 @@ class Grammar
     @clear_errors()
     @_notify_levels()
     unless @start_level?
-      throw new Error "Ωilx__15 no levels have been defined; unable to scan"
+      throw new Error "Ωilx__16 no levels have been defined; unable to scan"
     yield from switch true
       when @cfg.merge_jumps     then  @_scan_1b_merge_jumps         source
       when @cfg.emit_signals    then  @_scan_2_validate_exhaustion  source
@@ -455,16 +455,16 @@ class Grammar
             message = "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
             switch @cfg.earlystop_errors
               when 'emit'
-                yield @_new_error_signal 'Ωilx__16', 'earlystop', lexeme.stop, last_idx, source, \
+                yield @_new_error_signal 'Ωilx__17', 'earlystop', lexeme.stop, last_idx, source, \
                   "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
               when 'throw'
-                throw new Error "Ωilx__17 #{message}"
+                throw new Error "Ωilx__18 #{message}"
         #...................................................................................................
         when lexeme.level.name is '$signal'
           null
         #...................................................................................................
         when is_first and ( lexeme.start isnt 0 )
-          yield @_new_error_signal 'Ωilx__18', 'latestart', 0, lexeme.start, source, \
+          yield @_new_error_signal 'Ωilx__19', 'latestart', 0, lexeme.start, source, \
             "expected start at 0, got #{rpr lexeme.start}"
       #.....................................................................................................
       yield lexeme
@@ -495,7 +495,7 @@ class Grammar
         when 'assign' then merged.assign ( lxm.data for lxm in lexemes )...
         when 'call'   then merged.token.merge.call null, { merged, lexemes, }
         when 'list'   then merge_data_as_lists merged, lexemes
-        else throw new Error "Ωilx__19 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
+        else throw new Error "Ωilx__20 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
       yield merged
       active_fqname = null
       lexemes.length = 0
@@ -547,7 +547,7 @@ class Grammar
         switch jump.action
           when 'fore' then  stack.push ( new_level = @_get_level jump.target )
           when 'back' then  new_level = stack.popnpeek()
-          else throw new Error "Ωilx__20 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+          else throw new Error "Ωilx__21 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
           jump_before  = true
           lexeme.set_level new_level
@@ -568,7 +568,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
-    throw new Error "Ωilx__21 unknown level #{rpr level_name}"
+    throw new Error "Ωilx__22 unknown level #{rpr level_name}"
 
 
 #===========================================================================================================
