@@ -311,6 +311,10 @@ without there being any ASCII letters
   `data: { count: 4, }`)
 * **`[—]`** when a token declares `emit: false` but matches some material, there will be holes in the scan
   that violate parts of the Five Scanner Constraints; how to deal with that?
+* **`[—]`** reconsider zero-length matches: when a token has matched the empty string, accept that token
+  and—if the token has no jump—try the next token on the same level, if any; stop with the current level at
+  the first token that either matches material, or has a jump, or both. This should become the new default
+  strategy (next to `first` and `longest`)
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
     start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
