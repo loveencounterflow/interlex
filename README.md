@@ -309,6 +309,8 @@ without there being any ASCII letters
 * **`[—]`** build lexer for EffString specs
 * **`[—]`** implement callbacks to e.g. cast data items to target values (as in `data: { count: '4', }` ->
   `data: { count: 4, }`)
+* **`[—]`** when a token declares `emit: false` but matches some material, there will be holes in the scan
+  that violate parts of the Five Scanner Constraints; how to deal with that?
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
     start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
