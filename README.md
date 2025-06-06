@@ -316,6 +316,8 @@ without there being any ASCII letters
   the first token that either matches material, or has a jump, or both. This should become the new default
   strategy (next to `first` and `longest`)
 * **`[—]`** document `cast` setting for `Grammar::`, `Level::`, `Token::`
+* **`[—]`** ? allow `cast` to be an object whose keys are functions that will be applied to properties of
+  `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
     start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
