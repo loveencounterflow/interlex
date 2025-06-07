@@ -325,20 +325,13 @@ without there being any ASCII letters
 * **`[—]`** ? allow `cast` to be an object whose keys are functions that will be applied to properties of
   `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`
 * **`[—]`** implement: `Grammar::cfg.before_scan`, `Grammar::cfg.after_scan`
-* **`[—]`** **LATER** implement:
-  * **`[—]`** `Grammar::reset: ({ lnr: 1, data: null, }) ->`
-  * **`[+]`** `reset_lnr: ( lnr = 1 ) ->`
-  * **`[+]`** `reset_data: ( data = null ) ->`
-  * **`[—]`** `grammar_cfg.reset_on_scan.lnr`: `false` or `integer`
-    * **`[—]`** default to `false` to skip resetting
-    * **`[—]`** or an integer
-    * **`[—]`** use ClearType to implement as type
-  * **`[—]`** `grammar_cfg.reset_on_scan.data`: `false` or `pod`
-    * **`[—]`** default to `false` to skip resetting
-    * **`[—]`** or a template object (functions will be called); use `{}` to reset to empty
-    * **`[—]`** use ClearType to implement as type
-  * **`[—]`** `grammar_cfg = { absorb_data: false, }` (also `true`)
-* **`[—]`** should we use `Map` instead of a POD for `data`?`
+* **`[—]`** `Grammar::cfg.reset_lnr`: `false`; when set to `true`, `lnr` will be held constant to the
+  value of `Grammar:cfg.lnr`
+* **`[—]`** `Grammar::cfg.reset_data`: `false`; when set to `true`, all enumarable properties of `data` will
+  be removed before each scan and then get re-assigned enumerable properties of `Grammar::cfg.data`, with
+  the provision that functions are going to be called (in the context of the grammar) and their result used
+* **`[—]`** `Grammar::cfg.absorb_data`: `false`; when set to `true`, copies all `lexeme.data`
+* **`[—]`** should we use a `Map` instead of a POD for `data`?`
 * **`[—]`** allow empty matches for empty inputs
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
@@ -488,3 +481,15 @@ without there being any ASCII letters
   declaration field `allow_empty_end`? Better name?</del>
 * **`[–]`** <del>flatten `jump` property?</del>
 * **`[—]`** <del>what should the `action` of a merged jumped be?</del>
+* **`[—]`** <del>**LATER** implement:</del>
+  * **`[—]`** <del>`Grammar::reset: ({ lnr: 1, data: null, }) ->`</del>
+  * **`[+]`** <del>`reset_lnr: ( lnr = 1 ) ->`</del>
+  * **`[+]`** <del>`reset_data: ( data = null ) ->`</del>
+  * **`[—]`** <del>`Grammar::cfg.reset_on_scan.lnr`: `false` or `integer`</del>
+    * **`[—]`** <del>default to `false` to skip resetting</del>
+    * **`[—]`** <del>or an integer</del>
+    * **`[—]`** <del>use ClearType to implement as type</del>
+  * **`[—]`** <del>`Grammar::cfg.reset_on_scan.data`: `false` or `pod`</del>
+    * **`[—]`** <del>default to `false` to skip resetting</del>
+    * **`[—]`** <del>or a template object (functions will be called); use `{}` to reset to empty</del>
+    * **`[—]`** <del>use ClearType to implement as type</del>
