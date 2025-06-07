@@ -41,8 +41,10 @@
   `source` text.
 * **`Grammar::scan_to_list: ( source ) ->`**: Same as `Grammar::scan()` but returns a list of lexemes
   instead of a generator.
-* **`Grammar::scan_first: ( source ) ->`**: Iterates over lexemes yielded by `Grammar::scan source` until it
-  encounters the first non-signal lexeme and returns that lexeme. Handy for testing token matchers.
+* **`Grammar::scan_first: ( source ) ->`**: Returns the first user-level lexeme yielded by `Grammar::scan
+  source`. Handy for testing token matchers.
+  > **Note** Always runs the entire scan to ensure that any state is what it would be with `scan()` and
+  > `scan_to_list()` but returns one first user-level lexeme: ###
 
 ## Token Declarations
 
@@ -325,7 +327,7 @@ without there being any ASCII letters
 * **`[—]`** implement:
   * **`[—]`** `Grammar::reset: ({ lnr: 1, data: null, }) ->`
   * **`[+]`** `reset_lnr: ( lnr = 1 ) ->`
-  * **`[—]`** `reset_data: ( data = null ) ->`
+  * **`[+]`** `reset_data: ( data = null ) ->`
   * **`[—]`** `grammar_cfg.reset_on_scan.lnr`: `integer` or `boolean`
   * **`[—]`** `grammar_cfg.reset_on_scan.data`:
     * **`[—]`** default to `false` to skip resetting
@@ -333,6 +335,8 @@ without there being any ASCII letters
     * **`[—]`** template object, functions will be called
     * **`[—]`** use ClearType to implement as type
   * **`[—]`** `grammar_cfg = { absorb_data: false, }` (also `true`)
+* **`[—]`** should we use `Map` instead of a POD for `data`?`
+* **`[—]`** allow empty matches for empty inputs
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
     start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
