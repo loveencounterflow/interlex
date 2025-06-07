@@ -345,6 +345,12 @@ class Grammar
   reset_data: ( data = null ) ->
     ### TAINT validate true, false, object, null ###
     return null if data is false
+  _compile_cfg_data: ->
+    @cfg.data ?= {}
+    for key, descriptor of Object.getOwnPropertyDescriptors @cfg.data
+      continue unless isa std.function, descriptor.value
+      set_getter @cfg.data, key, descriptor.value.bind @
+    return null
     delete @data[ key ] for key of @data
     if ( data is null ) or ( data is true ) then  @assign @data, @cfg.data
     else                                          @assign @data, @cfg.data, data
