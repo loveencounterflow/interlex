@@ -325,15 +325,24 @@ class Grammar
     hide @, 'start_level',    null
     hide @, 'levels',         {}
     hide @, 'cast',           @cfg.cast
+    hide @, 'data',           Object.create null
     hide_getter @, 'has_error', -> @state.errors.length > 0
     #.......................................................................................................
     @reset_lnr 1
     @_add_system_levels()
     return undefined
 
-  #---------------------------------------------------------------------------------------------------------
+  #=========================================================================================================
   reset_lnr: ( lnr = 1 ) ->
     @state.lnr = lnr
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  reset_data: ( data = null ) ->
+    ### TAINT validate true, false, object, null ###
+    return null if data is false
+    delete @data[ key ] for key of @data
+    @assign @data, data unless ( data is null ) or ( data is true )
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -342,6 +351,10 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
+  assign: ( P... ) -> Object.assign @data, P...
+
+
+  #=========================================================================================================
   _add_system_levels: ->
     $signal = @new_level { name: '$signal', system: true, }
     $error  = @new_level { name: '$error',  system: true, }
