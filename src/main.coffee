@@ -331,9 +331,9 @@ class Grammar
     hide @, 'data',           Object.create null
     hide_getter @, 'has_error', -> @state.errors.length > 0
     #.......................................................................................................
-    @reset_lnr()
-    @reset_data()
+    @_compile_cfg_data()
     @_add_system_levels()
+    @reset()
     return undefined
 
   #=========================================================================================================
@@ -349,6 +349,10 @@ class Grammar
     if ( data is null ) or ( data is true ) then  @assign @data, @cfg.data
     else                                          @assign @data, @cfg.data, data
     ( @data[ key ] = fn.call @ ) for key, fn of @data when isa std.function, fn
+  #---------------------------------------------------------------------------------------------------------
+  reset: ->
+    @reset_lnr()
+    @reset_data()
     return null
 
   #---------------------------------------------------------------------------------------------------------
