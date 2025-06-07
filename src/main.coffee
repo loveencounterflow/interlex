@@ -407,9 +407,12 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   scan_first: ( P... ) ->
+    ### Does the entire scan to ensure that any state is what it would be with `scan()` and `scan_to_list()`
+    but returns one first user-level lexeme: ###
+    R = null
     for lexeme from @scan P...
-      return lexeme unless lexeme.level.name is '$signal'
-    return null
+      R ?= lexeme if lexeme.is_user
+    return R
 
   #---------------------------------------------------------------------------------------------------------
   scan: ( source ) ->
