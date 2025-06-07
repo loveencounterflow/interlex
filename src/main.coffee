@@ -337,24 +337,29 @@ class Grammar
     return undefined
 
   #=========================================================================================================
-  reset_lnr: ( lnr = 1 ) ->
-    @state.lnr = lnr
+  reset_lnr: ( P... ) ->
+    if P.length isnt 0
+      throw new Error "Ωilx__15 Grammar::cfg.reset_lnr() does not accept arguments, got #{P.length} arguments"
+    @state.lnr = @cfg.lnr
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  reset_data: ( data = null ) ->
-    ### TAINT validate true, false, object, null ###
-    return null if data is false
   _compile_cfg_data: ->
     @cfg.data ?= {}
     for key, descriptor of Object.getOwnPropertyDescriptors @cfg.data
       continue unless isa std.function, descriptor.value
       set_getter @cfg.data, key, descriptor.value.bind @
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  reset_data: ( P... ) ->
+    if P.length isnt 0
+      throw new Error "Ωilx__16 Grammar::cfg.reset_data() does not accept arguments, got #{P.length} arguments"
     delete @data[ key ] for key of @data
-    if ( data is null ) or ( data is true ) then  @assign @data, @cfg.data
-    else                                          @assign @data, @cfg.data, data
-    ( @data[ key ] = fn.call @ ) for key, fn of @data when isa std.function, fn
+    @assign @data, @cfg.data
+    # ( @data[ key ] = fn.call @ ) for key, fn of @data when isa std.function, fn
+    return null
+
   #---------------------------------------------------------------------------------------------------------
   reset: ->
     @reset_lnr()
