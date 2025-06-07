@@ -315,6 +315,8 @@ class Grammar
       loop_errors:      'emit'
       earlystop_errors: 'emit'
       cast:             null
+      lnr:              1
+      data:             null
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
     @cfg.merge_jumps        = false unless @cfg.emit_signals
@@ -328,7 +330,8 @@ class Grammar
     hide @, 'data',           Object.create null
     hide_getter @, 'has_error', -> @state.errors.length > 0
     #.......................................................................................................
-    @reset_lnr 1
+    @reset_lnr()
+    @reset_data()
     @_add_system_levels()
     return undefined
 
@@ -342,7 +345,9 @@ class Grammar
     ### TAINT validate true, false, object, null ###
     return null if data is false
     delete @data[ key ] for key of @data
-    @assign @data, data unless ( data is null ) or ( data is true )
+    if ( data is null ) or ( data is true ) then  @assign @data, @cfg.data
+    else                                          @assign @data, @cfg.data, data
+    ( @data[ key ] = fn.call @ ) for key, fn of @data when isa std.function, fn
     return null
 
   #---------------------------------------------------------------------------------------------------------
