@@ -325,11 +325,6 @@ without there being any ASCII letters
 * **`[—]`** ? allow `cast` to be an object whose keys are functions that will be applied to properties of
   `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`
 * **`[—]`** implement: `Grammar::cfg.before_scan`, `Grammar::cfg.after_scan`
-* **`[—]`** `Grammar::cfg.reset_lnr`: `false`; when set to `true`, `lnr` will be held constant to the
-  value of `Grammar:cfg.lnr`
-* **`[—]`** `Grammar::cfg.reset_data`: `false`; when set to `true`, all enumarable properties of `data` will
-  be removed before each scan and then get re-assigned enumerable properties of `Grammar::cfg.data`, with
-  the provision that functions are going to be called (in the context of the grammar) and their result used
 * **`[—]`** `Grammar::cfg.absorb_data`: `false`; when set to `true`, copies all `lexeme.data`
 * **`[—]`** should we use a `Map` instead of a POD for `data`?`
 * **`[—]`** allow empty matches for empty inputs
@@ -465,6 +460,13 @@ without there being any ASCII letters
 * **`[+]`** implement option to turn exceptions into error signals
   * **`[+]`** `Grammar.cfg.loop_errors: {'emit'|'throw'}`
   * **`[+]`** `Grammar.cfg.earlystop_errors: {'emit'|'throw'}`
+* **`[+]`** `Grammar::cfg.reset_lnr`: `false`; when set to `true`, `lnr` will be held constant to the
+  value of `Grammar:cfg.lnr`
+* **`[+]`** `Grammar::cfg.reset_data`: `false`; when set to `true`, all enumarable properties of `data` will
+  be removed before each scan and then get re-assigned enumerable properties of `Grammar::cfg.data`, with
+  the provision that functions are going to be called (in the context of the grammar) and their result used
+* **`[+]`** rename `Grammar::clear_errors()` -> `Grammar::reset_errors()`: `false`; when set to `true`,
+  `Grammar::state.errors` will be cleared before each scan
 
 
 ## Don't
