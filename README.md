@@ -23,6 +23,7 @@
     - [Always Unicode, Except](#always-unicode-except)
     - [Errors as Exceptions or Signals](#errors-as-exceptions-or-signals)
     - [Lexeme Status Properties](#lexeme-status-properties)
+    - [Data Absorption, Data Reset](#data-absorption-data-reset)
   - [To Do](#to-do)
   - [Is Done](#is-done)
   - [Don't](#dont)
@@ -256,6 +257,9 @@ without there being any ASCII letters
 * **`Lexeme::is_signal`**: true for lexemes in level `$signal`
 * **`Lexeme::is_user`**: true for lexemes that are not system lexemes
 
+### Data Absorption, Data Reset
+
+
 ## To Do
 
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
@@ -318,6 +322,17 @@ without there being any ASCII letters
 * **`[—]`** document `cast` setting for `Grammar::`, `Level::`, `Token::`
 * **`[—]`** ? allow `cast` to be an object whose keys are functions that will be applied to properties of
   `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`
+* **`[—]`** implement:
+  * **`[—]`** `Grammar::reset: ({ lnr: 1, data: null, }) ->`
+  * **`[+]`** `reset_lnr: ( lnr = 1 ) ->`
+  * **`[—]`** `reset_data: ( data = null ) ->`
+  * **`[—]`** `grammar_cfg.reset_on_scan.lnr`: `integer` or `boolean`
+  * **`[—]`** `grammar_cfg.reset_on_scan.data`:
+    * **`[—]`** default to `false` to skip resetting
+    * **`[—]`** `null`, `true`, `{}` to reset to empty
+    * **`[—]`** template object, functions will be called
+    * **`[—]`** use ClearType to implement as type
+  * **`[—]`** `grammar_cfg = { absorb_data: false, }` (also `true`)
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
     start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
