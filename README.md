@@ -324,15 +324,18 @@ without there being any ASCII letters
 * **`[—]`** document `cast` setting for `Grammar::`, `Level::`, `Token::`
 * **`[—]`** ? allow `cast` to be an object whose keys are functions that will be applied to properties of
   `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`
-* **`[—]`** implement:
+* **`[—]`** implement: `Grammar::cfg.before_scan`, `Grammar::cfg.after_scan`
+* **`[—]`** **LATER** implement:
   * **`[—]`** `Grammar::reset: ({ lnr: 1, data: null, }) ->`
   * **`[+]`** `reset_lnr: ( lnr = 1 ) ->`
   * **`[+]`** `reset_data: ( data = null ) ->`
-  * **`[—]`** `grammar_cfg.reset_on_scan.lnr`: `integer` or `boolean`
-  * **`[—]`** `grammar_cfg.reset_on_scan.data`:
+  * **`[—]`** `grammar_cfg.reset_on_scan.lnr`: `false` or `integer`
     * **`[—]`** default to `false` to skip resetting
-    * **`[—]`** `null`, `true`, `{}` to reset to empty
-    * **`[—]`** template object, functions will be called
+    * **`[—]`** or an integer
+    * **`[—]`** use ClearType to implement as type
+  * **`[—]`** `grammar_cfg.reset_on_scan.data`: `false` or `pod`
+    * **`[—]`** default to `false` to skip resetting
+    * **`[—]`** or a template object (functions will be called); use `{}` to reset to empty
     * **`[—]`** use ClearType to implement as type
   * **`[—]`** `grammar_cfg = { absorb_data: false, }` (also `true`)
 * **`[—]`** should we use `Map` instead of a POD for `data`?`
