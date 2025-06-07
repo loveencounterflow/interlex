@@ -318,6 +318,9 @@ class Grammar
       cast:             null
       lnr:              1
       data:             null
+      reset_lnr:        false
+      reset_data:       false
+      reset_errors:     false
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
     @cfg.merge_jumps        = false unless @cfg.emit_signals
@@ -329,7 +332,7 @@ class Grammar
     hide @, 'levels',         {}
     hide @, 'cast',           @cfg.cast
     hide @, 'data',           Object.create null
-    hide_getter @, 'has_error', -> @state.errors.length > 0
+    hide_getter @, 'has_errors', -> @state.errors.length > 0
     #.......................................................................................................
     @_compile_cfg_data()
     @_add_system_levels()
@@ -367,7 +370,7 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  clear_errors: ->
+  reset_errors: ->
     @state.errors = []
     return null
 
@@ -432,7 +435,8 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   scan: ( source ) ->
-    @clear_errors()
+    @reset_errors() if @cfg.reset_errors
+    @reset_data()   if @cfg.reset_data
     @_notify_levels()
     unless @start_level?
       throw new Error "Ωilx__18 no levels have been defined; unable to scan"
@@ -564,7 +568,7 @@ class Grammar
       prv_lexeme = lexeme if lexeme.level.name isnt '$signal'
       yield lexeme
     yield @_new_signal 'stop', ( prv_lexeme?.stop ? 0 ), source
-    @state.lnr++
+    @state.lnr++ unless @cfg.reset_lnr
     return null
 
   #---------------------------------------------------------------------------------------------------------
