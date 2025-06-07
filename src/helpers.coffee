@@ -101,6 +101,17 @@ insert_position_marker = ( text, idx, width = 50, marker = '⚠' ) ->
 quote_source = ( text, idx, width = 50, marker = '⚠' ) ->
   return "(indicated by #{rpr marker}: #{rpr insert_position_marker text, idx, width, marker})"
 
+#===========================================================================================================
+# create_pod_from_template = ( ctx, template ) ->
+#   # ctx       = validate_optional std.pod, ctx
+#   template  = validate std.pod, template
+#   R = Object.create null
+#   if template?
+#     for key, { value, } of Object.getOwnPropertyDescriptors template
+#       value     = value.call ctx if isa std.function, value
+#       R[ key ]  = value
+#   return R
+
 # #===========================================================================================================
 # get_instance_methods = ( instance ) ->
 #   isa_function  = ( require './builtins' ).std.function.$isa
@@ -131,6 +142,7 @@ module.exports = {
   clone
   insert_position_marker
   quote_source
+  # create_pod_from_template
   # get_instance_methods
   # bind_instance_methods
   debug

@@ -10,6 +10,7 @@
   clone
   # insert_position_marker
   quote_source
+  # create_pod_from_template
   debug
   info
   rpr                   } = require './helpers'
