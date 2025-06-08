@@ -325,6 +325,10 @@ without there being any ASCII letters
 * **`[—]`** ? allow `cast` to be an object whose keys are functions that will be applied to properties of
   `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`
 * **`[—]`** implement: `Grammar::cfg.before_scan`, `Grammar::cfg.after_scan`
+* **`[—]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
+  meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
+<!-- * **`[—]`** change token naming rules: -->
+  <!-- * name should be unique in the 'effective level', i.e. the jump target -->
 * **`[—]`** `Grammar::cfg.absorb_data`: `false`; when set to `true`, copies all `lexeme.data`
 * **`[—]`** should we use a `Map` instead of a POD for `data`?`
 * **`[—]`** allow empty matches for empty inputs
