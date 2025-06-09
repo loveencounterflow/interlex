@@ -262,10 +262,9 @@ class Level
 
   #---------------------------------------------------------------------------------------------------------
   new_token: ( cfg ) ->
-    if cfg.level? and cfg.level isnt @
-      throw new Error "Ωilx___9 inconsistent level"
-    @tokens.push token = new Token { cfg..., level: @, }
-    return token
+    R = new Token { cfg..., level: @, }
+    @tokens[ R.name ] = R
+    return R
 
   #---------------------------------------------------------------------------------------------------------
   match_all_at: ( start, source ) ->
