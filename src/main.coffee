@@ -206,7 +206,8 @@ class Lexeme
     set_getter @, 'is_signal',  => @token.level.name is '$signal'
     set_getter @, 'is_system',  => @token.level.is_system
     set_getter @, 'is_user',    => not @is_system
-    hide       @, 'emit', @emit.bind @
+    hide       @, 'source',     match.input
+    hide       @, 'emit',       @emit.bind @
     #.......................................................................................................
     @assign match.groups
     @set_level token.level
