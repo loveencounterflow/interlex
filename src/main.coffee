@@ -233,10 +233,12 @@ class Lexeme
   assign: ( P... ) -> Object.assign @data, P...
 
   #---------------------------------------------------------------------------------------------------------
-  emit: ( Q = null ) ->
-    lexeme = { emitted_lexeme: true, Q..., }
+  emit: ( fqname, start, source, data = null ) ->
+    token   = @token.grammar.token_from_fqname fqname
+    lexeme  = token._match_at start, source
     ### TAINT use API ###
     @token.grammar.state.emitted_lexemes.unshift lexeme
+    return lexeme
 
 
 #===========================================================================================================
