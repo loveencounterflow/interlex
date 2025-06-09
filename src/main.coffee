@@ -458,7 +458,7 @@ class Grammar
     @reset_data()   if @cfg.reset_data
     @_notify_levels()
     unless @start_level?
-      throw new Error "Ωilx__18 no levels have been defined; unable to scan"
+      throw new Error "Ωilx__22 no levels have been defined; unable to scan"
     yield from switch true
       when @cfg.merge_jumps     then  @_scan_1b_merge_jumps         source
       when @cfg.emit_signals    then  @_scan_2_validate_exhaustion  source
@@ -520,16 +520,16 @@ class Grammar
             message = "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
             switch @cfg.earlystop_errors
               when 'emit'
-                yield @_new_error_signal 'Ωilx__19', 'earlystop', lexeme.stop, last_idx, source, \
+                yield @_new_error_signal 'Ωilx__23', 'earlystop', lexeme.stop, last_idx, source, \
                   "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
               when 'throw'
-                throw new Error "Ωilx__20 #{message}"
+                throw new Error "Ωilx__24 #{message}"
         #...................................................................................................
         when lexeme.level.name is '$signal'
           null
         #...................................................................................................
         when is_first and ( lexeme.start isnt 0 )
-          yield @_new_error_signal 'Ωilx__21', 'latestart', 0, lexeme.start, source, \
+          yield @_new_error_signal 'Ωilx__25', 'latestart', 0, lexeme.start, source, \
             "expected start at 0, got #{rpr lexeme.start}"
       #.....................................................................................................
       yield lexeme
@@ -560,7 +560,7 @@ class Grammar
         when 'assign' then merged.assign ( lxm.data for lxm in lexemes )...
         when 'call'   then merged.token.merge.call null, { merged, lexemes, }
         when 'list'   then merge_data_as_lists merged, lexemes
-        else throw new Error "Ωilx__22 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
+        else throw new Error "Ωilx__26 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
       yield merged
       active_fqname = null
       lexemes.length = 0
@@ -622,7 +622,7 @@ class Grammar
         switch jump.action
           when 'fore' then  stack.push ( new_level = @_get_level jump.target )
           when 'back' then  new_level = stack.popnpeek()
-          else throw new Error "Ωilx__23 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+          else throw new Error "Ωilx__27 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
           jump_before  = true
           lexeme.set_level new_level
@@ -645,7 +645,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
-    throw new Error "Ωilx__24 unknown level #{rpr level_name}"
+    throw new Error "Ωilx__28 unknown level #{rpr level_name}"
 
 
 #===========================================================================================================
