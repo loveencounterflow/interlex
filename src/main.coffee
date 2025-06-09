@@ -40,6 +40,7 @@ internals = new class Internals
       { carry: true,   action: 'back', fit: SLR.regex"^ (?<target> #{ @jump_spec_back  } ) ! $", }
       { carry: true,   action: 'fore', fit: SLR.regex"^ (?<target> #{ @jsid_re         } ) ! $", }
       ]
+    @fqname_re            = SLR.regex"^ (?<level_name> #{ @jsid_re } ) \. (?<token_name> #{ @jsid_re } ) $"
     #.......................................................................................................
     # thx to https://github.com/loveencounterflow/coffeescript/commit/27e0e4cfee65ec7e1404240ccec6389b85ae9e69
     @regex_flags_re             = /^(?!.*(.).*\1)[dgimsuvy]*$/
@@ -420,6 +421,20 @@ class Grammar
       hide @, 'start_level', level
       @start_level_name = level.name
     return level
+
+  #=========================================================================================================
+  token_from_fqname: ( fqname ) ->
+    ### TAINT validate ###
+    unless isa std.text, fqname
+      throw new Error "Ωilx__18 expected a text for fqname, got a #{type_of fqname}"
+    unless ( match = fqname.match internals.fqname_re )?
+      throw new Error "Ωilx__19 expected an fqname consisting of level name, dot, token name, got #{rpr fqname}"
+    { level_name, token_name, } = match.groups
+    unless ( level = @levels[ level_name ] )?
+      throw new Error "Ωilx__20 unknown level #{rpr level_name}"
+    unless ( token = level.tokens[ token_name ] )?
+      throw new Error "Ωilx__21 unknown token #{rpr token_name}"
+    return token
 
   #=========================================================================================================
   _new_signal: ( name, start, source, data = null ) ->
