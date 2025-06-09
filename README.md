@@ -332,6 +332,20 @@ without there being any ASCII letters
 * **`[—]`** `Grammar::cfg.absorb_data`: `false`; when set to `true`, copies all `lexeme.data`
 * **`[—]`** should we use a `Map` instead of a POD for `data`?`
 * **`[—]`** allow empty matches for empty inputs
+* **`[—]`** implement <del>`merge: 'text'`</del> <ins>`merge: 'join'`</ins> to concatenate all lexeme data
+  property values
+* **`[—]`** if possible, implement a way to signal from a token's `cast` function that the token is invalid
+  or that another token should be chosen; if that was possible, one could use somehwat more generic matchers
+  for stuff like, say, float literals and then simply test whether in the `cast` function `parseFloat()`
+  returns a `float` or `NaN`; in the latter case, one could either
+  * reject the current token and continue, from the current position, to match tokens from the same(?) level
+    that come after the current one; or
+  * issue an error signal (probably the simpler option).
+  * **`[—]`** related: can we provide a way for users to issue error signals? create own error tokens?
+  * **`[—]`** related: `$error` name is fixed, but provide a setting to recognize error lexemes, default
+    being a match of `/^error(_.*)?|(.*_)?error$/` (in fact `regex"^(?>error(?>_.*)?|(?>.*_)?error)$"` using
+    [atomic groups](https://github.com/slevithan/regex?tab=readme-ov-file#atomic-groups)) against the token
+    or the level name
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
     start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
@@ -341,7 +355,7 @@ without there being any ASCII letters
   * **`[—]`** modify behavior of catchall and reserved:
     * **`[—]`** catchall and reserved are 'declared', not 'added', meaning they will be created implicitly when
       `_finalize()` is called
-    * **`[—]`** catchall and reserved alway come last (in this order)
+    * **`[—]`** catchall and reserved always come last (in this order)
     * **`[—]`** documentation (DRAFT):
       ## Reserved and Catchall Lexemes
 
@@ -471,6 +485,7 @@ without there being any ASCII letters
   the provision that functions are going to be called (in the context of the grammar) and their result used
 * **`[+]`** rename `Grammar::clear_errors()` -> `Grammar::reset_errors()`: `false`; when set to `true`,
   `Grammar::state.errors` will be cleared before each scan
+* **`[+]`** disallow non-unique token names
 
 
 ## Don't
