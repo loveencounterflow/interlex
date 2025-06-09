@@ -155,9 +155,19 @@ class Token
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  match_at: ( start, source ) ->
+  match_at: ( start, source ) -> @_match_at start, source
+
+  #---------------------------------------------------------------------------------------------------------
+  _match_at: ( start, source, fit = null ) ->
     @fit.lastIndex = start
-    return null unless ( match = source.match @fit )?
+    return null unless ( match = source.match fit ? @fit )?
+    return new Lexeme @, match
+
+  #---------------------------------------------------------------------------------------------------------
+  match_any_at: ( start, source ) ->
+    ### Same as `@match_at()` but doesn't test for match, so matches always ###
+    @fit.lastIndex = start
+    return null unless ( match = source.match /|/ )?
     return new Lexeme @, match
 
   #---------------------------------------------------------------------------------------------------------
@@ -190,10 +200,12 @@ class Lexeme
     @data                 = Object.create null
     set_getter @, 'fqname',     => "#{@level.name}.#{@name}"
     set_getter @, 'length',     => @hit.length
-    set_getter @, 'is_error',   => @token.level.name is '$error'
+    # set_getter @, 'is_error',   => @token.level.name in [ '$error', 'error', ]
+    set_getter @, 'is_error',   => /^\$?error$/.test @token.level.name
     set_getter @, 'is_signal',  => @token.level.name is '$signal'
     set_getter @, 'is_system',  => @token.level.is_system
     set_getter @, 'is_user',    => not @is_system
+    hide       @, 'emit', @emit.bind @
     #.......................................................................................................
     @assign match.groups
     @set_level token.level
@@ -217,6 +229,12 @@ class Lexeme
 
   #---------------------------------------------------------------------------------------------------------
   assign: ( P... ) -> Object.assign @data, P...
+
+  #---------------------------------------------------------------------------------------------------------
+  emit: ( Q = null ) ->
+    lexeme = { emitted_lexeme: true, Q..., }
+    ### TAINT use API ###
+    @token.grammar.state.emitted_lexemes.unshift lexeme
 
 
 #===========================================================================================================
@@ -325,7 +343,7 @@ class Grammar
     @cfg                   ?= { cfg_template..., cfg..., }
     @cfg.merge_jumps        = false unless @cfg.emit_signals
     @name                   = @cfg.name
-    @state                  = { lnr: null, errors: [], }
+    @state                  = { lnr: null, errors: [], emitted_lexemes: [], }
     @start_level_name       = null
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
@@ -611,6 +629,8 @@ class Grammar
           jump_after   = true
       #.....................................................................................................
       if jump_before then yield @_new_jump_signal lexeme.start, source, lexeme.level.name
+      ### TAINT use API ###
+      yield @state.emitted_lexemes.pop() while @state.emitted_lexemes.length > 0
       yield lexeme if lexeme.token.emit
       if jump_after  then yield @_new_jump_signal        start, source,    new_level.name
       ### TAINT this should really check for lexeme.terminate ###
