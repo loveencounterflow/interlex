@@ -263,6 +263,8 @@ class Level
   #---------------------------------------------------------------------------------------------------------
   new_token: ( cfg ) ->
     R = new Token { cfg..., level: @, }
+    if Reflect.has @tokens, R.name
+      throw new Error "Ωilx___9 encountered duplicate token name #{rpr R.name}"
     @tokens[ R.name ] = R
     return R
 
