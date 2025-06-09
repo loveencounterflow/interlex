@@ -247,13 +247,13 @@ class Level
     @is_system      = cfg.is_system ? false
     @cast           = cfg.cast      ? null
     hide @,         'grammar',  cfg.grammar
-    hide @,         'tokens',   []
+    hide @,         'tokens',   Object.create null
     hide_getter @,  'strategy', => @grammar.cfg.strategy
     hide @,         'positions', new Set()
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  [Symbol.iterator]: -> yield t for t in @tokens
+  [Symbol.iterator]: -> yield token for name, token of @tokens
 
   #---------------------------------------------------------------------------------------------------------
   _on_before_scan: ->
