@@ -348,7 +348,7 @@ class Grammar
     @start_level_name       = null
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
-    hide @, 'levels',         {}
+    hide @, 'levels',         Object.create null
     hide @, 'cast',           @cfg.cast
     hide @, 'data',           Object.create null
     hide_getter @, 'has_errors', -> @state.errors.length > 0
