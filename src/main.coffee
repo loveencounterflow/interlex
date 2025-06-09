@@ -229,7 +229,7 @@ class Level
     @is_system      = cfg.is_system ? false
     @cast           = cfg.cast      ? null
     hide @,         'grammar',  cfg.grammar
-    hide @,         'tokens',   [ ( cfg.tokens ? [] )..., ]
+    hide @,         'tokens',   []
     hide_getter @,  'strategy', => @grammar.cfg.strategy
     hide @,         'positions', new Set()
     return undefined
