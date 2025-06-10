@@ -670,7 +670,7 @@ class Grammar
         switch jump.action
           when 'fore' then  stack.push ( new_level = @_get_level jump.target )
           when 'back' then  new_level = stack.popnpeek()
-          else throw new Error "Ωilx__27 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+          else throw new Error "Ωilx__28 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
           lexeme.set_level new_level
       #.....................................................................................................
@@ -683,7 +683,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
-    throw new Error "Ωilx__28 unknown level #{rpr level_name}"
+    throw new Error "Ωilx__29 unknown level #{rpr level_name}"
 
 
 #===========================================================================================================
