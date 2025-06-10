@@ -336,7 +336,7 @@ class Grammar
       name:             'g'
       strategy:         'first'
       emit_signals:     true
-      merge_jumps:      true
+      # merge_jumps:      true
       loop_errors:      'emit'
       earlystop_errors: 'emit'
       cast:             null
@@ -347,7 +347,7 @@ class Grammar
       reset_errors:     false
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
-    @cfg.merge_jumps        = false unless @cfg.emit_signals
+    # @cfg.merge_jumps        = false unless @cfg.emit_signals
     @name                   = @cfg.name
     @state                  = { lnr: null, errors: [], emitted_lexemes: [], }
     @start_level_name       = null
@@ -600,7 +600,8 @@ class Grammar
     return null
 
   _scan_4_startstop_lnr_TMP: ( source ) ->
-    prv_level_name  = null
+    prv_level_name    = null
+    # stack_level_name  = null
     #.......................................................................................................
     for lexeme from @_scan_4_startstop_lnr source
       switch true
@@ -610,6 +611,12 @@ class Grammar
           prv_level_name = @start_level.name;         yield @_new_jump_signal 0, source, prv_level_name
         #...................................................................................................
         when lexeme.fqname is '$signal.stop'
+          # loop
+          #   if @state.stack.length < 2
+          #     @state.stack.pop() while @state.stack.length > 0
+          #     break
+          #   stack_level_name = @state.stack.popnpeek()
+          #   prv_level_name = stack_level_name;        yield @_new_jump_signal lexeme.start, source, stack_level_name
           prv_level_name = null;                      yield @_new_jump_signal lexeme.start, source, prv_level_name
           yield lexeme
         #...................................................................................................
@@ -644,7 +651,10 @@ class Grammar
           when lexeme.token.cast? then lexeme.token.cast.call @, lexeme
           when lexeme.level.cast? then lexeme.level.cast.call @, lexeme
           when             @cast? then             @cast.call @, lexeme
+      ### TAINT use API ###
+      yield @state.emitted_lexemes.pop() while @state.emitted_lexemes.length > 0
       yield lexeme
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   _scan_5_match_tokens: ( source ) ->
