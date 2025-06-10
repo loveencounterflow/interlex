@@ -603,26 +603,27 @@ class Grammar
   _scan_5_insert_jumps: ( source ) ->
     prv_level_name    = null
     #.......................................................................................................
-    for lexeme from @_scan_6_insert_startstop_lnr source
-      switch true
-        #...................................................................................................
-        when lexeme.fqname is '$signal.start'
-          yield lexeme
-          prv_level_name = @start_level.name;         yield @_new_jump_signal 0, source, prv_level_name
-        #...................................................................................................
-        when lexeme.fqname is '$signal.stop'
-          prv_level_name = null;                      yield @_new_jump_signal lexeme.start, source, prv_level_name
-          yield lexeme
-        #...................................................................................................
-        when lexeme.is_user
-          if lexeme.token.level.name isnt prv_level_name
-            prv_level_name = lexeme.token.level.name; yield @_new_jump_signal lexeme.start, source, prv_level_name
-          if lexeme.level.name isnt prv_level_name
-            prv_level_name = lexeme.level.name;       yield @_new_jump_signal lexeme.start, source, prv_level_name
-          yield lexeme if lexeme.token.emit
-        #...................................................................................................
-        else
-          yield lexeme
+    new_jump_signal = ( start, level_name ) =>
+      prv_level_name = level_name
+      return @_new_jump_signal start, source, level_name
+    #.......................................................................................................
+    for lexeme from @_scan_6_insert_startstop_lnr source then switch true
+      #.....................................................................................................
+      when lexeme.fqname is '$signal.start'
+        yield lexeme
+        yield new_jump_signal 0, @start_level.name
+      #.....................................................................................................
+      when lexeme.fqname is '$signal.stop'
+        yield new_jump_signal lexeme.start, null
+        yield lexeme
+      #.....................................................................................................
+      when lexeme.is_user
+        { token, } = lexeme
+        yield new_jump_signal lexeme.start,  token.level.name if token.level.name  isnt prv_level_name
+        yield new_jump_signal lexeme.start, lexeme.level.name if lexeme.level.name isnt prv_level_name
+        yield lexeme if token.emit
+      #.....................................................................................................
+      else yield lexeme
     #.......................................................................................................
     return null
 
