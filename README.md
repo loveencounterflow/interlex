@@ -24,6 +24,7 @@
     - [Errors as Exceptions or Signals](#errors-as-exceptions-or-signals)
     - [Lexeme Status Properties](#lexeme-status-properties)
     - [Data Absorption, Data Reset](#data-absorption-data-reset)
+    - [Lexeme Casting](#lexeme-casting)
   - [To Do](#to-do)
   - [Is Done](#is-done)
   - [Don't](#dont)
@@ -261,6 +262,45 @@ without there being any ASCII letters
 
 ### Data Absorption, Data Reset
 
+### Lexeme Casting
+
+
+* Can declare a `cast` property in token, level or grammar, will be checked in this order
+
+* `cast`—below called 'the cast method'—must be either a normal function or a generator function (i.e. a
+  function that contains `yield`)
+
+* Only the first `cast` property out of `token.cast?`, `level.cast` or `grammar.cast` will be used
+
+* The cast method will be called with a lexeme proxy that reflects all the properties of the current lexeme,
+  plus a property `lexeme` that returns the current lexeme instance itself; sounds complicated but enables
+  users to write something along the lines of `cast: ({ hit, source, lexeme, }) -> ...`, so it's possible to
+  *both* conveniently destructure the properties of the current lexeme *and* get hold of the current lexeme
+  itself—the latter being handy when wanting to emit additional lexemes *and* the current lexemes
+
+* When the cast method is a normal function (without `yield`), its return value will be silently discarded;
+  all one can do is modify properties. Observe that the way JavaScript's by value / by reference semantics
+  work, re-assigning a destructured property will (of course) *not* modify that property on the lexeme; for
+  that you'll need the actual lexeme to do e.g. `lexeme.hit = 'occupied!'` (not wise but works). One *can*
+  however modify destructured mutable properties, and this will commonly be the `data` dictionary.
+
+* There's no way from within a non-generator cast method to prevent a lexeme from being issued or to issue
+  additional lexemes; for that one needs to use a generator cast method.
+
+* The call signature of a generator cast method is the same as that of a non-generator cast method.
+  Generator cast methods are more flexible because they allow to `yield` additional lexemes and choose not
+  to issue the current lexeme as seen fit. For example, this generator cast method:
+  ```coffee
+  cast = ({ hit, start, source, new_lexeme, lexeme, }) ->
+    unless hit is 'c'
+      yield lexeme
+      return null
+    yield new_lexeme 'error.nolikedis', start, source, { letter: hit, }
+    return null
+  ```
+  will issue a new `nolikedis` lexeme defined on the grammar's user-defined `error` level when the `hit` of
+  the current lexeme happens to be a lower case letter `c`; otherwise, it `yield`s the current lexeme
+  untouched.
 
 ## To Do
 
