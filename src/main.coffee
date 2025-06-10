@@ -174,7 +174,9 @@ class Token
     hide @, 'jump',                 ( @constructor._parse_jump cfg.jump, @level ) ? null
     hide @, 'merge',                cfg.merge
     hide @, 'emit',                 cfg.emit
-    hide @, 'cast',                 cfg.cast
+    { cast, cast_method, } = ilx.cfg_cast.$describe cfg.cast
+    hide @, 'cast',                 cast
+    hide @, 'cast_method',          cast_method
     ### TAINT use proper typing ###
     hide @, 'data_merge_strategy', switch true
       when @merge is false                        then null
@@ -231,7 +233,6 @@ class Lexeme
     @data                 = Object.create null
     set_getter @, 'fqname',     => "#{@level.name}.#{@name}"
     set_getter @, 'length',     => @hit.length
-    # set_getter @, 'is_error',   => @token.level.name in [ '$error', 'error', ]
     set_getter @, 'is_error',   => /^\$?error$/.test @token.level.name
     set_getter @, 'is_signal',  => @token.level.name is '$signal'
     set_getter @, 'is_system',  => @token.level.is_system
@@ -246,6 +247,12 @@ class Lexeme
       return false
     #.......................................................................................................
     return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  _as_proxy: ( Q... ) -> new Proxy @,
+    get: ( target, key ) ->
+      return target if key is 'lexeme'
+      return Reflect.get arguments...
 
   #---------------------------------------------------------------------------------------------------------
   _clone: ->
@@ -388,9 +395,12 @@ class Grammar
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
     hide @, 'levels',         Object.create null
-    hide @, 'cast',           @cfg.cast
     hide @, 'data',           Object.create null
     hide_getter @, 'has_errors', -> @state.errors.length > 0
+    #.......................................................................................................
+    { cast, cast_method, } = ilx.cfg_cast.$describe @cfg.cast
+    hide @, 'cast',         cast
+    hide @, 'cast_method',  cast_method
     #.......................................................................................................
     @_compile_cfg_data()
     @_add_system_levels()
@@ -691,10 +701,10 @@ class Grammar
       #.....................................................................................................
       switch cast_owner.cast_method
         when 'call'
-          cast_owner.cast.call @, lexeme
+          cast_owner.cast.call @, lexeme._as_proxy()
           yield lexeme
         when 'walk'
-          yield from cast_owner.cast.call @, lexeme
+          yield from cast_owner.cast.call @, lexeme._as_proxy()
         else throw new Error "Ωilx__27 should never happen: got unknown cast_method #{rpr cast_owner.cast_method}"
     return null
 
