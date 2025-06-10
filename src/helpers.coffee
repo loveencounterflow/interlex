@@ -15,6 +15,11 @@ class Levelstack
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
+  push: ( d ) ->
+    @data.push d
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
   pop: ( fallback = misfit ) ->
     if @is_empty
       return fallback unless fallback is misfit
@@ -32,21 +37,16 @@ class Levelstack
   popnpeek: ( fallback = misfit ) ->
     if @is_empty
       return fallback unless fallback is misfit
-    @data.pop()
       throw new Error "Ωilx___3 stack is empty"
+    @pop()
     return @data.at -1
 
   #---------------------------------------------------------------------------------------------------------
   pop_name: ( fallback = misfit ) ->
     if @is_empty
       return fallback unless fallback is misfit
-    return @data.pop().name
       throw new Error "Ωilx___4 stack is empty"
-
-  #---------------------------------------------------------------------------------------------------------
-
-  #---------------------------------------------------------------------------------------------------------
-  push: ( P... ) -> @data.push P...
+    return @pop().name
 
 
 # #===========================================================================================================
