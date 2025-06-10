@@ -325,6 +325,7 @@ without there being any ASCII letters
 * **`[—]`** ? allow `cast` to be an object whose keys are functions that will be applied to properties of
   `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`
 * **`[—]`** implement: `Grammar::cfg.before_scan`, `Grammar::cfg.after_scan`
+* **`[—]`** test, fix `reset_errors`
 * **`[—]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
   meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
 <!-- * **`[—]`** change token naming rules: -->
