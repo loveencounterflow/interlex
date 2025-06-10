@@ -20,7 +20,37 @@
   isa_optional
   create
   validate
-  validate_optional     } = require 'cleartype'
+  validate_optional
+  Typespace } = require 'cleartype'
+
+
+#===========================================================================================================
+{ ilx, std2, } = do =>
+
+  #---------------------------------------------------------------------------------------------------------
+  ilx =
+    cfg_cast:
+      $isa:       ( x ) -> ( not x? ) or ( @ct.isa std.function, x ) or ( @ct.isa std2.generatorfunction, x )
+      $describe:  ( x ) ->
+        ### TAINT rewrite using @ct.isa &c ###
+        return { cast: null,  cast_method: null,    } unless x?
+        return { cast: x,     cast_method: 'call',  } if ( isa std.function,           x )
+        return { cast: x,     cast_method: 'walk',  } if ( isa std2.generatorfunction, x )
+        ### TAINT code duplication ###
+        ### TAINT effort duplication ###
+        validate ilx.cfg_cast, x
+
+  #---------------------------------------------------------------------------------------------------------
+  std2 =
+    generatorfunction:
+      $isa:         ( x ) -> ( Object::toString.call x ) is '[object GeneratorFunction]'
+      $create:      -> ( -> yield return null )
+    generator:
+      $isa:         ( x ) -> ( Object::toString.call x ) is '[object Generator]'
+      $create:      -> ( -> yield return null )()
+
+  #---------------------------------------------------------------------------------------------------------
+  return { ilx, std2, }
 
 
 #===========================================================================================================
@@ -207,7 +237,7 @@ class Lexeme
     set_getter @, 'is_system',  => @token.level.is_system
     set_getter @, 'is_user',    => not @is_system
     hide       @, 'source',     match.input
-    hide       @, 'emit',       @emit.bind @
+    hide       @, 'new_lexeme', @new_lexeme.bind @
     #.......................................................................................................
     @assign match.groups
     @set_level token.level
@@ -233,13 +263,11 @@ class Lexeme
   assign: ( P... ) -> Object.assign @data, P...
 
   #---------------------------------------------------------------------------------------------------------
-  emit: ( fqname, start, source, data = null ) ->
+  new_lexeme: ( fqname, start, source, data = null ) ->
     token   = @token.grammar.token_from_fqname fqname
-    lexeme  = token._match_at start, source
-    lexeme.assign data
-    ### TAINT use API ###
-    @token.grammar.state.emitted_lexemes.unshift lexeme
-    return lexeme
+    R       = token._match_at start, source
+    R.assign data
+    return R
 
 
 #===========================================================================================================
@@ -247,14 +275,19 @@ class Level
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    cfg            ?= {}
-    @name           = cfg.name      ? 'gnd'
-    @is_system      = cfg.is_system ? false
-    @cast           = cfg.cast      ? null
-    hide @,         'grammar',  cfg.grammar
-    hide @,         'tokens',   Object.create null
-    hide_getter @,  'strategy', => @grammar.cfg.strategy
-    hide @,         'positions', new Set()
+    cfg                          ?= {}
+    @name                         = cfg.name      ? 'gnd'
+    @is_system                    = cfg.is_system ? false
+    { cast, cast_method, }        = ilx.cfg_cast.$describe cfg.cast
+    #.......................................................................................................
+    hide @, 'cast',         cast
+    hide @, 'cast_method',  cast_method
+    hide @, 'grammar',      cfg.grammar
+    hide @, 'tokens',       Object.create null
+    hide @, 'positions',    new Set()
+    #.......................................................................................................
+    hide_getter @, 'strategy', => @grammar.cfg.strategy
+    # hide @,         'cast',         validate ilx.cfg_cast, cfg.cast ? null
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -349,7 +382,8 @@ class Grammar
     @cfg                   ?= { cfg_template..., cfg..., }
     # @cfg.merge_jumps        = false unless @cfg.emit_signals
     @name                   = @cfg.name
-    @state                  = { lnr: null, errors: [], emitted_lexemes: [], }
+    @state                  = { lnr: null, errors: [], }
+    # @state                  = { lnr: null, errors: [], emitted_lexemes: [], }
     @start_level_name       = null
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
@@ -641,14 +675,27 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _scan_7_apply_casts: ( source ) ->
     for lexeme from @_scan_8_match_tokens source
-      if lexeme.is_user
-        switch true
-          when lexeme.token.cast? then lexeme.token.cast.call @, lexeme
-          when lexeme.level.cast? then lexeme.level.cast.call @, lexeme
-          when             @cast? then             @cast.call @, lexeme
-      ### TAINT use API ###
-      yield @state.emitted_lexemes.pop() while @state.emitted_lexemes.length > 0
-      yield lexeme
+      unless lexeme.is_user
+        yield lexeme
+        continue
+      #.....................................................................................................
+      cast_owner = switch true
+        when lexeme.token.cast? then lexeme.token
+        when lexeme.level.cast? then lexeme.level
+        when             @cast? then @
+        else null
+      #.....................................................................................................
+      unless cast_owner?
+        yield lexeme
+        continue
+      #.....................................................................................................
+      switch cast_owner.cast_method
+        when 'call'
+          cast_owner.cast.call @, lexeme
+          yield lexeme
+        when 'walk'
+          yield from cast_owner.cast.call @, lexeme
+        else throw new Error "Ωilx__27 should never happen: got unknown cast_method #{rpr cast_owner.cast_method}"
     return null
 
   #---------------------------------------------------------------------------------------------------------
