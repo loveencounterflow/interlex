@@ -352,18 +352,12 @@ without there being any ASCII letters
 * **`[—]`** implement a `select()` method somewhere that formalizes matching against lexemes
 * **`[—]`** implement API to check whether errors occurred
 * **`[—]`** implement `lexeme.terminate` to cause scanning to stop
-* **`[—]`** build lexer for EffString specs
-* **`[—]`** implement callbacks to e.g. cast data items to target values (as in `data: { count: '4', }` ->
-  `data: { count: 4, }`)
 * **`[—]`** when a token declares `emit: false` but matches some material, there will be holes in the scan
   that violate parts of the Five Scanner Constraints; how to deal with that?
 * **`[—]`** reconsider zero-length matches: when a token has matched the empty string, accept that token
   and—if the token has no jump—try the next token on the same level, if any; stop with the current level at
   the first token that either matches material, or has a jump, or both. This should become the new default
   strategy (next to `first` and `longest`)
-* **`[—]`** document `cast` setting for `Grammar::`, `Level::`, `Token::`
-* **`[—]`** ? allow `cast` to be an object whose keys are functions that will be applied to properties of
-  `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`
 * **`[—]`** implement: `Grammar::cfg.before_scan`, `Grammar::cfg.after_scan`
 * **`[—]`** test, fix `reset_errors`
 * **`[—]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
@@ -382,15 +376,10 @@ without there being any ASCII letters
   * reject the current token and continue, from the current position, to match tokens from the same(?) level
     that come after the current one; or
   * issue an error signal (probably the simpler option).
-  * **`[—]`** allow `cast()` to be either a `function` or a `generatorfunction`; in the latter case,
-    `cast()` is responsible to actually `yield` the current lexeme where intended; can `yield` any number of
-    additional or replacement lexemes as seen fit, or nothing with `yield return null`.
-    * **`[—]`** **Generator functions replace `lexeme.emit()`**
-  * **`[—]`** related: can we provide a way for users to issue error signals? create own error tokens?
-  * **`[—]`** related: `$error` name is fixed, but provide a setting to recognize error lexemes, default
-    being a match of `/^error(_.*)?|(.*_)?error$/` (in fact `regex"^(?>error(?>_.*)?|(?>.*_)?error)$"` using
-    [atomic groups](https://github.com/slevithan/regex?tab=readme-ov-file#atomic-groups)) against the token
-    or the level name
+* **`[—]`** `$error` name is fixed, but provide a setting to recognize error lexemes, default
+  being a match of `/^error(_.*)?|(.*_)?error$/` (in fact `regex"^(?>error(?>_.*)?|(?>.*_)?error)$"` using
+  [atomic groups](https://github.com/slevithan/regex?tab=readme-ov-file#atomic-groups)) against the token
+  or the level name
 * **`[—]`** implement `reserved` characters:
   * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
     start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
@@ -531,6 +520,15 @@ without there being any ASCII letters
 * **`[+]`** rename `Grammar::clear_errors()` -> `Grammar::reset_errors()`: `false`; when set to `true`,
   `Grammar::state.errors` will be cleared before each scan
 * **`[+]`** disallow non-unique token names
+* **`[+]`** build lexer for EffString specs
+* **`[+]`** implement callbacks to e.g. cast data items to target values (as in `data: { count: '4', }` ->
+  `data: { count: 4, }`)
+* **`[+]`** document `cast` setting for `Grammar::`, `Level::`, `Token::`
+* **`[+]`** allow `cast()` to be either a `function` or a `generatorfunction`; in the latter case,
+  `cast()` is responsible to actually `yield` the current lexeme where intended; can `yield` any number of
+  additional or replacement lexemes as seen fit, or nothing with `yield return null`.
+* **`[+]`** **Generator functions replace `lexeme.emit()`**
+* **`[+]`** related: can we provide a way for users to issue error signals? create own error tokens?
 
 
 ## Don't
@@ -559,3 +557,5 @@ without there being any ASCII letters
     * **`[—]`** <del>default to `false` to skip resetting</del>
     * **`[—]`** <del>or a template object (functions will be called); use `{}` to reset to empty</del>
     * **`[—]`** <del>use ClearType to implement as type</del>
+* **`[—]`** <del>? allow `cast` to be an object whose keys are functions that will be applied to properties of
+  `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`</del>
