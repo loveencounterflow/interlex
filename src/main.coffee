@@ -152,7 +152,7 @@ class Token
       when @merge is 'assign'                     then 'assign'
       when @merge is 'list'                       then 'list'
       when ( isa std.function, @merge )           then 'call'
-      else throw new Error "Ωilx___6 expected a valid input for `merge`, got #{rpr @merge}"
+      else throw new Error "Ωilx___6 expected a valid value for `merge`, got #{rpr @merge}"
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
