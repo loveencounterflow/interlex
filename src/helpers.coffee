@@ -44,19 +44,6 @@ class Levelstack
       throw new Error "Ωilx___4 stack is empty"
 
   #---------------------------------------------------------------------------------------------------------
-  peek_name: ( fallback = misfit ) ->
-    if @is_empty
-      return fallback unless fallback is misfit
-      throw new Error "Ωilx__14 stack is empty"
-    return ( @data.at -1 ).name
-
-  #---------------------------------------------------------------------------------------------------------
-  popnpeek_name: ( fallback = misfit ) ->
-    if @is_empty
-      return fallback unless fallback is misfit
-      throw new Error "Ωilx__15 stack is empty"
-    @data.pop()
-    return ( @data.at -1 ).name
 
   #---------------------------------------------------------------------------------------------------------
   push: ( P... ) -> @data.push P...
