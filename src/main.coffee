@@ -585,7 +585,7 @@ class Grammar
       return null
     #.......................................................................................................
     for lexeme from @_scan_4_startstop_lnr source
-      if ( not lexeme.token.merge ) or ( lexeme.level.name is '$signal' )
+      if ( not lexeme.token.merge ) or lexeme.is_signal
         yield from flush()
         yield lexeme
         continue
@@ -602,7 +602,7 @@ class Grammar
     prv_lexeme = null
     yield @_new_signal 'start', 0, source
     for lexeme from @_scan_4_apply_casts source
-      prv_lexeme = lexeme if lexeme.level.name isnt '$signal'
+      prv_lexeme = lexeme unless lexeme.is_signal
       yield lexeme
     yield @_new_signal 'stop', ( prv_lexeme?.stop ? 0 ), source
     @state.lnr++ unless @cfg.reset_lnr
