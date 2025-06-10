@@ -342,6 +342,10 @@ without there being any ASCII letters
   * reject the current token and continue, from the current position, to match tokens from the same(?) level
     that come after the current one; or
   * issue an error signal (probably the simpler option).
+  * **`[—]`** allow `cast()` to be either a `function` or a `generatorfunction`; in the latter case,
+    `cast()` is responsible to actually `yield` the current lexeme where intended; can `yield` any number of
+    additional or replacement lexemes as seen fit, or nothing with `yield return null`.
+    * **`[—]`** **Generator functions replace `lexeme.emit()`**
   * **`[—]`** related: can we provide a way for users to issue error signals? create own error tokens?
   * **`[—]`** related: `$error` name is fixed, but provide a setting to recognize error lexemes, default
     being a match of `/^error(_.*)?|(.*_)?error$/` (in fact `regex"^(?>error(?>_.*)?|(?>.*_)?error)$"` using
