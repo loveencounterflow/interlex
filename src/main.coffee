@@ -236,6 +236,7 @@ class Lexeme
   emit: ( fqname, start, source, data = null ) ->
     token   = @token.grammar.token_from_fqname fqname
     lexeme  = token._match_at start, source
+    lexeme.assign data
     ### TAINT use API ###
     @token.grammar.state.emitted_lexemes.unshift lexeme
     return lexeme
