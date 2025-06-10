@@ -478,6 +478,7 @@ class Grammar
     @_notify_levels()
     unless @start_level?
       throw new Error "Ωilx__22 no levels have been defined; unable to scan"
+    @state.stack = new Levelstack()
     yield from switch true
       when @cfg.merge_jumps     then  @_scan_1b_merge_jumps         source
       when @cfg.emit_signals    then  @_scan_2_validate_exhaustion  source
@@ -585,7 +586,7 @@ class Grammar
       lexemes.length = 0
       return null
     #.......................................................................................................
-    for lexeme from @_scan_4_startstop_lnr source
+    for lexeme from @_scan_4_startstop_lnr_TMP source
       if ( not lexeme.token.merge ) or lexeme.is_signal
         yield from flush()
         yield lexeme
@@ -596,6 +597,32 @@ class Grammar
       yield from flush()
       active_fqname = lexeme.fqname
       lexemes.push lexeme
+    return null
+
+  _scan_4_startstop_lnr_TMP: ( source ) ->
+    prv_level_name  = null
+    #.......................................................................................................
+    for lexeme from @_scan_4_startstop_lnr source
+      switch true
+        #...................................................................................................
+        when lexeme.fqname is '$signal.start'
+          yield lexeme
+          prv_level_name = @start_level.name;         yield @_new_jump_signal 0, source, prv_level_name
+        #...................................................................................................
+        when lexeme.fqname is '$signal.stop'
+          prv_level_name = null;                      yield @_new_jump_signal lexeme.start, source, prv_level_name
+          yield lexeme
+        #...................................................................................................
+        when lexeme.is_user
+          if lexeme.token.level.name isnt prv_level_name
+            prv_level_name = lexeme.token.level.name; yield @_new_jump_signal lexeme.start, source, prv_level_name
+          if lexeme.level.name isnt prv_level_name
+            prv_level_name = lexeme.level.name;       yield @_new_jump_signal lexeme.start, source, prv_level_name
+          yield lexeme if lexeme.token.emit
+        #...................................................................................................
+        else
+          yield lexeme
+    #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -622,11 +649,10 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _scan_5_match_tokens: ( source ) ->
     start           = 0
-    stack           = new Levelstack @start_level
     lexeme          = null
     old_level_name  = null
-    #.......................................................................................................
-    yield @_new_jump_signal 0, source, @start_level.name
+    stack           = @state.stack
+    stack.push @start_level
     #.......................................................................................................
     loop
       level         = stack.peek()
@@ -634,8 +660,6 @@ class Grammar
       lexeme        = level.match_at start, source
       break unless lexeme? # terminate if current level has no matching tokens
       start         = lexeme.stop
-      jump_before   = false
-      jump_after    = false
       #.....................................................................................................
       if ( jump = lexeme.jump )?
         switch jump.action
@@ -643,22 +667,12 @@ class Grammar
           when 'back' then  new_level = stack.popnpeek()
           else throw new Error "Ωilx__27 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
-          jump_before  = true
           lexeme.set_level new_level
-        else
-          jump_after   = true
       #.....................................................................................................
-      if jump_before then yield @_new_jump_signal lexeme.start, source, lexeme.level.name
-      ### TAINT use API ###
-      yield @state.emitted_lexemes.pop() while @state.emitted_lexemes.length > 0
-      yield lexeme if lexeme.token.emit
-      if jump_after  then yield @_new_jump_signal        start, source,    new_level.name
+      yield lexeme
       ### TAINT this should really check for lexeme.terminate ###
       break if lexeme.is_error
     #.......................................................................................................
-    while not stack.is_empty
-      stack.pop_name null
-      yield @_new_jump_signal start, source, ( stack.peek_name null )
     return null
 
   #---------------------------------------------------------------------------------------------------------
