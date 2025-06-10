@@ -479,10 +479,7 @@ class Grammar
     unless @start_level?
       throw new Error "Ωilx__22 no levels have been defined; unable to scan"
     @state.stack = new Levelstack()
-    yield from switch true
-      when @cfg.merge_jumps     then  @_scan_1b_merge_jumps         source
-      when @cfg.emit_signals    then  @_scan_2_validate_exhaustion  source
-      else                            @_scan_1a_remove_signals      source
+    yield from @_scan_1_filter_signals source
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -492,16 +489,19 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_1a_remove_signals: ( source ) ->
-    for lexeme from @_scan_2_validate_exhaustion source
-      yield lexeme if ( lexeme.fqname is '$signal.error' ) or ( lexeme.level.name isnt '$signal' )
+  _scan_1_filter_signals: ( source ) ->
+    if @cfg.emit_signals
+      yield from @_scan_2_merge_jumps source
+    else
+      for lexeme from @_scan_2_merge_jumps source
+        yield lexeme if lexeme.is_user or lexeme.is_error
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_1b_merge_jumps: ( source ) ->
+  _scan_2_merge_jumps: ( source ) ->
     ### Consolidate all contiguous jump signals into single signal ###
     buffer = []
-    for lexeme from @_scan_2_validate_exhaustion source
+    for lexeme from @_scan_3_validate_exhaustion source
       #.....................................................................................................
       if lexeme.fqname is '$signal.jump'
         buffer.push lexeme
@@ -528,11 +528,11 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_2_validate_exhaustion: ( source ) ->
+  _scan_3_validate_exhaustion: ( source ) ->
     is_first    = true
     last_idx    = source.length
     #.......................................................................................................
-    for lexeme from @_scan_3_merge source
+    for lexeme from @_scan_4_merge source
       switch true
         #...................................................................................................
         when lexeme.fqname is '$signal.stop'
@@ -558,7 +558,7 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_3_merge: ( source ) ->
+  _scan_4_merge: ( source ) ->
     lexemes       = []
     active_fqname = null
     #.......................................................................................................
@@ -586,7 +586,7 @@ class Grammar
       lexemes.length = 0
       return null
     #.......................................................................................................
-    for lexeme from @_scan_4_startstop_lnr_TMP source
+    for lexeme from @_scan_5_insert_jumps source
       if ( not lexeme.token.merge ) or lexeme.is_signal
         yield from flush()
         yield lexeme
@@ -599,11 +599,11 @@ class Grammar
       lexemes.push lexeme
     return null
 
-  _scan_4_startstop_lnr_TMP: ( source ) ->
+  #---------------------------------------------------------------------------------------------------------
+  _scan_5_insert_jumps: ( source ) ->
     prv_level_name    = null
-    # stack_level_name  = null
     #.......................................................................................................
-    for lexeme from @_scan_4_startstop_lnr source
+    for lexeme from @_scan_6_insert_startstop_lnr source
       switch true
         #...................................................................................................
         when lexeme.fqname is '$signal.start'
@@ -611,12 +611,6 @@ class Grammar
           prv_level_name = @start_level.name;         yield @_new_jump_signal 0, source, prv_level_name
         #...................................................................................................
         when lexeme.fqname is '$signal.stop'
-          # loop
-          #   if @state.stack.length < 2
-          #     @state.stack.pop() while @state.stack.length > 0
-          #     break
-          #   stack_level_name = @state.stack.popnpeek()
-          #   prv_level_name = stack_level_name;        yield @_new_jump_signal lexeme.start, source, stack_level_name
           prv_level_name = null;                      yield @_new_jump_signal lexeme.start, source, prv_level_name
           yield lexeme
         #...................................................................................................
@@ -633,10 +627,10 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_4_startstop_lnr: ( source ) ->
+  _scan_6_insert_startstop_lnr: ( source ) ->
     prv_lexeme = null
     yield @_new_signal 'start', 0, source
-    for lexeme from @_scan_4_apply_casts source
+    for lexeme from @_scan_7_apply_casts source
       prv_lexeme = lexeme unless lexeme.is_signal
       yield lexeme
     yield @_new_signal 'stop', ( prv_lexeme?.stop ? 0 ), source
@@ -644,8 +638,8 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_4_apply_casts: ( source ) ->
-    for lexeme from @_scan_5_match_tokens source
+  _scan_7_apply_casts: ( source ) ->
+    for lexeme from @_scan_8_match_tokens source
       if lexeme.is_user
         switch true
           when lexeme.token.cast? then lexeme.token.cast.call @, lexeme
@@ -657,7 +651,7 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _scan_5_match_tokens: ( source ) ->
+  _scan_8_match_tokens: ( source ) ->
     start           = 0
     lexeme          = null
     old_level_name  = null
