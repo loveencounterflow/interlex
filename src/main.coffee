@@ -528,6 +528,11 @@ class Grammar
     @reset_data()   if @cfg.reset_data
     @reset_stack()  if @cfg.reset_stack
     @_notify_levels()
+    yield from @_scan_legato source
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _scan_legato: ( source ) ->
     unless @start_level?
       throw new Error "Ωilx__22 no levels have been defined; unable to scan"
     yield from @_scan_1_filter_signals source
