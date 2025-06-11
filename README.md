@@ -265,6 +265,8 @@ without there being any ASCII letters
 
 ### Continuation: Linewise Scanning and EOL Suppletion
 
+* Two scanning modes, 'staccato' and 'legato'
+
 * `Grammar::cfg.supply_eol` (default: `''`) can be set to a string which will be 'supplied' to the `source`
   before scan starts.
 
@@ -398,8 +400,12 @@ without there being any ASCII letters
 * **`[—]`** consider to rename 'levels' -> 'tracks', 'jumps' -> 'switches'
 * **`[—]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
   meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
-<!-- * **`[—]`** change token naming rules: -->
-  <!-- * name should be unique in the 'effective level', i.e. the jump target -->
+  * **`[—]`** consider to use terms 'legato', 'staccato'
+  * **`[—]`** legato scanning mode necessitates issuing an 'end of text' signal that is either of a higher
+    order than the existing `$signal.stop` or replaces it
+    * as long as `Grammar::scan()` is called individually for each chunk of text, that can only be triggered
+      explicitly by the user; an alternative would be a new method `Grammar::scan_all()` (`scan_lines()`,
+      `scan_chunks()`) that exhaust an iterator over chunks of source
 * **`[—]`** `Grammar::cfg.absorb_data`: `false`; when set to `true`, copies all `lexeme.data`
 * **`[—]`** should we use a `Map` instead of a POD for `data`?`
 * **`[—]`** allow empty matches for empty inputs
