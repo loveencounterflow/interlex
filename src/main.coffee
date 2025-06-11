@@ -385,11 +385,12 @@ class Grammar
       reset_lnr:        false
       reset_data:       false
       reset_errors:     false
+      reset_stack:      true
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
     # @cfg.merge_jumps        = false unless @cfg.emit_signals
     @name                   = @cfg.name
-    @state                  = { lnr: null, errors: [], }
+    @state                  = { lnr: null, errors: [], stack: new Levelstack(), }
     # @state                  = { lnr: null, errors: [], emitted_lexemes: [], }
     @start_level_name       = null
     hide @, 'system_tokens',  null
@@ -432,9 +433,15 @@ class Grammar
     return null
 
   #---------------------------------------------------------------------------------------------------------
+  reset_stack: ->
+    @state.stack.clear()
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
   reset: ->
     @reset_lnr()
     @reset_data()
+    @reset_stack()
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -519,6 +526,7 @@ class Grammar
   scan: ( source ) ->
     @reset_errors() if @cfg.reset_errors
     @reset_data()   if @cfg.reset_data
+    @reset_stack()  if @cfg.reset_stack
     @_notify_levels()
     unless @start_level?
       throw new Error "Ωilx__22 no levels have been defined; unable to scan"
