@@ -376,7 +376,6 @@ class Grammar
       name:             'g'
       strategy:         'first'
       emit_signals:     true
-      # merge_jumps:      true
       loop_errors:      'emit'
       earlystop_errors: 'emit'
       cast:             null
@@ -388,10 +387,8 @@ class Grammar
       reset_stack:      true
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
-    # @cfg.merge_jumps        = false unless @cfg.emit_signals
     @name                   = @cfg.name
     @state                  = { lnr: null, errors: [], stack: new Levelstack(), }
-    # @state                  = { lnr: null, errors: [], emitted_lexemes: [], }
     @start_level_name       = null
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
