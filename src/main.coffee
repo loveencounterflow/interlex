@@ -530,7 +530,6 @@ class Grammar
     @_notify_levels()
     unless @start_level?
       throw new Error "Ωilx__22 no levels have been defined; unable to scan"
-    @state.stack = new Levelstack()
     yield from @_scan_1_filter_signals source
     return null
 
