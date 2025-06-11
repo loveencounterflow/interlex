@@ -24,6 +24,7 @@
     - [Errors as Exceptions or Signals](#errors-as-exceptions-or-signals)
     - [Lexeme Status Properties](#lexeme-status-properties)
     - [Data Absorption, Data Reset](#data-absorption-data-reset)
+    - [Continuation: Linewise Scanning and EOL Suppletion](#continuation-linewise-scanning-and-eol-suppletion)
     - [Lexeme Casting](#lexeme-casting)
   - [To Do](#to-do)
   - [Is Done](#is-done)
@@ -262,6 +263,36 @@ without there being any ASCII letters
 
 ### Data Absorption, Data Reset
 
+### Continuation: Linewise Scanning and EOL Suppletion
+
+* `Grammar::cfg.supply_eol` (default: `''`) can be set to a string which will be 'supplied' to the `source`
+  before scan starts.
+
+* This means the source user passes to `Grammar::scan()` and the `source` property of lexemes may differ by
+  whatever `supply_eol` is set to; most commonly that difference will be `'\n'`, `U+000a End Of Line`.
+
+* **Note**
+
+  > EOL Suppletion sadly also implies that when a file with different or mixed line endings is sanned for
+  > lines and then > `U+000a` is supplied where missing, the counts the grammar keeps may differ from the
+  > counts one would have to use when accessing the file through low-level file APIs such as NodeJS
+  > `node:fs#read()`—but, then again, the `position` argument required by those represent *bytes* while the
+  > positions that InterLex works with represent Unicode&nbsp;/ UTF-8 *code units* which are a very
+  > different beast already.
+  >
+  > In case the above turn out to be a real-world concern one can always opt to leave
+  > `Grammar::cfg.supply_eol` set to the empty string and supply lines with the actual line ending
+  > characters preserved; as the case may be, the token matchers would then also be adjusted to deal with
+  > different line endings, as the case may be. But, all told, one can then be reasonably sure that the
+  > counts derived by piecing together all the `hit`s up to a given point (and applying e.g. NodeJS
+  > `Buffer.byteLength()`) will in fact represent valid, matching offsets into the file of origin.
+
+* When scanning in continuous mode, lexemes that may cross line boundaries must, when suppletion is used,
+  be explicitly be formulated so as to accept those line boundaries; an alternative to this is to not
+  supply synthetic line endings but
+  * insert appropriate characters between scans, or
+  * use a cast generator to issue e.g. a lexeme representing some whitespace when EOL is encountered.
+
 ### Lexeme Casting
 
 
@@ -360,6 +391,11 @@ without there being any ASCII letters
   strategy (next to `first` and `longest`)
 * **`[—]`** implement: `Grammar::cfg.before_scan`, `Grammar::cfg.after_scan`
 * **`[—]`** test, fix `reset_errors`
+* **`[—]`** disallow forward jumps to a 'lower' level i.o.w. enforce **topological order** of levels: no
+  circuits, just jump-to and jump-back. One reason for this: when you write a grammar with several levels
+  and you jump from level A to level B and then at some point you again jump forward from B to A—it's almost
+  certainly an error and jumping back from B was the intention.
+* **`[—]`** consider to rename 'levels' -> 'tracks', 'jumps' -> 'switches'
 * **`[—]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
   meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
 <!-- * **`[—]`** change token naming rules: -->
