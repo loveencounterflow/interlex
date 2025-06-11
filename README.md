@@ -27,6 +27,8 @@
     - [Continuation: Linewise Scanning and EOL Suppletion](#continuation-linewise-scanning-and-eol-suppletion)
     - [Lexeme Casting](#lexeme-casting)
   - [To Do](#to-do)
+    - [To Do: Reserved Characters, Catchall Tokens](#to-do-reserved-characters-catchall-tokens)
+    - [To Do: Continuation](#to-do-continuation)
   - [Is Done](#is-done)
   - [Don't](#dont)
 
@@ -398,64 +400,72 @@ without there being any ASCII letters
   and you jump from level A to level B and then at some point you again jump forward from B to A—it's almost
   certainly an error and jumping back from B was the intention.
 * **`[—]`** consider to rename 'levels' -> 'tracks', 'jumps' -> 'switches'
-* **`[—]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
-  meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
-  * **`[—]`** consider to use terms 'legato', 'staccato'
-  * **`[—]`** legato scanning mode necessitates issuing an 'end of text' signal that is either of a higher
-    order than the existing `$signal.stop` or replaces it
-    * as long as `Grammar::scan()` is called individually for each chunk of text, that can only be triggered
-      explicitly by the user; an alternative would be a new method `Grammar::scan_all()` (`scan_lines()`,
-      `scan_chunks()`) that exhaust an iterator over chunks of source
 * **`[—]`** `Grammar::cfg.absorb_data`: `false`; when set to `true`, copies all `lexeme.data`
 * **`[—]`** should we use a `Map` instead of a POD for `data`?`
 * **`[—]`** allow empty matches for empty inputs
 * **`[—]`** implement <del>`merge: 'text'`</del> <ins>`merge: 'join'`</ins> to concatenate all lexeme data
   property values
-* **`[—]`** if possible, implement a way to signal from a token's `cast` function that the token is invalid
-  or that another token should be chosen; if that was possible, one could use somehwat more generic matchers
-  for stuff like, say, float literals and then simply test whether in the `cast` function `parseFloat()`
-  returns a `float` or `NaN`; in the latter case, one could either
-  * reject the current token and continue, from the current position, to match tokens from the same(?) level
-    that come after the current one; or
-  * issue an error signal (probably the simpler option).
 * **`[—]`** `$error` name is fixed, but provide a setting to recognize error lexemes, default
   being a match of `/^error(_.*)?|(.*_)?error$/` (in fact `regex"^(?>error(?>_.*)?|(?>.*_)?error)$"` using
   [atomic groups](https://github.com/slevithan/regex?tab=readme-ov-file#atomic-groups)) against the token
   or the level name
+
+### To Do: Reserved Characters, Catchall Tokens
+
 * **`[—]`** implement `reserved` characters:
-  * **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
-    start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
-    unmatched text portions
-    * **`[—]`** at any point, allow to construct a pattern that *only* matches reserved characters and a pattern
-      that matches anything *except* reserved characters
-  * **`[—]`** modify behavior of catchall and reserved:
-    * **`[—]`** catchall and reserved are 'declared', not 'added', meaning they will be created implicitly when
-      `_finalize()` is called
-    * **`[—]`** catchall and reserved always come last (in this order)
-    * **`[—]`** documentation (DRAFT):
-      ## Reserved and Catchall Lexemes
+* **`[—]`** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
+  start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
+  unmatched text portions
+  * **`[—]`** at any point, allow to construct a pattern that *only* matches reserved characters and a pattern
+    that matches anything *except* reserved characters
+* **`[—]`** modify behavior of catchall and reserved:
+  * **`[—]`** catchall and reserved are 'declared', not 'added', meaning they will be created implicitly when
+    `_finalize()` is called
+  * **`[—]`** catchall and reserved always come last (in this order)
+  * **`[—]`** documentation (DRAFT):
+    ## Reserved and Catchall Lexemes
 
-      Each lexeme can announce so-called 'reserved' characters or words; these are for now restricted to strings and
-      lists of strings, but could support regexes in the future as well. The idea is to collect those characters
-      and character sequences that are 'triggers' for a given lexeme and, when the mode has been defined, to
-      automatically construct two lexemes that will capture
+    Each lexeme can announce so-called 'reserved' characters or words; these are for now restricted to strings and
+    lists of strings, but could support regexes in the future as well. The idea is to collect those characters
+    and character sequences that are 'triggers' for a given lexeme and, when the mode has been defined, to
+    automatically construct two lexemes that will capture
 
-      * all the remaining sequences of non-reserved characters; this is called a *catchall* lexeme (whose default
-        TID is set to `$catchall` unless overriden by a `lxid` setting). The catchall lexeme's function lies in
-        explicitly capturing any part of the input that has not been covered by any other lexemer higher up in the
-        chain of patterns, thereby avoiding a more unhelpful `$error` token that would just say 'no match at
-        position so-and-so' and terminate lexing.
+    * all the remaining sequences of non-reserved characters; this is called a *catchall* lexeme (whose default
+      TID is set to `$catchall` unless overriden by a `lxid` setting). The catchall lexeme's function lies in
+      explicitly capturing any part of the input that has not been covered by any other lexemer higher up in the
+      chain of patterns, thereby avoiding a more unhelpful `$error` token that would just say 'no match at
+      position so-and-so' and terminate lexing.
 
-      * all the remaining *reserved* characters (default TID: `$reserved`); these could conceivably be used to
-        produce a list of fishy parts in the source, and / or to highlight such places in the output, or, if one
-        feels so inclined, terminate parsing with an error message. For example, when one wants to translate
-        Markdown-like markup syntax to HTML, one could decide that double stars start and end bold type
-        (`<strong>...</strong>`), or, when a single asterisk is used at the start of a line, indicate unordered
-        list items (`<ul>...<li>...</ul>`), and are considered illegal in any other position except inside code
-        stretches and when escaped with a backslash. Such a mechanism can help to uncover problems with the source
-        text instead of just glancing over dubious markup and 'just do something', possibly leading to subtle
-        errors.
+    * all the remaining *reserved* characters (default TID: `$reserved`); these could conceivably be used to
+      produce a list of fishy parts in the source, and / or to highlight such places in the output, or, if one
+      feels so inclined, terminate parsing with an error message. For example, when one wants to translate
+      Markdown-like markup syntax to HTML, one could decide that double stars start and end bold type
+      (`<strong>...</strong>`), or, when a single asterisk is used at the start of a line, indicate unordered
+      list items (`<ul>...<li>...</ul>`), and are considered illegal in any other position except inside code
+      stretches and when escaped with a backslash. Such a mechanism can help to uncover problems with the source
+      text instead of just glancing over dubious markup and 'just do something', possibly leading to subtle
+      errors.
 
+
+### To Do: Continuation
+
+* **`[—]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
+  meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
+* **`[—]`** consider to use terms 'legato', 'staccato'
+* **`[—]`** need setting for `Grammar:cfg`: `continuation` (either `'staccato'`, `'legato'`, `'lines'`);
+  `continuation: 'lines'` implies setting `supply_eol` to `'\n'`
+* **`[—]`** implement an `offset` (other names: `delta`, `dx`; `cud` for Code Unit Delta; `dcu` for Delta
+  Code Units) that must be added to `start` to get the index position in the concatenated sources, call it
+  `abspos := offset + start`
+  * **`[—]`** should `Lexeme::pos` represent
+    * only `abspos` replacing local `start`, or
+    * `offset` separately, or
+    * only local position (no change required)?
+* **`[—]`** legato scanning mode necessitates issuing an 'end of text' signal that is either of a higher
+  order than the existing `$signal.stop` or replaces it
+  * as long as `Grammar::scan()` is called individually for each chunk of text, that can only be triggered
+    explicitly by the user; an alternative would be a new method `Grammar::scan_all()` (`scan_lines()`,
+    `scan_chunks()`) that exhaust an iterator over chunks of source
 
 
 
@@ -571,6 +581,13 @@ without there being any ASCII letters
   additional or replacement lexemes as seen fit, or nothing with `yield return null`.
 * **`[+]`** **Generator functions replace `lexeme.emit()`**
 * **`[+]`** related: can we provide a way for users to issue error signals? create own error tokens?
+* **`[+]`** if possible, implement a way to signal from a token's `cast` function that the token is invalid
+  or that another token should be chosen; if that was possible, one could use somehwat more generic matchers
+  for stuff like, say, float literals and then simply test whether in the `cast` function `parseFloat()`
+  returns a `float` or `NaN`; in the latter case, one could either
+  * <del>reject the current token and continue, from the current position, to match tokens from the same(?) level
+    that come after the current one; or</del>
+  * issue an error signal (probably the simpler option).
 
 
 ## Don't
