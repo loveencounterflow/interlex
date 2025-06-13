@@ -421,6 +421,10 @@ without there being any ASCII letters
 * we still want to check that no circular situations occur; in loose terms, it's OK to have both `in A:
   gosub C; in C: return;` and `in B: gosub C; in C: return;` (go from different levels to a third one which
   then returns to the caller); it's *not* OK to have `in A: goto C; in C: goto A` directly or indirectly
+* Observe that when we use `gosub` and `return` as analogies, what we really use, name `jump: C` (jump to
+  `C`) and `jump: '..'` (jump back) differs in that when you jump back, scanning will continue with the
+  *first* token on the previous level, not the previously used token. This is different from `a; gosub C;
+  b;` where you would expect to continue with `b` (not `a`) when `C` `return`s.
 * it's OK to have unconnected / isolated levels (which may or may not be used by calls to `{ new_lexeme, }`
   inside of `cast` methods)
 * so we have both re-use of sublevels and isolated levels which are additional reasons to *not* view levels
