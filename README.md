@@ -444,10 +444,11 @@ without there being any ASCII letters
   has to be done manually (and obviously in that case our NCR recognizer would have to operate on individual
   code points as in `'&'`, `'#'`, `'x'`, `/[0-9a-f]+/i`, `';'`).
 
-* **`[—]`** Come to think of it: is it promising to implement 'staggering' levels where, in order to proceed
-  on that level, each step has to match in order of declaration? This would necessitate to pick up at the
-  successor of the very token that was considered last in the most recent scan, so in the above example,
-  continue with matching `'x'` when the last scan had recognized `'#'`.
+* **`[—]`** Come to think of it: is it promising to implement 'staggering' (or 'sticky'??) levels where, in
+  order to proceed on that level, each step has to match in order of declaration? This would necessitate to
+  pick up at the successor of the very token that was considered last in the most recent scan, so in the
+  above example, continue with matching `'x'` when the last scan had recognized `'#'`. In any event, such
+  levels should allow zero matches to account for optional parts.
 
 * To conclude, when writing a grammar one should know which kinds of chunking one wants to allow and be
   aware of chunkings that are disallowed; in a good lot of cases, a sensible choice will be to scan lines of
