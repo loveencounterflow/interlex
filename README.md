@@ -27,6 +27,8 @@
     - [Continuation: Linewise Scanning and EOL Suppletion](#continuation-linewise-scanning-and-eol-suppletion)
     - [Lexeme Casting](#lexeme-casting)
   - [To Do](#to-do)
+    - [To Do: Levels must obey Topological Ordering Constraints](#to-do-levels-must-obey-topological-ordering-constraints)
+    - [To Do: No Arbitrary Chunking](#to-do-no-arbitrary-chunking)
     - [To Do: Reserved Characters, Catchall Tokens](#to-do-reserved-characters-catchall-tokens)
     - [To Do: Continuation](#to-do-continuation)
   - [Is Done](#is-done)
@@ -159,12 +161,11 @@ flags](https://github.com/slevithan/regex?tab=readme-ov-file#-flags):
   contains **(1)**&nbsp;either **(a)**&nbsp;another level's name, or **(b)**&nbsp;a symbolic string `..` to
   indicate 'jump back from current level, return to the previous level'; and **(2)**&nbsp;an optional 'carry
   mark'.
-* Jumps can be either 'sticky' or 'carrying' depending on whether the lexeme produced from the respective
-  token will 'stick' to the token's level or be 'carried' along to the new level (the jump's target). Sticky
-  jumps have no explicit marker as they represent the 'default of least surprise' (a lexeme looks almost
-  like the token it was produced by, after all); carrying jumps are indicated by an `!` exclamation mark
-  behind the jump target, so for example a token declaration in level `gnd` that contains `{ jump:
-  'otherlevel!', }` indicates that the resulting lexeme's `level` will be `otherlevel`, not `gnd`."
+* Jumps can be either 'staying' or 'carrying' depending on whether the lexeme produced from the token will
+  'stay' in the token's level or be 'carried' along to the new level (the jump's target). Non-carrying jumps
+  have no explicit marker; carrying jumps are indicated by an `!` exclamation mark behind the jump target,
+  so for example a token declaration in level `gnd` that contains `{ jump: 'otherlevel!', }` indicates that
+  the resulting lexeme's `level` will be `otherlevel`, not `gnd`."
 
 ## To Be Written
 
@@ -378,6 +379,7 @@ without there being any ASCII letters
   * **`[—]`** bijection
   * **`[—]`** monotony
     * **`[+]`** loop detection
+  * **`[—]`** the above are ?better named 'scanning' or 'lexeme' constraints
 * **`[—]`** based on the Five Scanner Constraints, can we set an upper limit to the number of steps
   necessary to scan a given source with a known (upper limit of) number codepoints? Does it otherwise fall
   out from the implemented algorithm that we can never enter an infinite loop when scanning?
@@ -395,10 +397,6 @@ without there being any ASCII letters
   strategy (next to `first` and `longest`)
 * **`[—]`** implement: `Grammar::cfg.before_scan`, `Grammar::cfg.after_scan`
 * **`[—]`** test, fix `reset_errors`
-* **`[—]`** disallow forward jumps to a 'lower' level i.o.w. enforce **topological order** of levels: no
-  circuits, just jump-to and jump-back. One reason for this: when you write a grammar with several levels
-  and you jump from level A to level B and then at some point you again jump forward from B to A—it's almost
-  certainly an error and jumping back from B was the intention.
 * **`[—]`** consider to rename 'levels' -> 'tracks', 'jumps' -> 'switches'
 * **`[—]`** `Grammar::cfg.absorb_data`: `false`; when set to `true`, copies all `lexeme.data`
 * **`[—]`** should we use a `Map` instead of a POD for `data`?`
@@ -409,6 +407,53 @@ without there being any ASCII letters
   being a match of `/^error(_.*)?|(.*_)?error$/` (in fact `regex"^(?>error(?>_.*)?|(?>.*_)?error)$"` using
   [atomic groups](https://github.com/slevithan/regex?tab=readme-ov-file#atomic-groups)) against the token
   or the level name
+
+### To Do: Levels must obey Topological Ordering Constraints
+
+* **`[—]`** disallow forward jumps to a 'lower' level i.o.w. enforce **topological order** of levels: no
+  circuits, just jump-to and jump-back. One reason for this: when you write a grammar with several levels
+  and you jump from level A to level B and then at some point you again jump forward from B to A—it's almost
+  certainly an error and jumping back from B was the intention.
+* we *could* implement levels as being nested inside other levels to form a tree, so a level is a list of
+  'token_or_sublevel' elements; however, this has the disadvantage that levels could no longer be recycled
+  to be used from different levels (such as wanting to recognize an integer literal both from a double and a
+  single-quote-string level). It would also violate the "flat is better than nested" principle.
+* we still want to check that no circular situations occur; in loose terms, it's OK to have both `in A:
+  gosub C; in C: return;` and `in B: gosub C; in C: return;` (go from different levels to a third one which
+  then returns to the caller); it's *not* OK to have `in A: goto C; in C: goto A` directly or indirectly
+* it's OK to have unconnected / isolated levels (which may or may not be used by calls to `{ new_lexeme, }`
+  inside of `cast` methods)
+* so we have both re-use of sublevels and isolated levels which are additional reasons to *not* view levels
+  as a tree structure.
+* Rather, we view levels as a akin to a flat list of functions that may call each other ('gosub'); as with
+  functions, it's not allowed to 'goto' some point in the middle of a level; additionally, we forbid direct
+  and indirect recursion (implied by topological ordering plus isolates).
+
+### To Do: No Arbitrary Chunking
+
+* We make no promise that a grammar will yield a collection of lexemes that remain identical across
+  arbitrary chunkings of the source (save for their positions).
+
+* For one thing, we have no way of making, say, a regex to match some kind of numerical character references
+  (NCR) like `&#x1311f;`, for example `/&#x[0-9a-f]+;/i`, match across calls to `Grammar::scan()`, so when a
+  source like `"the NCR &#x1311f; represents 𓄟 *ms*"` gets inadvertently split into `"the NCR &#x13"` and
+  `"11f; represents 𓄟 *ms*"`, we have no way to re-write `/&#x[0-9a-f];/i` programmatically to match first
+  the former half of the NCR, then the latter half of it.
+
+  It *is* possible to implement recognition of constructs that are impervious to arbitrary chunking but that
+  has to be done manually (and obviously in that case our NCR recognizer would have to operate on individual
+  code points as in `'&'`, `'#'`, `'x'`, `/[0-9a-f]+/i`, `';'`).
+
+* **`[—]`** Come to think of it: is it promising to implement 'staggering' levels where, in order to proceed
+  on that level, each step has to match in order of declaration? This would necessitate to pick up at the
+  successor of the very token that was considered last in the most recent scan, so in the above example,
+  continue with matching `'x'` when the last scan had recognized `'#'`.
+
+* To conclude, when writing a grammar one should know which kinds of chunking one wants to allow and be
+  aware of chunkings that are disallowed; in a good lot of cases, a sensible choice will be to scan lines of
+  text and allow some, but most of the time not all, tokens and levels to cross line boundaries. Typically,
+  one will allow block comments and string literals to extend across lines but restrict more 'compact' stuff
+  like the NCRs discussed above to single lines.
 
 ### To Do: Reserved Characters, Catchall Tokens
 
@@ -466,6 +511,19 @@ without there being any ASCII letters
   * as long as `Grammar::scan()` is called individually for each chunk of text, that can only be triggered
     explicitly by the user; an alternative would be a new method `Grammar::scan_all()` (`scan_lines()`,
     `scan_chunks()`) that exhaust an iterator over chunks of source
+* **`[—]`** better name than `sticky` for tokens that may extend across `scan()` calls?
+* **`[—]`** implement
+  * **`[—]`** <del>`Grammar::cfg.sticky`</del>
+  * **`[—]`** <del>`Level::cfg.sticky`</del>
+  * **`[—]`** `Token::cfg.sticky` *may* be needed to distinguish 're-scan from first token in previous
+    level' form 're-scan from *this* token in previous level'; the problem in the latter case is do we want
+    it at all and would we still have to try the other tokens in that previous level even when they come
+    *before* the sticky one? Then the implementation could 'rotate' the tokens so the sticky one comes
+    first, then the ones behind it, then the ones before it until the level is exhausted; implementation of
+    `Level` should use `Symbol.iterator` to implement that. But the question remains whether it's necessary
+    or at least advantageous to have several entry points to a level and how to judge which tokens should be
+    sticky and which ones non-sticky (maybe the level should be sticky)
+* **`[—]`** `Grammar::cfg.reset_stack` cannot be `true` if grammar or any level or any token is `sticky`
 
 
 
