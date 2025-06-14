@@ -196,6 +196,7 @@ class Token
     hide @, 'jump',                 ( @constructor._parse_jump cfg.jump, @level ) ? null
     hide @, 'merge',                cfg.merge
     hide @, 'emit',                 cfg.emit
+    set_getter @, 'fqname',     => "#{@level.name}.#{@name}"
     { cast, cast_method, } = ilx.cfg_cast.$describe cfg.cast
     hide @, 'cast',                 cast
     hide @, 'cast_method',          cast_method
