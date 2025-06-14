@@ -3,6 +3,8 @@
 
 #===========================================================================================================
 misfit                    = Symbol 'misfit'
+{ std
+  isa                   } = require 'cleartype'
 
 #===========================================================================================================
 class Levelstack
@@ -104,21 +106,20 @@ quote_source = ( text, idx, width = 50, marker = '⚠' ) ->
 #       R[ key ]  = value
 #   return R
 
-# #===========================================================================================================
-# get_instance_methods = ( instance ) ->
-#   isa_function  = ( require './builtins' ).std.function.$isa
-#   R             = {}
-#   for key, { value: method, } of Object.getOwnPropertyDescriptors instance
-#     continue if key is 'constructor'
-#     continue unless isa_function method
-#     R[ key ] = method
-#   return R
+#===========================================================================================================
+get_instance_methods = ( instance ) ->
+  R             = {}
+  for key, { value: method, } of Object.getOwnPropertyDescriptors instance
+    continue if key is 'constructor'
+    continue unless std.function.$isa method
+    R[ key ] = method
+  return R
 
-# #===========================================================================================================
-# bind_instance_methods = ( instance ) ->
-#   for key, method of get_instance_methods Object.getPrototypeOf instance
-#     hide instance, key, method.bind instance
-#   return null
+#===========================================================================================================
+bind_instance_methods = ( instance ) ->
+  for key, method of get_instance_methods Object.getPrototypeOf instance
+    hide instance, key, method.bind instance
+  return null
 
 #===========================================================================================================
 debug   = console.debug
@@ -135,8 +136,8 @@ module.exports = {
   insert_position_marker
   quote_source
   # create_pod_from_template
-  # get_instance_methods
-  # bind_instance_methods
+  get_instance_methods
+  bind_instance_methods
   debug
   info
   rpr }
