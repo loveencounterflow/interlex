@@ -533,9 +533,7 @@ without there being any ASCII letters
 
 * **`[—]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
   meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
-* **`[—]`** consider to use terms 'legato', 'staccato'
-* **`[—]`** need setting for `Grammar:cfg`: `continuation` (either `'staccato'`, `'legato'`, `'lines'`);
-  `continuation: 'lines'` implies setting `supply_eol` to `'\n'`
+* **`[—]`** `supply_eol` to `'\n'`
 * **`[—]`** implement an `offset` (other names: `delta`, `dx`; `cud` for Code Unit Delta; `dcu` for Delta
   Code Units) that must be added to `start` to get the index position in the concatenated sources, call it
   `abspos := offset + start`
@@ -548,19 +546,6 @@ without there being any ASCII letters
   * as long as `Grammar::scan()` is called individually for each chunk of text, that can only be triggered
     explicitly by the user; an alternative would be a new method `Grammar::scan_all()` (`scan_lines()`,
     `scan_chunks()`) that exhaust an iterator over chunks of source
-* **`[—]`** better name than `sticky` for tokens that may extend across `scan()` calls?
-* **`[—]`** implement
-  * **`[—]`** <del>`Grammar::cfg.sticky`</del>
-  * **`[—]`** <del>`Level::cfg.sticky`</del>
-  * **`[—]`** `Token::cfg.sticky` *may* be needed to distinguish 're-scan from first token in previous
-    level' form 're-scan from *this* token in previous level'; the problem in the latter case is do we want
-    it at all and would we still have to try the other tokens in that previous level even when they come
-    *before* the sticky one? Then the implementation could 'rotate' the tokens so the sticky one comes
-    first, then the ones behind it, then the ones before it until the level is exhausted; implementation of
-    `Level` should use `Symbol.iterator` to implement that. But the question remains whether it's necessary
-    or at least advantageous to have several entry points to a level and how to judge which tokens should be
-    sticky and which ones non-sticky (maybe the level should be sticky)
-* **`[—]`** `Grammar::cfg.reset_stack` cannot be `true` if grammar or any level or any token is `sticky`
 
 
 
@@ -683,6 +668,9 @@ without there being any ASCII letters
   * <del>reject the current token and continue, from the current position, to match tokens from the same(?) level
     that come after the current one; or</del>
   * issue an error signal (probably the simpler option).
+* **`[+]`** `Grammar.cfg.linking` <del>need setting for `Grammar:cfg`: `continuation` (either `'staccato'`,
+  `'legato'`, `'lines'`); `continuation: 'lines'` implies setting</del>
+* **`[+]`** `Grammar::cfg.reset_stack` cannot be `true` if grammar or any level or any token is `sticky`
 
 
 ## Don't
@@ -713,3 +701,16 @@ without there being any ASCII letters
     * **`[—]`** <del>use ClearType to implement as type</del>
 * **`[—]`** <del>? allow `cast` to be an object whose keys are functions that will be applied to properties of
   `Lexeme::data`; ex.: `{ fit: /(?<num>[0-9]+):(?<den>[0-9]+)/, cast: { num: parseInt, den: parseInt, }, }`</del>
+* **`[—]`** <del>consider to use terms 'legato', 'staccato'</del>
+* **`[—]`** <del>better name than `sticky` for tokens that may extend across `scan()` calls?</del>
+* **`[—]`** <del>implement</del>
+  * **`[—]`** <del>`Grammar::cfg.sticky`</del>
+  * **`[—]`** <del>`Level::cfg.sticky`</del>
+  * **`[—]`** <del>`Token::cfg.sticky` *may* be needed to distinguish 're-scan from first token in previous
+    level' form 're-scan from *this* token in previous level'; the problem in the latter case is do we want
+    it at all and would we still have to try the other tokens in that previous level even when they come
+    *before* the sticky one? Then the implementation could 'rotate' the tokens so the sticky one comes
+    first, then the ones behind it, then the ones before it until the level is exhausted; implementation of
+    `Level` should use `Symbol.iterator` to implement that. But the question remains whether it's necessary
+    or at least advantageous to have several entry points to a level and how to judge which tokens should be
+    sticky and which ones non-sticky (maybe the level should be sticky)</del>
