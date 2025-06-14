@@ -24,7 +24,7 @@
     - [Errors as Exceptions or Signals](#errors-as-exceptions-or-signals)
     - [Lexeme Status Properties](#lexeme-status-properties)
     - [Data Absorption, Data Reset](#data-absorption-data-reset)
-    - [Continuation: Linewise Scanning and EOL Suppletion](#continuation-linewise-scanning-and-eol-suppletion)
+    - [Continuation: Linking, Linewise Scanning and EOL Suppletion](#continuation-linking-linewise-scanning-and-eol-suppletion)
     - [Lexeme Casting](#lexeme-casting)
   - [To Do](#to-do)
     - [To Do: The Concept of "Coarse Parsing"](#to-do-the-concept-of-coarse-parsing)
@@ -267,15 +267,38 @@ without there being any ASCII letters
 
 ### Data Absorption, Data Reset
 
-### Continuation: Linewise Scanning and EOL Suppletion
+### Continuation: Linking, Linewise Scanning and EOL Suppletion
 
-* Two scanning modes, 'staccato' and 'legato'
+* Two scanning modes, 'non-linking' (the default) and 'linking', indicated by `Grammar.cfg.linking: true`.
+  We therefore speak of a '(non-)linking grammar' and '(un)linked scanning'.
+
+* In both modes, the first call to `Grammar::scan source_1` will cause a `$signal.start` signal to be
+  issued. When scanning of `source_1` is complete, a `$signal.stop` is emitted when the grammar is
+  non-linking and a `$signal.pause` in the case of a linking grammar.
+
+* When subsequently a new `source_2` text is scanned with `Grammar::scan source_2`, non-linking grammars
+  will issue `$signal.start`, but linking grammars will issue `$signal.resume`.
+
+* The major difference between the two modes is:
+  * Non-linking grammars will always start at the configured start level, which remains constant.
+  * Linking grammars will pick up at the level that the previous call to `scan()` left them with, if any, and
+    fall back to the configured start level.
+
+* Therefore, in linking grammars, calling `g.scan source_1; g.scan source_2` with two separate sources is
+  (almost) the same as calling `g.scan source_1 + source_2` once with the concatenated sources (except that
+  line numbers and start/stop indices will differ; also, it's of course not unusual to have lexers that
+  react differently to `'abc'` and `'def'` in isolation than to their concatenation `'abcdef'`).
+
+* A detail to keep in mind when working with `jump` signals is that generally no jumps will be signaled
+  between two scans by linking grammars; non-linking grammars will emit a `{ fqname: '$signal.jump', data: {
+  target: null, }, }` signal near the end and a `{ fqname: '$signal.jump', data: { target: 'A', }, }` signal
+  near the start of a new scan (assuming `A` is the grammar's start level).
 
 * `Grammar::cfg.supply_eol` (default: `''`) can be set to a string which will be 'supplied' to the `source`
   before scan starts.
 
 * This means the source user passes to `Grammar::scan()` and the `source` property of lexemes may differ by
-  whatever `supply_eol` is set to; most commonly that difference will be `'\n'`, `U+000a End Of Line`.
+  whatever `supply_eol` is set to; most commonly that difference will be `'\n'` (`U+000a` End Of Line).
 
 * **Note**
 
