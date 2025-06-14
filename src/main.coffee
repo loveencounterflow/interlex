@@ -441,7 +441,7 @@ class Grammar
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
     @name                   = @cfg.name
-    @state                  = { lnr: null, errors: [], stack: new Levelstack(), }
+    @state                  = { lnr: null, errors: [], stack: new Levelstack(), current_token: null, }
     @start_level_name       = null
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
@@ -485,6 +485,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   reset_stack: ->
     @state.stack.clear()
+    @state.current_token = null
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -730,6 +731,7 @@ class Grammar
       #.....................................................................................................
       when lexeme.is_user
         { token, } = lexeme
+        @state.current_token = token
         yield new_jump_signal lexeme.start,  token.level.name if token.level.name  isnt prv_level_name
         yield new_jump_signal lexeme.start, lexeme.level.name if lexeme.level.name isnt prv_level_name
         yield lexeme if token.emit
@@ -740,12 +742,12 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _scan_6_insert_startstop_lnr: ( source ) ->
-    prv_lexeme = null
+    current_stop = 0
     yield @_new_signal 'start', 0, source
     for lexeme from @_scan_7_apply_casts source
-      prv_lexeme = lexeme unless lexeme.is_signal
+      current_stop = lexeme.stop if lexeme.is_user
       yield lexeme
-    yield @_new_signal 'stop', ( prv_lexeme?.stop ? 0 ), source
+    yield @_new_signal 'stop', current_stop, source
     @state.lnr++ unless @cfg.reset_lnr
     return null
 
@@ -781,12 +783,18 @@ class Grammar
     lexeme          = null
     old_level_name  = null
     stack           = @state.stack
-    stack.push @start_level
+    goto_token      = null
+    if ( goto_token = @state.current_token )?
+      ### TAINT just push start_level and token.level to stack? ###
+      unless goto_token.level is ( last_level = stack.peek null )
+        throw new Error "Ωilx__14 expected level of #{goto_token.fqname} on stack, found #{last_level?.name ? 'nothing'}"
+    else
+      stack.push @start_level
     #.......................................................................................................
     loop
       level         = stack.peek()
       new_level     = level
-      lexeme        = level.match_at start, source
+      lexeme        = level.match_at start, source # , { goto_token, }
       break unless lexeme? # terminate if current level has no matching tokens
       start         = lexeme.stop
       #.....................................................................................................
