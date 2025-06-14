@@ -446,8 +446,14 @@ class Grammar
       throw new Error "Ωilx__15 when linking is true, reset_stack cannt be set to true"
     @cfg.reset_stack ?= not @cfg.linking
     #.......................................................................................................
+    @state =
+      lnr:              null
+      errors:           []
+      stack:            new Levelstack()
+      current_token:    null
+      current_stop:     0
+    #.......................................................................................................
     @name                   = @cfg.name
-    @state                  = { lnr: null, errors: [], stack: new Levelstack(), current_token: null, }
     @start_level_name       = null
     hide @, 'system_tokens',  null
     hide @, 'start_level',    null
@@ -752,18 +758,18 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _scan_6_insert_startstop_lnr: ( source ) ->
-    current_stop = 0
+    @state.current_stop = 0
     if @cfg.linking and @state.current_token?
       yield @_new_signal 'resume', 0, source
     else
       yield @_new_signal 'start', 0, source
     for lexeme from @_scan_7_apply_casts source
-      current_stop = lexeme.stop if lexeme.is_user
+      @state.current_stop = lexeme.stop if lexeme.is_user
       yield lexeme
     if @cfg.linking
-      yield @_new_signal 'pause', current_stop, source
+      yield @_new_signal 'pause', @state.current_stop, source
     else
-      yield @_new_signal 'stop', current_stop, source
+      yield @_new_signal 'stop', @state.current_stop, source
     @state.lnr++ unless @cfg.reset_lnr
     return null
 
