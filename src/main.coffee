@@ -21,7 +21,7 @@
   create
   validate
   validate_optional
-  Typespace } = require 'cleartype'
+  Typespace             } = require 'cleartype'
 
 
 #===========================================================================================================
