@@ -437,9 +437,15 @@ class Grammar
       reset_lnr:        false
       reset_data:       false
       reset_errors:     false
-      reset_stack:      true
+      reset_stack:      null
+      linking:          false
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
+    #.......................................................................................................
+    if ( @cfg.linking is true ) and ( @cfg.reset_stack isnt null )
+      throw new Error "Ωilx__15 when linking is true, reset_stack cannt be set to true"
+    @cfg.reset_stack ?= not @cfg.linking
+    #.......................................................................................................
     @name                   = @cfg.name
     @state                  = { lnr: null, errors: [], stack: new Levelstack(), current_token: null, }
     @start_level_name       = null
@@ -511,6 +517,8 @@ class Grammar
     hide @, 'system_tokens',
       start:      $signal.new_token { name: 'start',      fit: /|/, }
       stop:       $signal.new_token { name: 'stop',       fit: /|/, }
+      pause:      $signal.new_token { name: 'pause',      fit: /|/, }
+      resume:     $signal.new_token { name: 'resume',     fit: /|/, }
       jump:       $signal.new_token { name: 'jump',       fit: /|/, }
       earlystop:  $error.new_token  { name: 'earlystop',  fit: /|/, }
       loop:       $error.new_token  { name: 'loop',       fit: /|/, }
@@ -715,7 +723,7 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _scan_5_insert_jumps: ( source ) ->
-    prv_level_name    = null
+    prv_level_name = @state.current_token?.level.name ? null
     #.......................................................................................................
     new_jump_signal = ( start, level_name ) =>
       prv_level_name = level_name
@@ -745,11 +753,17 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _scan_6_insert_startstop_lnr: ( source ) ->
     current_stop = 0
-    yield @_new_signal 'start', 0, source
+    if @cfg.linking and @state.current_token?
+      yield @_new_signal 'resume', 0, source
+    else
+      yield @_new_signal 'start', 0, source
     for lexeme from @_scan_7_apply_casts source
       current_stop = lexeme.stop if lexeme.is_user
       yield lexeme
-    yield @_new_signal 'stop', current_stop, source
+    if @cfg.linking
+      yield @_new_signal 'pause', current_stop, source
+    else
+      yield @_new_signal 'stop', current_stop, source
     @state.lnr++ unless @cfg.reset_lnr
     return null
 
@@ -786,7 +800,7 @@ class Grammar
     old_level_name  = null
     stack           = @state.stack
     goto_token      = null
-    if ( goto_token = @state.current_token )?
+    if @cfg.linking and ( goto_token = @state.current_token )?
       ### TAINT just push start_level and token.level to stack? ###
       unless goto_token.level is ( last_level = stack.peek null )
         throw new Error "Ωilx__30 expected level of #{goto_token.fqname} on stack, found #{last_level?.name ? 'nothing'}"
