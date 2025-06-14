@@ -27,6 +27,7 @@
     - [Continuation: Linewise Scanning and EOL Suppletion](#continuation-linewise-scanning-and-eol-suppletion)
     - [Lexeme Casting](#lexeme-casting)
   - [To Do](#to-do)
+    - [To Do: The Concept of "Coarse Parsing"](#to-do-the-concept-of-coarse-parsing)
     - [To Do: Levels must obey Topological Ordering Constraints](#to-do-levels-must-obey-topological-ordering-constraints)
     - [To Do: No Arbitrary Chunking](#to-do-no-arbitrary-chunking)
     - [To Do: Reserved Characters, Catchall Tokens](#to-do-reserved-characters-catchall-tokens)
@@ -408,6 +409,36 @@ without there being any ASCII letters
   [atomic groups](https://github.com/slevithan/regex?tab=readme-ov-file#atomic-groups)) against the token
   or the level name
 
+### To Do: The Concept of "Coarse Parsing"
+
+* **`[—]`** https://github.com/oils-for-unix/oils.vim/blob/main/doc/algorithms.md calls what InterLex does
+  **Coarse Parsing**:
+
+  > * Editors like Vim and TextMate use the model of regexes + a context stack.
+  > * With this model, we can recognize YSH "lexer modes", and produce an accurate highlighter. Coarse does
+  >   not mean inaccurate!
+
+* additional comments by the [same author]() on
+  [lobste.rs](https://lobste.rs/s/495rx9/which_i_have_opinions_about_parsing#c_dpaqyq):
+
+  > andyc 6 days ago
+  >
+  > I’m working on in this style, and calling it “coarse lexing” and “coarse parsing” !
+  >
+  > You can also call it “segmentation”, since it solves the “composed languages” problem, which Tree-sitter
+  > has issues with
+  >
+  > The idea is:
+  >
+  > 1. Recognize string literals and comments first. Discard them
+  >
+  > 2. Now you know that `()` `[]` `{}` are real code delimiters, not strings or comments.
+  >
+  > 3. And you can have different languages/parsing algorithms within the delimiters, e.g. grammar-based
+  >    or operator precedence.
+  >
+
+
 ### To Do: Levels must obey Topological Ordering Constraints
 
 * **`[—]`** disallow forward jumps to a 'lower' level i.o.w. enforce **topological order** of levels: no
@@ -452,7 +483,8 @@ without there being any ASCII letters
   order to proceed on that level, each step has to match in order of declaration? This would necessitate to
   pick up at the successor of the very token that was considered last in the most recent scan, so in the
   above example, continue with matching `'x'` when the last scan had recognized `'#'`. In any event, such
-  levels should allow zero matches to account for optional parts.
+  levels should allow zero matches to account for optional parts. Other name: 'compound', `true` for levels
+  whose tokens step through the (possibly empty) components of a construct
 
 * To conclude, when writing a grammar one should know which kinds of chunking one wants to allow and be
   aware of chunkings that are disallowed; in a good lot of cases, a sensible choice will be to scan lines of
