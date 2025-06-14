@@ -544,7 +544,9 @@ class Grammar
 
   #=========================================================================================================
   _new_signal: ( name, start, source, data = null ) ->
-    R       = @system_tokens[ name ].match_at start, source
+    unless ( token = @system_tokens[ name ] )?
+      throw new Error "Ωilx__23 should never happen: unknown signal name #{rpr name}"
+    R       = token.match_at start, source
     R.assign data
     return R
 
