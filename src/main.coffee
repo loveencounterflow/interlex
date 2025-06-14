@@ -439,12 +439,14 @@ class Grammar
       reset_errors:     false
       reset_stack:      null
       linking:          false
+      supply_eol:       false
     #.......................................................................................................
     @cfg                   ?= { cfg_template..., cfg..., }
     #.......................................................................................................
     if ( @cfg.linking is true ) and ( @cfg.reset_stack isnt null )
       throw new Error "Ωilx__15 when linking is true, reset_stack cannt be set to true"
     @cfg.reset_stack ?= not @cfg.linking
+    @cfg.supply_eol = '\n' if ( @cfg.supply_eol is true )
     #.......................................................................................................
     @state =
       lnr:              null
@@ -601,12 +603,13 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   scan: ( source ) ->
+    unless @start_level?
+      throw new Error "Ωilx__24 no levels have been defined; unable to scan"
     @reset_errors() if @cfg.reset_errors
     @reset_data()   if @cfg.reset_data
     @reset_stack()  if @cfg.reset_stack
     @_notify_levels()
-    unless @start_level?
-      throw new Error "Ωilx__24 no levels have been defined; unable to scan"
+    source += @cfg.supply_eol if source? and ( @cfg.supply_eol isnt false )
     yield from @_scan_1_filter_signals source
     return null
 
