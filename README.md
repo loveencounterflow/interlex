@@ -280,9 +280,11 @@ without there being any ASCII letters
   will issue `$signal.start`, but linking grammars will issue `$signal.resume`.
 
 * The major difference between the two modes is:
-  * Non-linking grammars will always start at the configured start level, which remains constant.
-  * Linking grammars will pick up at the level that the previous call to `scan()` left them with, if any, and
-    fall back to the configured start level.
+  * *Non-linking grammars* will always start at the configured start level, which remains constant.
+  * *Linking grammars* will pick up at the level that the previous call to `scan()` left them with, if any,
+    and fall back to the configured start level.
+  * *Linking grammars* will not issue `$signal.stop` until they're explicitly asked to; the easiest way to
+    do that is to call `Grammar::scan null` with a 'null source'.
 
 * Therefore, in linking grammars, calling `g.scan source_1; g.scan source_2` with two separate sources is
   (almost) the same as calling `g.scan source_1 + source_2` once with the concatenated sources (except that
