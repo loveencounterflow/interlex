@@ -31,7 +31,6 @@
     - [To Do: Levels must obey Topological Ordering Constraints](#to-do-levels-must-obey-topological-ordering-constraints)
     - [To Do: No Arbitrary Chunking](#to-do-no-arbitrary-chunking)
     - [To Do: Reserved Characters, Catchall Tokens](#to-do-reserved-characters-catchall-tokens)
-    - [To Do: Continuation](#to-do-continuation)
   - [Is Done](#is-done)
   - [Don't](#dont)
 
@@ -296,15 +295,16 @@ without there being any ASCII letters
   target: null, }, }` signal near the end and a `{ fqname: '$signal.jump', data: { target: 'A', }, }` signal
   near the start of a new scan (assuming `A` is the grammar's start level).
 
-* `Grammar::cfg.supply_eol` (default: `''`) can be set to a string which will be 'supplied' to the `source`
-  before scan starts.
-
-* This means the source user passes to `Grammar::scan()` and the `source` property of lexemes may differ by
-  whatever `supply_eol` is set to; most commonly that difference will be `'\n'` (`U+000a` End Of Line).
+* `Grammar::cfg.supply_eol` (default: `false`) can be set to a string which will be 'supplied' to the
+  `source` before scan starts. When `supply_eol` is set to a string, that string will be appended to each
+  source passed into `Grammar::scan()`. One can set `supply_eol` to `true` for Linux-style line endings (a
+  `'\n'`).
+  * This means the source user passes to `Grammar::scan()` and the `source` property of lexemes may differ
+    by whatever `supply_eol` is set to
 
 * **Note**
 
-  > EOL Suppletion sadly also implies that when a file with different or mixed line endings is sanned for
+  > EOL Suppletion sadly also implies that when a file with different or mixed line endings is scanned for
   > lines and then > `U+000a` is supplied where missing, the counts the grammar keeps may differ from the
   > counts one would have to use when accessing the file through low-level file APIs such as NodeJS
   > `node:fs#read()`—but, then again, the `position` argument required by those represent *bytes* while the
@@ -396,7 +396,6 @@ without there being any ASCII letters
   # help 'Ωilxt_423', rx"."
   # help 'Ωilxt_424', rx/./
   ```
-* **`[—]`** move `fqname` formation to token, use API
 * **`[—]`** implement API to test whether lexing has finished
 * **`[—]`** write tests to ensure all of the Five Scanner Constraints hold:
   * **`[+]`** exhaustiveness
@@ -554,24 +553,6 @@ without there being any ASCII letters
       errors.
 
 
-### To Do: Continuation
-
-* **`[—]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
-  meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
-* **`[—]`** `supply_eol` to `'\n'`
-* **`[—]`** implement an `offset` (other names: `delta`, `dx`; `cud` for Code Unit Delta; `dcu` for Delta
-  Code Units) that must be added to `start` to get the index position in the concatenated sources, call it
-  `abspos := offset + start`
-  * **`[—]`** should `Lexeme::pos` represent
-    * only `abspos` replacing local `start`, or
-    * `offset` separately, or
-    * only local position (no change required)?
-* **`[—]`** legato scanning mode necessitates issuing an 'end of text' signal that is either of a higher
-  order than the existing `$signal.stop` or replaces it
-  * as long as `Grammar::scan()` is called individually for each chunk of text, that can only be triggered
-    explicitly by the user; an alternative would be a new method `Grammar::scan_all()` (`scan_lines()`,
-    `scan_chunks()`) that exhaust an iterator over chunks of source
-
 
 
 ## Is Done
@@ -696,6 +677,10 @@ without there being any ASCII letters
 * **`[+]`** `Grammar.cfg.linking` <del>need setting for `Grammar:cfg`: `continuation` (either `'staccato'`,
   `'legato'`, `'lines'`); `continuation: 'lines'` implies setting</del>
 * **`[+]`** `Grammar::cfg.reset_stack` cannot be `true` if grammar or any level or any token is `sticky`
+* **`[+]`** implement 'continuation' i.e. the ability of the lexer to stay on the same level across scans,
+  meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
+* **`[+]`** `supply_eol` to `'\n'`
+* **`[+]`** move `fqname` formation to token, use API
 
 
 ## Don't
@@ -739,3 +724,16 @@ without there being any ASCII letters
     `Level` should use `Symbol.iterator` to implement that. But the question remains whether it's necessary
     or at least advantageous to have several entry points to a level and how to judge which tokens should be
     sticky and which ones non-sticky (maybe the level should be sticky)</del>
+* **`[—]`** <ins>replaced by `$signal.pause`, `$signal.resume`, `Grammar::scan null`</ins>  <del>legato
+  scanning mode necessitates issuing an 'end of text' signal that is either of a higher order than the
+  existing `$signal.stop` or replaces it</del>
+  * as long as `Grammar::scan()` is called individually for each chunk of text, that can only be triggered
+    explicitly by the user; an alternative would be a new method `Grammar::scan_all()` (`scan_lines()`,
+    `scan_chunks()`) that exhaust an iterator over chunks of source
+* **`[—]`** <del>implement an `offset` (other names: `delta`, `dx`; `cud` for Code Unit Delta; `dcu` for Delta
+  Code Units) that must be added to `start` to get the index position in the concatenated sources, call it
+  `abspos := offset + start`</del>
+  * **`[—]`** <del>should `Lexeme::pos` represent</del>
+    * <del>only `abspos` replacing local `start`, or</del>
+    * <del>`offset` separately, or</del>
+    * <del>only local position (no change required)?</del>
