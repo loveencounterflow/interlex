@@ -461,7 +461,7 @@ class Grammar
   #=========================================================================================================
   reset_lnr: ( P... ) ->
     if P.length isnt 0
-      throw new Error "Ωilx__15 Grammar::cfg.reset_lnr() does not accept arguments, got #{P.length} arguments"
+      throw new Error "Ωilx__16 Grammar::cfg.reset_lnr() does not accept arguments, got #{P.length} arguments"
     @state.lnr = @cfg.lnr
     return null
 
@@ -476,7 +476,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   reset_data: ( P... ) ->
     if P.length isnt 0
-      throw new Error "Ωilx__16 Grammar::cfg.reset_data() does not accept arguments, got #{P.length} arguments"
+      throw new Error "Ωilx__17 Grammar::cfg.reset_data() does not accept arguments, got #{P.length} arguments"
     delete @data[ key ] for key of @data
     @assign @data, @cfg.data
     # ( @data[ key ] = fn.call @ ) for key, fn of @data when isa std.function, fn
@@ -520,7 +520,7 @@ class Grammar
   new_level: ( cfg ) ->
     is_system = cfg.name.startsWith '$'
     if @levels[ cfg.name ]?
-      throw new Error "Ωilx__17 level #{rpr level.name} elready exists"
+      throw new Error "Ωilx__18 level #{rpr level.name} elready exists"
     level                   = new Level { cfg..., is_system, grammar: @, }
     @levels[ level.name ]   = level
     if ( not is_system ) and ( not @start_level? )
@@ -532,14 +532,14 @@ class Grammar
   token_from_fqname: ( fqname ) ->
     ### TAINT validate ###
     unless isa std.text, fqname
-      throw new Error "Ωilx__18 expected a text for fqname, got a #{type_of fqname}"
+      throw new Error "Ωilx__19 expected a text for fqname, got a #{type_of fqname}"
     unless ( match = fqname.match internals.fqname_re )?
-      throw new Error "Ωilx__19 expected an fqname consisting of level name, dot, token name, got #{rpr fqname}"
+      throw new Error "Ωilx__20 expected an fqname consisting of level name, dot, token name, got #{rpr fqname}"
     { level_name, token_name, } = match.groups
     unless ( level = @levels[ level_name ] )?
-      throw new Error "Ωilx__20 unknown level #{rpr level_name}"
+      throw new Error "Ωilx__21 unknown level #{rpr level_name}"
     unless ( token = level.tokens[ token_name ] )?
-      throw new Error "Ωilx__21 unknown token #{rpr token_name}"
+      throw new Error "Ωilx__22 unknown token #{rpr token_name}"
     return token
 
   #=========================================================================================================
@@ -590,7 +590,7 @@ class Grammar
     @reset_stack()  if @cfg.reset_stack
     @_notify_levels()
     unless @start_level?
-      throw new Error "Ωilx__22 no levels have been defined; unable to scan"
+      throw new Error "Ωilx__24 no levels have been defined; unable to scan"
     yield from @_scan_1_filter_signals source
     return null
 
@@ -652,16 +652,16 @@ class Grammar
             message = "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
             switch @cfg.earlystop_errors
               when 'emit'
-                yield @_new_error_signal 'Ωilx__23', 'earlystop', lexeme.stop, last_idx, source, \
+                yield @_new_error_signal 'Ωilx__25', 'earlystop', lexeme.stop, last_idx, source, \
                   "expected stop at #{last_idx}, got #{rpr lexeme.stop}"
               when 'throw'
-                throw new Error "Ωilx__24 #{message}"
+                throw new Error "Ωilx__26 #{message}"
         #...................................................................................................
         when lexeme.level.name is '$signal'
           null
         #...................................................................................................
         when is_first and ( lexeme.start isnt 0 )
-          yield @_new_error_signal 'Ωilx__25', 'latestart', 0, lexeme.start, source, \
+          yield @_new_error_signal 'Ωilx__27', 'latestart', 0, lexeme.start, source, \
             "expected start at 0, got #{rpr lexeme.start}"
       #.....................................................................................................
       yield lexeme
@@ -692,7 +692,7 @@ class Grammar
         when 'assign' then merged.assign ( lxm.data for lxm in lexemes )...
         when 'call'   then merged.token.merge.call null, { merged, lexemes, }
         when 'list'   then merge_data_as_lists merged, lexemes
-        else throw new Error "Ωilx__26 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
+        else throw new Error "Ωilx__28 should never happen: encountered data_merge_strategy == #{rpr merged.token.data_merge_strategy}"
       yield merged
       active_fqname = null
       lexemes.length = 0
@@ -774,7 +774,7 @@ class Grammar
           yield lexeme
         when 'walk'
           yield from cast_owner.cast.call @, lexeme._as_proxy()
-        else throw new Error "Ωilx__27 should never happen: got unknown cast_method #{rpr cast_owner.cast_method}"
+        else throw new Error "Ωilx__29 should never happen: got unknown cast_method #{rpr cast_owner.cast_method}"
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -787,7 +787,7 @@ class Grammar
     if ( goto_token = @state.current_token )?
       ### TAINT just push start_level and token.level to stack? ###
       unless goto_token.level is ( last_level = stack.peek null )
-        throw new Error "Ωilx__14 expected level of #{goto_token.fqname} on stack, found #{last_level?.name ? 'nothing'}"
+        throw new Error "Ωilx__30 expected level of #{goto_token.fqname} on stack, found #{last_level?.name ? 'nothing'}"
     else
       stack.push @start_level
     #.......................................................................................................
@@ -802,7 +802,7 @@ class Grammar
         switch jump.action
           when 'fore' then  stack.push ( new_level = @_get_level jump.target )
           when 'back' then  new_level = stack.popnpeek()
-          else throw new Error "Ωilx__28 should never happen: unknown jump action #{rpr lexeme.jump.action}"
+          else throw new Error "Ωilx__31 should never happen: unknown jump action #{rpr lexeme.jump.action}"
         if jump.carry
           lexeme.set_level new_level
       #.....................................................................................................
@@ -815,7 +815,7 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _get_level: ( level_name ) ->
     return R if ( R = @levels[ level_name ] )?
-    throw new Error "Ωilx__29 unknown level #{rpr level_name}"
+    throw new Error "Ωilx__32 unknown level #{rpr level_name}"
 
 
 #===========================================================================================================
