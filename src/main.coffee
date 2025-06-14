@@ -628,6 +628,10 @@ class Grammar
   #---------------------------------------------------------------------------------------------------------
   _scan_2_merge_jumps: ( source ) ->
     ### Consolidate all contiguous jump signals into single signal ###
+    if source is null
+      yield from @_scan_3_validate_exhaustion source
+      return null
+    #.......................................................................................................
     buffer = []
     for lexeme from @_scan_3_validate_exhaustion source
       #.....................................................................................................
@@ -657,6 +661,10 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _scan_3_validate_exhaustion: ( source ) ->
+    if source is null
+      yield from @_scan_4_merge source
+      return null
+    #.......................................................................................................
     is_first    = true
     last_idx    = source.length
     #.......................................................................................................
@@ -687,6 +695,10 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _scan_4_merge: ( source ) ->
+    if source is null
+      yield from @_scan_5_insert_jumps source
+      return null
+    #.......................................................................................................
     lexemes       = []
     active_fqname = null
     #.......................................................................................................
@@ -733,7 +745,7 @@ class Grammar
     #.......................................................................................................
     new_jump_signal = ( start, level_name ) =>
       prv_level_name = level_name
-      return @_new_jump_signal start, source, level_name
+      return @_new_jump_signal start, ( source ? '' ), level_name
     #.......................................................................................................
     for lexeme from @_scan_6_insert_startstop_lnr source then switch true
       #.....................................................................................................
@@ -758,6 +770,10 @@ class Grammar
 
   #---------------------------------------------------------------------------------------------------------
   _scan_6_insert_startstop_lnr: ( source ) ->
+    if source is null
+      yield @_new_signal 'stop', 0, ''
+      return null
+    #.......................................................................................................
     @state.current_stop = 0
     if @cfg.linking and @state.current_token?
       yield @_new_signal 'resume', 0, source
