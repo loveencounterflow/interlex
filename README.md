@@ -434,6 +434,8 @@ without there being any ASCII letters
   being a match of `/^error(_.*)?|(.*_)?error$/` (in fact `regex"^(?>error(?>_.*)?|(?>.*_)?error)$"` using
   [atomic groups](https://github.com/slevithan/regex?tab=readme-ov-file#atomic-groups)) against the token
   or the level name
+* **`[—]`** in token declarations, allow `error: true` to classify token as an error; this makes it simpler
+  to match illegal characters and so on without having to jump or declare a cast
 
 ### To Do: The Concept of "Coarse Parsing"
 
