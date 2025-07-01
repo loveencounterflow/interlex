@@ -22,6 +22,7 @@
   validate
   validate_optional
   Typespace             } = require 'cleartype'
+{ nfa                   } = require 'normalize-function-arguments'
 
 
 #===========================================================================================================
@@ -350,7 +351,7 @@ class Level
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  new_token: ( cfg ) ->
+  new_token: nfa ( name, fit, cfg ) ->
     R = new Token { cfg..., level: @, }
     if Reflect.has @tokens, R.name
       throw new Error "Ωilx___9 encountered duplicate token name #{rpr R.name}"
