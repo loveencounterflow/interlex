@@ -14,6 +14,9 @@ importers:
       loupe:
         specifier: ^3.1.3
         version: 3.1.3
+      normalize-function-arguments:
+        specifier: ^0.0.11
+        version: 0.0.11
       regex:
         specifier: ^6.0.1
         version: 6.0.1
@@ -25,6 +28,12 @@ packages:
 
   loupe@3.1.3:
     resolution: {integrity: sha512-kkIp7XSkP78ZxJEsSxW3712C6teJVoeHHwgo9zJ380de7IYyJ2ISlxojcH2pC5OFLewESmnRi/+XCDIEEVyoug==}
+
+  loupe@3.1.4:
+    resolution: {integrity: sha512-wJzkKwJrheKtknCOKNEtDK4iqg/MxmZheEMtSTYvnzRdEYaZzmgH976nenp8WdJRdx5Vc1X/9MO0Oszl6ezeXg==}
+
+  normalize-function-arguments@0.0.11:
+    resolution: {integrity: sha512-0YF49+WVwATNqQqzl42tAb3dwb4a++grXqIOnvF9H/Tf+xhRZ14pSVbyCHlznaMk4lRfxFTkNUKgZJZ7Wa4ADw==}
 
   regex-utilities@2.3.0:
     resolution: {integrity: sha512-8VhliFJAWRaUiVvREIiW2NXXTmHs4vMNnSzuJVhscgmGav3g9VDxLrQndI3dZZVVdp0ZO/5v0xmX516/7M9cng==}
@@ -39,6 +48,12 @@ snapshots:
       loupe: 3.1.3
 
   loupe@3.1.3: {}
+
+  loupe@3.1.4: {}
+
+  normalize-function-arguments@0.0.11:
+    dependencies:
+      loupe: 3.1.4
 
   regex-utilities@2.3.0: {}
 
