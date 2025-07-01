@@ -54,6 +54,9 @@
 
 ## Token Declarations
 
+* **`name`** and **`fit`** arguments may be first two positional arguments to `Level::new_token()`; `name`
+  or `name, fit` may be followed by an object `cfg` with further settings; positional `name`, `fit` will
+  silently shadow settings in `cfg` (`cfg` object will not be changed in any way)
 * **`name`** (`null`): Must be a string giving the name of the token. Names must be unique to the level.
 * **`level`** (set by `Level.new_token()`):
 * **`grammar`** (set by `Level.new_token()`):
@@ -327,7 +330,7 @@ without there being any ASCII letters
 ### Lexeme Casting
 
 
-* Can declare a `cast` property in token, level or grammar, will be checked in this order
+* Can declare a `cast` property in token, level, or grammar, will be checked in this order
 
 * `cast`—below called 'the cast method'—must be either a normal function or a generator function (i.e. a
   function that contains `yield`)
@@ -368,7 +371,6 @@ without there being any ASCII letters
 
 * **`[—]`** can we replace `Level::new_token()` with a shorter API name?
   * **`[—]`** allow to declare tokens when calling `Level::new_token()`
-* **`[—]`** allow positional arguments to `Level::new_token()`: `( name, fit, cfg )`
 * **`[—]`** include indices for groups:
 
   ```
@@ -681,6 +683,7 @@ without there being any ASCII letters
   meaning that when scanning line by line constructs (such as HTML tags) can extend across line boundaries
 * **`[+]`** `supply_eol` to `'\n'`
 * **`[+]`** move `fqname` formation to token, use API
+* **`[+]`** allow positional arguments to `Level::new_token()`: `( name, fit, cfg )`
 
 
 ## Don't
